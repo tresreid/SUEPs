@@ -1,5 +1,5 @@
 #!/bin/bash 
-outdir=sueps/trackStudies
+outdir=sueps/trackStudies_all
 rm -r /cdat/tem/mgr85/www/${outdir}
 mkdir -p /cdat/tem/mgr85/www/${outdir}
 #rm -r ~/public_html/www/${outdir}
