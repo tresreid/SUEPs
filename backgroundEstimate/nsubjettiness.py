@@ -328,8 +328,8 @@ def make_eff_combo(reco_group,qcd_group,signal, var, binx, eta_cuts=0):
   bkg3r = np.square(0.5*bkg2r)
   bkgr = np.add(bkg2r,bkg3r)
 
-  ax1.hist(reco_group[var],  bins=binx,histtype=u'step',weights=reco_group["wgt"],color="r",linestyle="solid",label="sig")
-  ax1.hist(qcd_group[var],   bins=binx,histtype=u'step',weights=qcd_group["wgt"],color="black",linestyle="dashed",label="qcd")
+  ax1.hist(reco_group[var],  bins=binx,histtype=u'step',density=True,weights=reco_group["wgt"],color="r",linestyle="solid",label="sig")
+  ax1.hist(qcd_group[var],   bins=binx,histtype=u'step',density=True,weights=qcd_group["wgt"],color="black",linestyle="dashed",label="qcd")
 
   ax2.errorbar(binx,sig/(np.sqrt(np.add(sig,bkg))),(sig/(np.sqrt(np.add(sig,bkg))))*np.sqrt(np.add(np.reciprocal(sig),np.reciprocal(4*np.add(sig,bkg)))),ecolor="r",label="signif",color="r",linestyle="dashdot",errorevery=1)
   ax2.errorbar(binx,sigr/(np.sqrt(np.add(sigr,bkgr))),(sigr/(np.sqrt(np.add(sigr,bkgr))))*np.sqrt(np.add(np.reciprocal(sigr),np.reciprocal(4*np.add(sigr,bkgr)))),ecolor="b",label="signif_reverse",color="b",linestyle="dashdot",errorevery=1)
@@ -677,7 +677,7 @@ phi_bins = np.array(range(-31,31,5))/10.
 
 combos = []
 #
-t21_bins = [0.01*x for x in range(0,1000,1)]
+t21_bins = [0.01*x for x in range(0,100,1)]
 combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000, "t21",t21_bins)))
 combos.append(mp.Process(target=make_eff_combo, args=(df750,qcd_df,750, "t21",t21_bins)))
 combos.append(mp.Process(target=make_eff_combo, args=(df400,qcd_df,400, "t21",t21_bins)))

@@ -23,11 +23,11 @@
 #cat data/variables_qcd_1500_v1.txt >> data/variables_qcd_1500_v0.txt
 #cat data/variables_qcd_2000_v1.txt >> data/variables_qcd_2000_v0.txt
 
-./backgrounds 10 0
-./backgrounds 1 0
-./backgrounds 2 0
-./backgrounds 11 0
-./backgrounds 0 0
+#./backgrounds 10 0
+#./backgrounds 1 0
+#./backgrounds 2 0
+#./backgrounds 11 0
+#./backgrounds 0 0
 #
 #./backgrounds 9 0
 
