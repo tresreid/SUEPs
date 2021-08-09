@@ -20,7 +20,7 @@ using namespace std;
 
 #include <vector>
 
-tuple<double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
+tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
 
   vector<PseudoJet> constituents = jet.constituents();
   JetDefinition jet_def(kt_algorithm,R);
@@ -44,6 +44,10 @@ tuple<double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
   float t3 =0;
   float e2 =0;
   float e3 =0;
+  
+  float rho_1=0;
+  float rho_2=0;
+  float rho_3=0;
   for(int i=0; i<constituents.size(); i++){
     float phi = constituents[i].phi();
     float eta = constituents[i].eta();
@@ -51,6 +55,7 @@ tuple<double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
 
     float dEta_1_0 = eta_1_0-eta;
     float dPhi_1_0 = phi_1_0-phi > M_PI? (phi_1_0 -phi) - 2*M_PI:phi_1_0 -phi;
+
 
     float dEta_2_0 = eta_2_0-eta;
     float dEta_2_1 = eta_2_1-eta;
@@ -65,6 +70,16 @@ tuple<double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
     float dPhi_3_2 = phi_3_2-phi > M_PI? (phi_3_2 -phi) - 2*M_PI:phi_3_2 -phi;
 
     float dR_1 = sqrt(dEta_1_0*dEta_1_0 + dPhi_1_0*dPhi_1_0);
+    //Hungarian rpo
+    if (dR_1 <= 0.5){
+      rho_1 += pt;
+    }
+    else if ((dR_1 > 0.5) && (dR_1 < 1.0)){
+      rho_2 += pt;
+    }
+    else if ((dR_1 > 1.0) && (dR_1 < 1.5)){
+      rho_3 += pt;
+    }
 
     float dR_2_0 = sqrt(dEta_2_0*dEta_2_0 + dPhi_2_0*dPhi_2_0);
     float dR_2_1 = sqrt(dEta_2_1*dEta_2_1 + dPhi_2_1*dPhi_2_1);
@@ -78,33 +93,33 @@ tuple<double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
     t1 += pt* dR_1; //n subjettiness 1
     t2 += pt* dR_2; //n subjettiness 2
     t3 += pt* dR_3; //n subjettiness 3
-    for(int j=0; j<i;j++){
-      float phi_j = constituents[j].phi();
-      float eta_j = constituents[j].eta();
-      float pt_j = constituents[j].pt();
-      float dEta_j = eta_j - eta;
-      float dPhi_j = phi_j-phi > M_PI? (phi_j -phi) - 2*M_PI:phi_j -phi;
-      float dR_ij = sqrt(dEta_j*dEta_j + dPhi_j*dPhi_j);
-      e2 += pt*pt_j*dR_ij;
-      for(int k=0; k<j;k++){
-        float phi_k = constituents[k].phi();
-        float eta_k = constituents[k].eta();
-        float pt_k = constituents[k].pt();
-        float dEta_ki = eta_k - eta;
-        float dPhi_ki = phi_k-phi > M_PI? (phi_k -phi) - 2*M_PI:phi_k -phi;
-        float dR_ki = sqrt(dEta_ki*dEta_ki + dPhi_ki*dPhi_ki);
+    //for(int j=0; j<i;j++){
+    //  float phi_j = constituents[j].phi();
+    //  float eta_j = constituents[j].eta();
+    //  float pt_j = constituents[j].pt();
+    //  float dEta_j = eta_j - eta;
+    //  float dPhi_j = phi_j-phi > M_PI? (phi_j -phi) - 2*M_PI:phi_j -phi;
+    //  float dR_ij = sqrt(dEta_j*dEta_j + dPhi_j*dPhi_j);
+    //  e2 += pt*pt_j*dR_ij;
+    //  for(int k=0; k<j;k++){
+    //    float phi_k = constituents[k].phi();
+    //    float eta_k = constituents[k].eta();
+    //    float pt_k = constituents[k].pt();
+    //    float dEta_ki = eta_k - eta;
+    //    float dPhi_ki = phi_k-phi > M_PI? (phi_k -phi) - 2*M_PI:phi_k -phi;
+    //    float dR_ki = sqrt(dEta_ki*dEta_ki + dPhi_ki*dPhi_ki);
 
-        float dEta_kj = eta_j - eta_k;
-        float dPhi_kj = phi_j-phi_k > M_PI? (phi_j -phi_k) - 2*M_PI:phi_j -phi_k;
-        float dR_kj = sqrt(dEta_kj*dEta_kj + dPhi_kj*dPhi_kj);
-        e3 += pt*pt_j*pt_k*dR_ij*dR_ki*dR_kj;
+    //    float dEta_kj = eta_j - eta_k;
+    //    float dPhi_kj = phi_j-phi_k > M_PI? (phi_j -phi_k) - 2*M_PI:phi_j -phi_k;
+    //    float dR_kj = sqrt(dEta_kj*dEta_kj + dPhi_kj*dPhi_kj);
+    //    e3 += pt*pt_j*pt_k*dR_ij*dR_ki*dR_kj;
 
-      }
-    }
+    //  }
+    //}
 
   }
 
-  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),e2/(jet.pt()*jet.pt()),e3/(jet.pt()*jet.pt()*jet.pt())};
+  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),e2/(jet.pt()*jet.pt()),e3/(jet.pt()*jet.pt()*jet.pt()),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)   };
 }
 
 //void getAllGen(vector<ROOT::Math::PtEtaPhiEVector> sueps, vector<ROOT::Math::PtEtaPhiEVector> isrs, vector<int> suep_id,vector<int> isr_id,FILE* OutFileGen,int entry){
@@ -406,7 +421,7 @@ int main(int argc,char** argv){
     //if(trk.Pt() <= 1 || abs(trk.Eta()) >= 2.5){continue;}
     if( abs(trk.Eta()) >= 2.5){continue;} // extra leeway for gen matching
     if((trk_pv->at(itrk) < 2) || (trk_dzPV0->at(itrk) > 10) || (trk_dzErrorPV0->at(itrk) > 0.05)){continue;}
-    if(trk_matched->at(itrk) ==0 && trk.Eta() > 1.0){continue;}
+    if((trk_matched->at(itrk) ==0) && (abs(trk.Eta()) > 1.0)){continue;}
     particles.push_back(PseudoJet(trk.Px(),trk.Py(),trk.Pz(),trk.E()));
     //vector<float> extra = {
     //  static_cast<float>(trk_pv->at(itrk)),
@@ -445,11 +460,13 @@ int main(int argc,char** argv){
     //getAllGen(sueps, isrs, suep_id,isr_id,OutFileGen,entry);
     //gen_match_remove(particles,sueps,isrs,OutFile,part_extra,suep_id,isr_id);
     if(jet.constituents().size() <=2){continue;}
-    auto [t1,t2,t3,e2,e3] = nsubjettiness(jet,1.5);
+    auto [t1,t2,t3,rho1,rho2,rho3] = nsubjettiness(jet,1.5);
+    //auto [t1,t2,t3,e2,e3] = nsubjettiness(jet,1.5);
     //printf("%f %f\n",t1/t2,t2/t3);
-    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f\n",
+    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f %f %f %f\n",
             entry, jet.pt(), jet.eta(), jet.phi(), jet.constituents().size(),particles.size(),
-            t1,t2,t3,t2/t1,t3/t2
+            t1,t2,t3,t2/t1,t3/t2,
+            rho1,rho2,rho3
     );
 
   }
