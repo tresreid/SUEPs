@@ -25,7 +25,9 @@ def openReco(name,xsec):
           "pt":float(cols[1]),"eta":float(cols[2]),"phi":float(cols[3]),
           "jetTracks":int(cols[4]),"allTracks":int(cols[5]),
           "t1":float(cols[6]),"t2":float(cols[7]),"t3":float(cols[8]),
-          "t21":float(cols[7])/float(cols[6]),"t32":float(cols[8])/float(cols[7])
+          #"t21":float(cols[7])/float(cols[6]),"t32":float(cols[8])/float(cols[7])
+          "t21":float(cols[9]),"t32":float(cols[10]),
+          "rho1":float(cols[11]),"rho2":float(cols[12]),"rho3":float(cols[13])
           })
   df = pd.DataFrame(dr)
   del dr
@@ -74,8 +76,8 @@ for xsec,f1 in zip(xsecs,files):
           "pt":float(cols[1]),"eta":float(cols[2]),"phi":float(cols[3]),
           "jetTracks":int(cols[4]),"allTracks":int(cols[5]),
           "t1":float(cols[6]),"t2":float(cols[7]),"t3":float(cols[8]),
-          #"t21":float(cols[9]),"t32":float(cols[10])
-          "t21":float(cols[7])/float(cols[6]),"t32":float(cols[8])/float(cols[7])
+          "t21":float(cols[9]),"t32":float(cols[10]),
+          "rho1":float(cols[11]),"rho2":float(cols[12]),"rho3":float(cols[13])
       })
   qcdi = qcdi+1
 qcd_df = pd.DataFrame(qcddr)
@@ -308,6 +310,7 @@ def make_2d_correlation(df, var1,steps1, var2,steps2):
   ax1.set_ylabel(var2)
 
   fig.tight_layout()
+  Path("Plots/2d").mkdir(parents=True,exist_ok=True)
   fig.savefig("Plots/2d/2d_%s_%s.png"%(var1,var2))
   plt.close()
 
@@ -677,19 +680,36 @@ phi_bins = np.array(range(-31,31,5))/10.
 
 combos = []
 #
-t21_bins = [0.01*x for x in range(0,100,1)]
-combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000, "t21",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df750,qcd_df,750, "t21",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df400,qcd_df,400, "t21",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df300,qcd_df,300, "t21",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df200,qcd_df,200, "t21",t21_bins)))
+tau_bins = [0.01*x for x in range(0,100,1)]
+combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000, "t21",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df750,qcd_df,750, "t21",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df400,qcd_df,400, "t21",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df300,qcd_df,300, "t21",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df200,qcd_df,200, "t21",tau_bins)))
 
-combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000, "t32",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df750,qcd_df,750, "t32",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df400,qcd_df,400, "t32",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df300,qcd_df,300, "t32",t21_bins)))
-combos.append(mp.Process(target=make_eff_combo, args=(df200,qcd_df,200, "t32",t21_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000, "t32",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df750,qcd_df,750, "t32",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df400,qcd_df,400, "t32",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df300,qcd_df,300, "t32",tau_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df200,qcd_df,200, "t32",tau_bins)))
+rho_bins = [.1*x for x in range(0,200,1)]
+combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000,"rho1",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df750, qcd_df,750, "rho1",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df400, qcd_df,400, "rho1",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df300, qcd_df,300, "rho1",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df200, qcd_df,200, "rho1",rho_bins)))
 
+combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000,"rho2",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df750, qcd_df,750, "rho2",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df400, qcd_df,400, "rho2",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df300, qcd_df,300, "rho2",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df200, qcd_df,200, "rho2",rho_bins)))
+
+combos.append(mp.Process(target=make_eff_combo, args=(df1000,qcd_df,1000,"rho3",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df750, qcd_df,750, "rho3",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df400, qcd_df,400, "rho3",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df300, qcd_df,300, "rho3",rho_bins)))
+combos.append(mp.Process(target=make_eff_combo, args=(df200, qcd_df,200, "rho3",rho_bins)))
 
 print("nTracks") 
 for p in combos:
@@ -697,7 +717,11 @@ for p in combos:
 for p in combos:
   p.join()
 #print("2d plots")
-#make_2d_correlation(df1000, "trk_matched",[0,1,2], "qOverp",[x*0.001 for x in range(0,44440)])
+make_2d_correlation(df1000, "jetTracks",range(0,500), "t21",tau_bins)
+make_2d_correlation(df1000, "jetTracks",range(0,500), "t32",tau_bins)
+make_2d_correlation(df1000, "jetTracks",range(0,500), "rho1",rho_bins)
+make_2d_correlation(df1000, "jetTracks",range(0,500), "rho2",rho_bins)
+make_2d_correlation(df1000, "jetTracks",range(0,500), "rho3",rho_bins)
 #make_2d_correlation(df1000, "trk_pv",[0,1,2,3,4], "qOverp",[x*0.001 for x in range(0,40)])
 #make_2d_correlation(df1000, "trk_matched",[0,1,2], "trk_quality",[0,1,2,3,4,5,6])
 #make_2d_correlation(df1000, "eta",np.array(range(-250,250,25))/100., "trk_dzErrorPV0",[x/100 for x in range(0,100)])
