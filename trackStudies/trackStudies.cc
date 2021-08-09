@@ -73,7 +73,8 @@ void gen_match_remove(vector<PseudoJet> reco, vector<ROOT::Math::PtEtaPhiEVector
            " %d %d %d"
            " %d %f %d"
            " %d %d %d"
-           " %d %d"
+           " %d %d %f %f"
+           " %d %f %f"
            "\n",
           reco.size(),sueps.size(),isrs.size(),
           min_dR,used_gen,used_reco,is_isr,
@@ -82,7 +83,8 @@ void gen_match_remove(vector<PseudoJet> reco, vector<ROOT::Math::PtEtaPhiEVector
           static_cast<int>(reco_extra.at(used_reco).at(0)),static_cast<int>(reco_extra.at(used_reco).at(1)), static_cast<int>(reco_extra.at(used_reco).at(2)),
           static_cast<int>(reco_extra.at(used_reco).at(3)),reco_extra.at(used_reco).at(4), static_cast<int>(reco_extra.at(used_reco).at(5)),
           static_cast<int>(reco_extra.at(used_reco).at(6)),static_cast<int>(reco_extra.at(used_reco).at(7)),suep_id[used_gen],
-          static_cast<int>(reco_extra.at(used_reco).at(8)),static_cast<int>(reco_extra.at(used_reco).at(9))
+          static_cast<int>(reco_extra.at(used_reco).at(8)),static_cast<int>(reco_extra.at(used_reco).at(9)),static_cast<float>(reco_extra.at(used_reco).at(10)),static_cast<float>(reco_extra.at(used_reco).at(11)),
+          static_cast<int>(reco_extra.at(used_reco).at(12)),static_cast<float>(reco_extra.at(used_reco).at(13)), static_cast<float>(reco_extra.at(used_reco).at(14))
           );
     sueps.erase(sueps.begin()+used_gen);
     reco.erase(reco.begin()+used_reco);
@@ -99,7 +101,8 @@ void gen_match_remove(vector<PseudoJet> reco, vector<ROOT::Math::PtEtaPhiEVector
            " %d %d %d"
            " %d %f %d"
            " %d %d %d"
-           " %d %d"
+           " %d %d %f %f"
+           " %d %f %f"
            "\n",
           reco.size(),sueps.size(),isrs.size(),
           min_dR,used_gen,used_reco,is_isr,
@@ -108,7 +111,8 @@ void gen_match_remove(vector<PseudoJet> reco, vector<ROOT::Math::PtEtaPhiEVector
           static_cast<int>(reco_extra.at(used_reco).at(0)),static_cast<int>(reco_extra.at(used_reco).at(1)), static_cast<int>(reco_extra.at(used_reco).at(2)),
           static_cast<int>(reco_extra.at(used_reco).at(3)),reco_extra.at(used_reco).at(4), static_cast<int>(reco_extra.at(used_reco).at(5)),
           static_cast<int>(reco_extra.at(used_reco).at(6)),static_cast<int>(reco_extra.at(used_reco).at(7)),isr_id[used_gen],
-          static_cast<int>(reco_extra.at(used_reco).at(8)),static_cast<int>(reco_extra.at(used_reco).at(9))
+          static_cast<int>(reco_extra.at(used_reco).at(8)),static_cast<int>(reco_extra.at(used_reco).at(9)),static_cast<float>(reco_extra.at(used_reco).at(10)),static_cast<float>(reco_extra.at(used_reco).at(11)),
+          static_cast<int>(reco_extra.at(used_reco).at(12)),static_cast<float>(reco_extra.at(used_reco).at(13)), static_cast<float>(reco_extra.at(used_reco).at(14))
           );
     isrs.erase(isrs.begin()+used_gen);
     reco.erase(reco.begin()+used_reco);
@@ -127,7 +131,8 @@ else{
            " %d %d %d"
            " %d %f %d"
            " %d %d %d"
-           " %d %d"
+           " %d %d %f %f"
+           " %d %f %f"
            "\n",
           0,0,0,
           100,0,0,3,
@@ -136,7 +141,8 @@ else{
           static_cast<int>(reco_extra.at(used_recox).at(0)),static_cast<int>(reco_extra.at(used_recox).at(1)), static_cast<int>(reco_extra.at(used_recox).at(2)),
           static_cast<int>(reco_extra.at(used_recox).at(3)),reco_extra.at(used_recox).at(4), static_cast<int>(reco_extra.at(used_recox).at(5)),
           static_cast<int>(reco_extra.at(used_recox).at(6)),static_cast<int>(reco_extra.at(used_recox).at(7)), -1,
-          static_cast<int>(reco_extra.at(used_recox).at(8)),static_cast<int>(reco_extra.at(used_recox).at(9))
+          static_cast<int>(reco_extra.at(used_recox).at(8)),static_cast<int>(reco_extra.at(used_recox).at(9)),static_cast<float>(reco_extra.at(used_recox).at(10)),static_cast<float>(reco_extra.at(used_recox).at(11)),
+          static_cast<int>(reco_extra.at(used_recox).at(12)),static_cast<float>(reco_extra.at(used_recox).at(13)), static_cast<float>(reco_extra.at(used_recox).at(14))
           );
     }
   }
@@ -203,6 +209,16 @@ int main(int argc,char** argv){
   case 9: file += "PrivateSamples.SUEP_2018_mMed-125_mDark-2_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="sig_125";break;
   case 10: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.0/2018/NTUP/PrivateSamples.SUEP_2018_mMed-200_mDark-2_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="sig_200";break;
   case 11: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.0/2018/NTUP/PrivateSamples.SUEP_2018_mMed-300_mDark-2_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="sig_300";break;
+
+  case 20: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-1_temp-1_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark1_temp1";break;
+  case 21: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-1_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark1_temp2";break;
+  case 22: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-1_temp-5_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark1_temp5";break;
+  case 23: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-2_temp-1_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark2_temp1";break;
+  case 24: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-2_temp-5_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark2_temp5";break;
+  case 25: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-5_temp-1_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark5_temp1";break;
+  case 26: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-5_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark5_temp2";break;
+  case 27: file = "root://cmseos.fnal.gov//store/user/kdipetri/SUEP/Production_v1.1/2018/NTUP/PrivateSamples.SUEP_2018_mMed-400_mDark-5_temp-5_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="mDark5_temp5";break; 
+
   default: file += "PrivateSamples.SUEP_2018_mMed-1000_mDark-2_temp-2_decay-darkPho_13TeV-pythia8_n-100_0_RA2AnalysisTree.root"; sample="sig_1000";break;
   }
   int batch = 0;
@@ -230,7 +246,11 @@ int main(int argc,char** argv){
   vector<int>* trk_nHits =0;
   vector<int>* trk_nPixelHits=0;
   vector<int>* trk_quality=0;
-  //vector<int>* trk_PVQuality=0;
+  vector<double>* trk_ptErr=0;
+  vector<double>* trk_qoverpErr=0;
+  vector<int>* trk_PVQuality=0;
+  vector<double>* trk_dzPV0=0;
+  vector<double>* trk_dzErrorPV0=0;
   int nvtx =0;
   int numInteractions =0;
   t1->SetBranchAddress("GenParticles",&genPart);
@@ -250,7 +270,11 @@ int main(int argc,char** argv){
   t1->SetBranchAddress("Tracks_numberOfHits",&trk_nHits);
   t1->SetBranchAddress("Tracks_numberOfPixelHits",&trk_nPixelHits);
   t1->SetBranchAddress("Tracks_quality",&trk_quality);
-  //t1->SetBranchAddress("Tracks_PVAssociationQuality",&trk_PVQuality);
+  t1->SetBranchAddress("Tracks_ptError",&trk_ptErr);
+  t1->SetBranchAddress("Tracks_qoverpError",&trk_qoverpErr);
+  t1->SetBranchAddress("Tracks_pvAssociationQuality",&trk_PVQuality);
+  t1->SetBranchAddress("Tracks_dzPV0",&trk_dzPV0);
+  t1->SetBranchAddress("Tracks_dzErrorPV0",&trk_dzErrorPV0);
 //#pragma omp parallel for 
 
   int nentries=0;// = 10000;
@@ -306,7 +330,12 @@ int main(int argc,char** argv){
       static_cast<float>(trk_nPixelHits->at(itrk)),
       static_cast<float>(trk_quality->at(itrk)),
       static_cast<float>(trkPart->size()),
-      static_cast<float>(entry)
+      static_cast<float>(entry),
+      static_cast<float>(trk_ptErr->at(itrk)),
+      static_cast<float>(trk_qoverpErr->at(itrk)),
+      static_cast<float>(trk_PVQuality->at(itrk)),
+      static_cast<float>(trk_dzPV0->at(itrk)),
+      static_cast<float>(trk_dzErrorPV0->at(itrk))
       };
     part_extra.push_back(extra);
 
