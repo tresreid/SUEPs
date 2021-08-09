@@ -119,7 +119,8 @@ tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, fl
 
   }
 
-  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),e2/(jet.pt()*jet.pt()),e3/(jet.pt()*jet.pt()*jet.pt()),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)   };
+  //return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),e2/(jet.pt()*jet.pt()),e3/(jet.pt()*jet.pt()*jet.pt()),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)   };
+  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)};
 }
 
 //void getAllGen(vector<ROOT::Math::PtEtaPhiEVector> sueps, vector<ROOT::Math::PtEtaPhiEVector> isrs, vector<int> suep_id,vector<int> isr_id,FILE* OutFileGen,int entry){
