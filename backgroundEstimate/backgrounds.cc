@@ -449,7 +449,7 @@ int main(int argc,char** argv){
     //printf("%f %f\n",t1/t2,t2/t3);
     fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f\n",
             entry, jet.pt(), jet.eta(), jet.phi(), jet.constituents().size(),particles.size(),
-            t1,t2,t3,t1/t2,t2/t3
+            t1,t2,t3,t2/t1,t3/t2
     );
 
   }
