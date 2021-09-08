@@ -20,8 +20,13 @@ using namespace std;
 
 #include <vector>
 
-tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, float R){
-
+tuple<double,double,double,
+double,double,double,
+double,double,double,
+double,double,double,
+double,double,double
+> nsubjettiness(PseudoJet jet, float R)
+{
   vector<PseudoJet> constituents = jet.constituents();
   JetDefinition jet_def(kt_algorithm,R);
   ClusterSequence cs(constituents,jet_def);
@@ -45,9 +50,18 @@ tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, fl
   float e2 =0;
   float e3 =0;
   
-  float rho_1=0;
-  float rho_2=0;
-  float rho_3=0;
+  float rho0_05=0;
+  float rho1_05=0;
+  float rho2_05=0;
+  float rho0_10=0;
+  float rho1_10=0;
+  float rho2_10=0;
+  float rho0_20=0;
+  float rho1_20=0;
+  float rho2_20=0;
+  float rho0_50=0;
+  float rho1_50=0;
+  float rho2_50=0;
   for(int i=0; i<constituents.size(); i++){
     float phi = constituents[i].phi();
     float eta = constituents[i].eta();
@@ -72,13 +86,40 @@ tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, fl
     float dR_1 = sqrt(dEta_1_0*dEta_1_0 + dPhi_1_0*dPhi_1_0);
     //Hungarian rpo
     if (dR_1 <= 0.5){
-      rho_1 += pt;
+      rho0_50 += pt;
     }
     else if ((dR_1 > 0.5) && (dR_1 < 1.0)){
-      rho_2 += pt;
+      rho1_50 += pt;
     }
     else if ((dR_1 > 1.0) && (dR_1 < 1.5)){
-      rho_3 += pt;
+      rho2_50 += pt;
+    }
+    if (dR_1 <= 0.2){
+      rho0_20 += pt;
+    }
+    else if ((dR_1 > 0.2) && (dR_1 <= 0.4)){
+      rho1_20 += pt;
+    }
+    else if ((dR_1 > 0.4) && (dR_1 <= 0.6)){
+      rho2_20 += pt;
+    }
+    if (dR_1 <= 0.1){
+      rho0_10 += pt;
+    }
+    else if ((dR_1 > 0.1) && (dR_1 <= 0.2)){
+      rho1_10 += pt;
+    }
+    else if ((dR_1 > 0.2) && (dR_1 <= 0.3)){
+      rho2_10 += pt;
+    }
+    if (dR_1 <= 0.05){
+      rho0_05 += pt;
+    }
+    else if ((dR_1 > 0.05) && (dR_1 <= 0.1)){
+      rho1_05 += pt;
+    }
+    else if ((dR_1 > 0.1) && (dR_1 <= 0.15)){
+      rho2_05 += pt;
     }
 
     float dR_2_0 = sqrt(dEta_2_0*dEta_2_0 + dPhi_2_0*dPhi_2_0);
@@ -120,7 +161,12 @@ tuple<double,double,double,double,double,double> nsubjettiness(PseudoJet jet, fl
   }
 
   //return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),e2/(jet.pt()*jet.pt()),e3/(jet.pt()*jet.pt()*jet.pt()),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)   };
-  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),rho_1/(jet.pt()*0.5),rho_2/(jet.pt()*0.5),rho_3/(jet.pt()*0.5)};
+  return{ t1/jet.pt(),t2/jet.pt(), t3/jet.pt(),
+          rho0_50/(jet.pt()*0.5),rho1_50/(jet.pt()*0.5),rho2_50/(jet.pt()*0.5),
+          rho0_20/(jet.pt()*0.2),rho1_20/(jet.pt()*0.2),rho2_20/(jet.pt()*0.2),
+          rho0_10/(jet.pt()*0.1),rho1_10/(jet.pt()*0.1),rho2_10/(jet.pt()*0.1),
+          rho0_05/(jet.pt()*0.05),rho1_05/(jet.pt()*0.05),rho2_05/(jet.pt()*0.05)
+          };
 }
 
 //void getAllGen(vector<ROOT::Math::PtEtaPhiEVector> sueps, vector<ROOT::Math::PtEtaPhiEVector> isrs, vector<int> suep_id,vector<int> isr_id,FILE* OutFileGen,int entry){
@@ -421,7 +467,7 @@ int main(int argc,char** argv){
     trk.SetXYZM(trkx,trky,trkz,0.13957);
     //if(trk.Pt() <= 1 || abs(trk.Eta()) >= 2.5){continue;}
     if( abs(trk.Eta()) >= 2.5){continue;} // extra leeway for gen matching
-    if((trk_pv->at(itrk) < 2) || (trk_dzPV0->at(itrk) > 10) || (trk_dzErrorPV0->at(itrk) > 0.05)){continue;}
+    if((trk_pv->at(itrk) < 2) || (trk_dzPV0->at(itrk) > 10) || (trk_dzErrorPV0->at(itrk) > 0.05 || trk.Pt() < 0.7)){continue;}
     if((trk_matched->at(itrk) ==0) && (abs(trk.Eta()) > 1.0)){continue;}
     particles.push_back(PseudoJet(trk.Px(),trk.Py(),trk.Pz(),trk.E()));
     //vector<float> extra = {
@@ -461,13 +507,21 @@ int main(int argc,char** argv){
     //getAllGen(sueps, isrs, suep_id,isr_id,OutFileGen,entry);
     //gen_match_remove(particles,sueps,isrs,OutFile,part_extra,suep_id,isr_id);
     if(jet.constituents().size() <=2){continue;}
-    auto [t1,t2,t3,rho1,rho2,rho3] = nsubjettiness(jet,1.5);
+    auto [t1,t2,t3,
+          rho0_50,rho1_50,rho2_50,
+          rho0_20,rho1_20,rho2_20,
+          rho0_10,rho1_10,rho2_10,
+          rho0_05,rho1_05,rho2_05
+          ] = nsubjettiness(jet,1.5);
     //auto [t1,t2,t3,e2,e3] = nsubjettiness(jet,1.5);
     //printf("%f %f\n",t1/t2,t2/t3);
-    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f %f %f %f\n",
+    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
             entry, jet.pt(), jet.eta(), jet.phi(), jet.constituents().size(),particles.size(),
             t1,t2,t3,t2/t1,t3/t2,
-            rho1,rho2,rho3
+            rho0_50,rho1_50,rho2_50,
+            rho0_20,rho1_20,rho2_20,
+            rho0_10,rho1_10,rho2_10,
+            rho0_05,rho1_05,rho2_05
     );
 
   }
