@@ -15,12 +15,19 @@
 #include <iostream>
 #include <stdio.h>
 #include "TLorentzVector.h"
+#include "TVectorD.h"
+#include "TMatrixD.h"
+#include "TMatrixDSym.h"
+
+#include "/uscms/home/mreid/nobackup/sueps/CMSSW_10_6_13/src/SUEP_Analysis/SUEP_Analysis/PlotHelper.h"
 using namespace fastjet;
 using namespace std;
 
 #include <vector>
 
 tuple<double,double,double,
+double,double,double,
+double,double,double,
 double,double,double,
 double,double,double,
 double,double,double,
@@ -62,6 +69,12 @@ double,double,double
   float rho0_50=0;
   float rho1_50=0;
   float rho2_50=0;
+  float rho0_15=0;
+  float rho1_15=0;
+  float rho2_15=0;
+  float rho0_30=0;
+  float rho1_30=0;
+  float rho2_30=0;
   for(int i=0; i<constituents.size(); i++){
     float phi = constituents[i].phi();
     float eta = constituents[i].eta();
@@ -121,6 +134,24 @@ double,double,double
     else if ((dR_1 > 0.1) && (dR_1 <= 0.15)){
       rho2_05 += pt;
     }
+    if (dR_1 <= 0.3){
+      rho0_30 += pt;
+    }
+    else if ((dR_1 > 0.3) && (dR_1 <= 0.6)){
+      rho1_30 += pt;
+    }
+    else if ((dR_1 > 0.6) && (dR_1 <= 0.9)){
+      rho2_30 += pt;
+    }
+    if (dR_1 <= 0.15){
+      rho0_15 += pt;
+    }
+    else if ((dR_1 > 0.15) && (dR_1 <= 0.3)){
+      rho1_15 += pt;
+    }
+    else if ((dR_1 > 0.3) && (dR_1 <= 0.45)){
+      rho2_15 += pt;
+    }
 
     float dR_2_0 = sqrt(dEta_2_0*dEta_2_0 + dPhi_2_0*dPhi_2_0);
     float dR_2_1 = sqrt(dEta_2_1*dEta_2_1 + dPhi_2_1*dPhi_2_1);
@@ -165,9 +196,82 @@ double,double,double
           rho0_50/(jet.pt()*0.5),rho1_50/(jet.pt()*0.5),rho2_50/(jet.pt()*0.5),
           rho0_20/(jet.pt()*0.2),rho1_20/(jet.pt()*0.2),rho2_20/(jet.pt()*0.2),
           rho0_10/(jet.pt()*0.1),rho1_10/(jet.pt()*0.1),rho2_10/(jet.pt()*0.1),
-          rho0_05/(jet.pt()*0.05),rho1_05/(jet.pt()*0.05),rho2_05/(jet.pt()*0.05)
+          rho0_05/(jet.pt()*0.05),rho1_05/(jet.pt()*0.05),rho2_05/(jet.pt()*0.05),
+          rho0_15/(jet.pt()*0.15),rho1_15/(jet.pt()*0.15),rho2_15/(jet.pt()*0.15),
+          rho0_30/(jet.pt()*0.3),rho1_30/(jet.pt()*0.3),rho2_30/(jet.pt()*0.3)
           };
 }
+
+
+
+std::vector<double> compTensorsAndVectors(std::vector<TLorentzVector> tracks) {
+  double r_=2.0;
+  std::vector<double> eigenValues_ = std::vector<double>(3, 0);
+  std::vector<double> eigenValuesNoNorm_ = std::vector<double>(3, 0);
+
+  TMatrixD eigenVectors_;
+  TVectorD eigenValuesTmp_, eigenValuesNoNormTmp_;
+
+  TMatrixDSym momentumTensor(3);
+  momentumTensor.Zero();
+
+  if (tracks.size() == 0) return eigenValues_;
+  double norm = 0.;
+  TVector3 vec; 
+  //TLorentzVector vec; 
+  for (const auto& track : tracks) {
+
+    vec = track.Vect();//.p4.Vect();
+    double p2 = (vec).Dot(vec);
+    double pR = (r_ == 2.) ? p2 : TMath::Power(p2, 0.5 * r_);
+    norm += pR;
+    double pRminus2 = (r_ == 2.) ? 1. : TMath::Power(p2, 0.5 * r_ - 1.);
+    momentumTensor(0, 0) += pRminus2 * vec.X() * vec.X();
+    momentumTensor(0, 1) += pRminus2 * vec.X() * vec.Y();
+    momentumTensor(0, 2) += pRminus2 * vec.X() * vec.Z();
+    momentumTensor(1, 0) += pRminus2 * vec.Y() * vec.X();
+    momentumTensor(1, 1) += pRminus2 * vec.Y() * vec.Y();
+    momentumTensor(1, 2) += pRminus2 * vec.Y() * vec.Z();
+    momentumTensor(2, 0) += pRminus2 * vec.Z() * vec.X();
+    momentumTensor(2, 1) += pRminus2 * vec.Z() * vec.Y();
+    momentumTensor(2, 2) += pRminus2 * vec.Z() * vec.Z();
+  }
+
+  if (momentumTensor.IsSymmetric() && (momentumTensor.NonZeros() != 0)) {
+    momentumTensor.EigenVectors(eigenValuesNoNormTmp_);
+  }
+  eigenValuesNoNorm_[0] = eigenValuesNoNormTmp_(0);
+  eigenValuesNoNorm_[1] = eigenValuesNoNormTmp_(1);
+  eigenValuesNoNorm_[2] = eigenValuesNoNormTmp_(2);
+  momentumTensor *= (1. / norm);
+    //std::cout << "norm " << norm << std::endl;
+    //std::cout << " mt(0, 0)" <<  momentumTensor(0, 0) << std::endl;
+    //std::cout << " mt(0, 1)" <<  momentumTensor(0, 1) << std::endl;
+    //std::cout << " mt(0, 2)" <<  momentumTensor(0, 2) << std::endl;
+    //std::cout << " mt(1, 0)" <<  momentumTensor(1, 0) << std::endl;
+    //std::cout << " mt(1, 1)" <<  momentumTensor(1, 1) << std::endl;
+    //std::cout << " mt(1, 2)" <<  momentumTensor(1, 2) << std::endl;
+    //std::cout << " mt(2, 0)" <<  momentumTensor(2, 0) << std::endl;
+    //std::cout << " mt(2, 1)" <<  momentumTensor(2, 1) << std::endl;
+    //std::cout << " mt(2, 2)" <<  momentumTensor(2, 2) << std::endl;
+  if (momentumTensor.IsSymmetric() && (momentumTensor.NonZeros() != 0)) {
+    momentumTensor.EigenVectors(eigenValuesTmp_);
+  }
+  eigenValues_[0] = eigenValuesTmp_(0);
+  eigenValues_[1] = eigenValuesTmp_(1);
+  eigenValues_[2] = eigenValuesTmp_(2);
+//  std::cout << eigenValues_[0] << " " << eigenValues_[1] << " " << eigenValues_[2] << std::endl;
+    return eigenValues_;
+}
+
+
+
+
+
+
+
+
+
 
 //void getAllGen(vector<ROOT::Math::PtEtaPhiEVector> sueps, vector<ROOT::Math::PtEtaPhiEVector> isrs, vector<int> suep_id,vector<int> isr_id,FILE* OutFileGen,int entry){
 //  for(int gen_i=0; gen_i < sueps.size(); gen_i++){
@@ -432,12 +536,15 @@ int main(int argc,char** argv){
   }
   else{nentries=t1->GetEntries();}
   //printf("b %d e %d\n",batch,nentries);
+  int trig_pass =0;
+  int jet_pass=0;
   for(int entry=10000*batch; entry<nentries; entry++){
-  //for(int entry=67; entry<70; entry++){
+  //for(int entry=0; entry<500; entry++){
     if(entry%1000==0) {printf("entry %d/%d\n",entry,nentries);}
     //if(find(skip.begin(),skip.end(),entry) != skip.end()){printf("skipping entry: %d\n",entry); continue;}
     t1->GetEntry(entry);
     if(ht <1200){ continue;}
+    trig_pass++;
     vector<ROOT::Math::PtEtaPhiEVector> sueps;
     vector<ROOT::Math::PtEtaPhiEVector> isrs;
     ROOT::Math::PtEtaPhiEVector scalar;
@@ -457,6 +564,7 @@ int main(int argc,char** argv){
     vector<PseudoJet> particles;
     vector<PseudoJet> particles_id;
     vector<vector<float>> part_extra;
+    vector<TLorentzVector> tracks_event;
     for(int itrk=0;itrk<trkPart->size();itrk++){
       //if ((trk_pv->at(itrk) <2) || (trk_matched->at(itrk) ==0)){continue;}
 
@@ -470,6 +578,7 @@ int main(int argc,char** argv){
     if((trk_pv->at(itrk) < 2) || (trk_dzPV0->at(itrk) > 10) || (trk_dzErrorPV0->at(itrk) > 0.05 || trk.Pt() < 0.7)){continue;}
     if((trk_matched->at(itrk) ==0) && (abs(trk.Eta()) > 1.0)){continue;}
     particles.push_back(PseudoJet(trk.Px(),trk.Py(),trk.Pz(),trk.E()));
+    tracks_event.push_back(trk);
     //vector<float> extra = {
     //  static_cast<float>(trk_pv->at(itrk)),
     //  static_cast<float>(trk_matched->at(itrk)),
@@ -494,37 +603,136 @@ int main(int argc,char** argv){
     ClusterSequence cs(particles,jet_def);
     vector<PseudoJet> jets = sorted_by_pt(cs.inclusive_jets(30));
     unsigned int max_tracks = 0;
+    unsigned int max_tracks_2 = 0;
     int highest_index = -1;
+    int highest_index_2 = -1;
     for(int i = 0; i < jets.size(); i++) {
        PseudoJet jet = jets[i];
        if (jet.constituents().size() > max_tracks){ 
+         highest_index_2 = highest_index;
+         max_tracks_2 = max_tracks;
          highest_index = i;
          max_tracks = jet.constituents().size();
        }
+       else if (jet.constituents().size() > max_tracks_2){ 
+         highest_index_2 = i;
+         max_tracks_2 = jet.constituents().size();
+       }
     }
-    if(highest_index == -1){continue;}
+    if((highest_index == -1) || (highest_index_2 == -1)){continue;}
     PseudoJet jet = jets[highest_index];
+    PseudoJet jet2 = jets[highest_index_2];
+    TLorentzVector boostjet;
+    boostjet.SetPtEtaPhiE(jet.pt(),jet.eta(),jet.phi(),jet.E());
+    TVector3 boostvect = -boostjet.BoostVector();
+    TLorentzVector boostisr;
+    boostisr.SetPtEtaPhiE(jet2.pt(),jet2.eta(),jet2.phi(),jet2.E());
+    boostisr.Boost(boostvect);
+    float isr_phi = boostisr.Phi();
+    float isr_eta = boostisr.Eta();
+    //printf("%f %f %f\n",boostvect.x(),boostvect.y(),boostvect.z());
+    
+    //PseudoJet jet_boosted = jet.boost(jets[highest_index_2]);
+    //float pf4 = (  jet.px()*jet2.px()+jet.py()*jet2.py()+jet.pz()*jet2.pz()+jet.E()*jet2.E())/jet2.m();
+    //float fn = (pf4 + jet.E())/(jet2.E()+jet2.m());
+    //printf("pt: %d %d %f %f\n",highest_index,highest_index_2,jet.pt(),jet_boosted.pt());
+
     //getAllGen(sueps, isrs, suep_id,isr_id,OutFileGen,entry);
     //gen_match_remove(particles,sueps,isrs,OutFile,part_extra,suep_id,isr_id);
     if(jet.constituents().size() <=2){continue;}
+    jet_pass++;
+    vector<TLorentzVector> tracks_boosted;
+    //for (auto cont : jet_boosted.constituents()){
+    //  TLorentzVector trk;
+    //  trk.SetPtEtaPhiE(cont.pt(),cont.eta(),cont.phi(),cont.E());
+    //  tracks_boosted.push_back(trk);
+    //}
+    vector<TLorentzVector> tracks;
+    for (auto cont : jet.constituents()){
+      TLorentzVector trk;
+      trk.SetPtEtaPhiE(cont.pt(),cont.eta(),cont.phi(),cont.E());
+      TLorentzVector trk_b;
+      trk_b.SetPtEtaPhiE(cont.pt(),cont.eta(),cont.phi(),cont.E());
+      trk_b.Boost(boostvect);
+      tracks.push_back(trk);
+      tracks_boosted.push_back(trk_b);
+    }
+    vector<TLorentzVector> tracks_event_boost;
+    vector<TLorentzVector> tracks_event_boost2;
+    vector<TLorentzVector> tracks_event_boost3;
+    //PlotHelper plotter("");
+    //TCanvas *c1 = new TCanvas("c1","c1",800,800);
+    for (auto cont : tracks_event){
+      TLorentzVector trk_b;
+      trk_b.SetPtEtaPhiE(cont.Pt(),cont.Eta(),cont.Phi(),cont.E());
+      trk_b.Boost(boostvect);
+      //tracks_event_boost.push_back(trk_b);
+  //plotter.Plot2D(Form("%s_evt%lli_event_display_tracks",sample_name.c_str(),ievent),";eta;phi;pt", track.p4.Eta(), track.p4.Phi(), 100, -3.5,3.5,100,-3.5,3.5 , track.p4.Pt());
+  //plotter.Plot2D(Form("%s_evt%lli_event_display_tracks","test1",entry),";eta;phi;pt", trk_b.Eta(), trk_b.Phi(), 100, -3.5,3.5,100,-3.5,3.5 , trk_b.Pt());
+  //plotter.Plot2D(Form("%s_evt%lli_event_display_tracks","test1",entry),";eta;phi;pt", cont.Eta(), cont.Phi(), 100, -3.5,3.5,100,-3.5,3.5 , cont.Pt());
+      if(abs(cont.Phi()-jet2.phi()) > 1.6){
+      //if(sqrt(((cont.Phi()-jet2.phi())*(cont.Phi()-jet2.phi()))+((cont.Eta()-jet2.eta())*(cont.Eta()-jet2.eta()))) > 2.0){
+        tracks_event_boost2.push_back(trk_b); // remove isr preboost
+  //plotter.Plot2D(Form("%s_evt%lli_event_display_tracks","test1",entry),";eta;phi;pt", trk_b.Eta(), trk_b.Phi(), 100, -3.5,3.5,100,-3.5,3.5 , trk_b.Pt());
+      }
+      if(abs(trk_b.Phi()-isr_phi) > 1.6){
+      //if(sqrt(((trk_b.Phi()-isr_phi)*(trk_b.Phi()-isr_phi))+((trk_b.Eta()-isr_eta)*(trk_b.Eta()-isr_eta))) > 2.0){
+        tracks_event_boost.push_back(trk_b); // remove isr post boost
+      }
+    }
+// Save histograms here
+//     TFile *output_file = TFile::Open(Form("event_%i.root",entry),"RECREATE");
+//     c1->SetTickx(true);
+//     c1->SetTicky(true);
+//     plotter.DrawAll1D(c1);
+//     plotter.DrawAll2D(c1, "colz");
+//     c1->SaveAs(Form("neg_boostrm2_event_%i_sig300fix.pdf",entry));
+
+
+    std::vector<double> eigentest = compTensorsAndVectors(tracks_event);
+    std::vector<double> eigentest_boost = compTensorsAndVectors(tracks_event_boost); // remove isr post boost
+    std::vector<double> eigentest_boost2 = compTensorsAndVectors(tracks_event_boost2);// remove isr pre boost
+    //printf("eigen %f %f %f %f\n",eigentest[0],eigentest[1],eigentest[2],eigentest[3]);
+    float sphericity = 1.5*(eigentest[1] + eigentest[2]);
+    float sphericity_boosted = 1.5*(eigentest_boost[1] + eigentest_boost[2]);
+    float sphericity_boosted2 = 1.5*(eigentest_boost2[1] + eigentest_boost2[2]);
+    float C = 3*(eigentest[0]*eigentest[1] + eigentest[0]*eigentest[2]+ eigentest[1]*eigentest[2]);
+    float C_boosted = 3*(eigentest_boost[0]*eigentest_boost[1]+eigentest_boost[0]*eigentest_boost[2]+eigentest_boost[1]*eigentest_boost[2]);
+    float C_boosted2 = 3*(eigentest_boost2[0]*eigentest_boost2[1]+eigentest_boost2[0]*eigentest_boost2[2]+eigentest_boost2[1]*eigentest_boost2[2]);
+    float D = 27*(eigentest[1]*eigentest[2]*eigentest[0]);
+    float D_boosted = 27*(eigentest_boost[1]*eigentest_boost[2]*eigentest_boost[0]);
+    float D_boosted2 = 27*(eigentest_boost2[1]*eigentest_boost2[2]*eigentest_boost2[0]);
+    float aPlan = 1.5*(eigentest[1]);
+    float aPlan_boosted = 1.5*(eigentest_boost[1]);
+    float aPlan_boosted2 = 1.5*(eigentest_boost2[1]);
+    //printf("sphericity %f %f\n",sphericity,sphericity_boosted);
     auto [t1,t2,t3,
           rho0_50,rho1_50,rho2_50,
           rho0_20,rho1_20,rho2_20,
           rho0_10,rho1_10,rho2_10,
-          rho0_05,rho1_05,rho2_05
+          rho0_05,rho1_05,rho2_05,
+          rho0_15,rho1_15,rho2_15,
+          rho0_30,rho1_30,rho2_30
           ] = nsubjettiness(jet,1.5);
     //auto [t1,t2,t3,e2,e3] = nsubjettiness(jet,1.5);
     //printf("%f %f\n",t1/t2,t2/t3);
-    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
+    fprintf(OutFile,"%d %f %f %f %d %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
             entry, jet.pt(), jet.eta(), jet.phi(), jet.constituents().size(),particles.size(),
             t1,t2,t3,t2/t1,t3/t2,
             rho0_50,rho1_50,rho2_50,
             rho0_20,rho1_20,rho2_20,
             rho0_10,rho1_10,rho2_10,
-            rho0_05,rho1_05,rho2_05
+            rho0_05,rho1_05,rho2_05,
+            rho0_15,rho1_15,rho2_15,
+            rho0_30,rho1_30,rho2_30,
+            sphericity, sphericity_boosted, sphericity_boosted2,
+            C,C_boosted,C_boosted2,
+            D,D_boosted,D_boosted2,
+            aPlan,aPlan_boosted,aPlan_boosted2
     );
 
   }
 fclose(OutFile);
+printf("trigpass: %d; jetpass %d\n",trig_pass,jet_pass);
 }
   
