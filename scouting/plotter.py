@@ -13,6 +13,7 @@ from matplotlib.colors import LogNorm, Normalize
 import uproot
 import ROOT
 import mplhep as hep
+from ROOT import TMath, TLegend, TF1
 plt.style.use(hep.style.ROOT)
 
 lumi = 57
@@ -77,18 +78,79 @@ def openTrigg(name,xsec,qcd):
       print("file not found: %s %s"%(name,prefix+fnum))
       continue
     t= file["mmtree/tree"]
-    #t= file["TreeMaker2/PreSelection"]
-    hlt1 = t.pandas.df(["hltResult","ht"])
-    #hlt2 = t.pandas.df(["ht"])
-    #sub1 = hlt1.columns.to_flat_index()
-    #print(sub1)
+    hlt1 = t.pandas.df(["hltResult","ht","suepJet_sphericity","n_pfcand","n_bpfcand","n_jet","n_fatjet","eventBoosted_sphericity","event_sphericity"])
+    hlt1 = hlt1[hlt1["ht"] > 250]
+    #print(hlt1)
     hlts.append(hlt1)
   hlt = pd.concat(hlts)
   hlt = pd.DataFrame(hlt.to_records())
   hltx = hlt.pivot(index="entry",columns="subentry",values="hltResult")
   hltx["ht"] = hlt.groupby("entry")["ht"].max()#values[0]
+  hltx["suepJet_sphericity"] = hlt.groupby("entry")["suepJet_sphericity"].max()#values[0]
+  hltx["n_pfcand"] = hlt.groupby("entry")["n_pfcand"].max()#values[0]
+  hltx["n_bpfcand"] = hlt.groupby("entry")["n_bpfcand"].max()#values[0]
+  hltx["n_jet"] = hlt.groupby("entry")["n_jet"].max()#values[0]
+  hltx["n_fatjet"] = hlt.groupby("entry")["n_fatjet"].max()#values[0]
+  hltx["eventBoosted_sphericity"] = hlt.groupby("entry")["eventBoosted_sphericity"].max()#values[0]
+  hltx["event_sphericity"] = hlt.groupby("entry")["event_sphericity"].max()#values[0]
   #print(hltx)
   return hltx
+
+
+def make_trigDist(h_no_selection,h1_no_selection,h_before_selection,variable,name):
+    Path("Plots/eff").mkdir(parents=True,exist_ok=True)
+    #func = TF1("func","[0]*TMath::Erf((x-[1])/[2])+1",300,800)
+    #func.SetParameters(0.1,500,5)
+    c0 = ROOT.TCanvas("c0%s"%(variable), "my canvas 0 %s"%variable)
+    h_no_selection.Draw()
+    h_no_selection.SetLineColor(3) # 2=red
+    h1_no_selection.Draw("same")
+    h1_no_selection.SetLineColor(1) # 2=red
+    h_before_selection.Draw("same")
+    h_before_selection.SetLineColor(2) # 2=red
+    h_no_selection.GetXaxis().SetTitle(variable)
+    h_no_selection.GetYaxis().SetTitle("Events")
+
+    n0 = h_no_selection.GetEntries()
+    n1 = h1_no_selection.GetEntries()
+    n2 = h_before_selection.GetEntries()
+
+    leg = TLegend(.73,.32,.97,.53)
+    leg.AddEntry(h_no_selection,"no cuts: %s"%n0,"l")
+    leg.AddEntry(h_before_selection,"ref fired only: %s"%n2,"l")
+    leg.AddEntry(h1_no_selection,"410trig fired only: %s"%n1,"l")
+    leg.Draw()
+    c0.SaveAs("Plots/eff/trigger410PreDist_%s_%s.png"%(variable,name))
+
+def make_trigeffPlot(h_before_selection,h1_after_selection,variable,name):
+    Path("Plots/eff").mkdir(parents=True,exist_ok=True)
+    #func = TF1("func","[0]*TMath::Erf((x-[1])/[2])+1",300,800)
+    #func.SetParameters(0.1,500,5)
+    c1 = ROOT.TCanvas("c1%s"%(variable), "my canvas 1 %s"%variable)
+    h_before_selection.Draw()
+    h_before_selection.SetLineColor(1) # 2=red
+    h1_after_selection.Draw("same")
+    h1_after_selection.SetLineColor(2) # 2=red
+    h_before_selection.GetXaxis().SetTitle(variable)
+    h_before_selection.GetYaxis().SetTitle("Events")
+
+    n0 = h_before_selection.GetEntries()
+    n1 = h1_after_selection.GetEntries()
+    leg = TLegend(.73,.32,.97,.53)
+    leg.AddEntry(h_before_selection,"ref fired only: %s"%n0,"l")
+    leg.AddEntry(h1_after_selection,"+410trig fired: %s"%n1,"l")
+    leg.Draw()
+    c1.SaveAs("Plots/eff/trigger410Dist_%s_%s.png"%(variable,name))
+
+
+    g1_efficiency = ROOT.TGraphAsymmErrors()
+    g1_efficiency.Divide(h1_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
+    c1x = ROOT.TCanvas("c1x%s"%variable, "my canvas 1x %s"%variable)
+    g1_efficiency.Draw()
+    g1_efficiency.GetXaxis().SetTitle(variable)
+    g1_efficiency.GetYaxis().SetTitle("Efficiency")
+    #g1_efficiency.Fit('func','R')
+    c1x.SaveAs("Plots/eff/trigger410Eff_%s_%s.png"%(variable,name))
 
 def trigger(df,name):
 
@@ -96,80 +158,140 @@ def trigger(df,name):
     fig, ax2 = plt.subplots()
     bins = range(0,1500,20)
 
-    h_before_selection = ROOT.TH1F("h_before_selection","",100,0,1500)  #DST_CaloJet40_CaloScouting_PFScouting
-    h1_after_selection  = ROOT.TH1F("h1_after_selection","",100,0,1500) #DST_HT410_PFScouting
-    h2_after_selection  = ROOT.TH1F("h2_after_selection","",100,0,1500) #DST_HT450_PFScouting
-    h3_after_selection  = ROOT.TH1F("h3_after_selection","",100,0,1500) # both 410 and 450
+    h_no_selection = ROOT.TH1F("h_no_selection","",50,0,1500) #no cuts
+    h1_no_selection = ROOT.TH1F("h1_no_selection","",50,0,1500) # 410 trigger only
+    h_before_selection = ROOT.TH1F("h_before_selection","",50,0,1500) # ref trigger only
+    h1_after_selection  = ROOT.TH1F("h1_after_selection","",50,0,1500)
+    #h2_after_selection  = ROOT.TH1F("h2_after_selection","",100,0,1500) #DST_HT450_PFScouting
+    #h3_after_selection  = ROOT.TH1F("h3_after_selection","",100,0,1500) # both 410 and 450
+    h_before_selection1 = ROOT.TH1F("h_before_selection1","",50,0,1)
+    h1_after_selection1  = ROOT.TH1F("h1_after_selection1","",50,0,1)
+    h_before_selection2 = ROOT.TH1F("h_before_selection2","",100,0,1000)
+    h1_after_selection2  = ROOT.TH1F("h1_after_selection2","",100,0,1000)
+    h_before_selection3 = ROOT.TH1F("h_before_selection3","",150,0,150)
+    h1_after_selection3  = ROOT.TH1F("h1_after_selection3","",150,0,150)
+    h_before_selection4 = ROOT.TH1F("h_before_selection4","",10,0,10)
+    h1_after_selection4  = ROOT.TH1F("h1_after_selection4","",10,0,10)
+    h_before_selection5 = ROOT.TH1F("h_before_selection5","",10,0,10) 
+    h1_after_selection5  = ROOT.TH1F("h1_after_selection5","",10,0,10)
+    h_before_selection6 = ROOT.TH1F("h_before_selection6","",50,0,1) 
+    h1_after_selection6  = ROOT.TH1F("h1_after_selection6","",50,0,1) 
+    h_before_selection7 = ROOT.TH1F("h_before_selection7","",50,0,1) 
+    h1_after_selection7  = ROOT.TH1F("h1_after_selection7","",50,0,1) 
+#HLT Trigger DST_DoubleMu1_noVtx_CaloScouting_v2 1 0 DST_DoubleMu1_noVtx_CaloScouting_v*
+#HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6 1 1 DST_DoubleMu3_noVtx_CaloScouting_v*
+#HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_v6 1 1 DST_DoubleMu3_noVtx_CaloScouting_v*
+#HLT Trigger DST_DoubleMu3_noVtx_Mass10_PFScouting_v3 0 2 DST_DoubleMu3_noVtx_Mass10_PFScouting_v*
+#HLT Trigger DST_L1HTT_CaloScouting_PFScouting_v15 1 3 DST_L1HTT_CaloScouting_PFScouting_v*
+#HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15 1 4 DST_CaloJet40_CaloScouting_PFScouting_v*
+#HLT Trigger DST_HT250_CaloScouting_v10 1 5 DST_HT250_CaloScouting_v*
+#HLT Trigger DST_HT410_PFScouting_v16 1 6 DST_HT410_PFScouting_v*
     for row in df.itertuples(index=False):
-      if row[4]:
-        ht = row[8]
+      #print(row)
+      #break
+      #if row[4]: #L1HTT
+      #if row[5]:#calojet40
+      ht = row[8]
+      h_no_selection.Fill(ht)
+      if row[7]:
+        h1_no_selection.Fill(ht)
+      if row[2]: #DoubleMu3
+        #ht = row[8]
+        suep_sphere= row[9]
+        npfcand= row[10]
+        nbpfcand= row[11]
+        njet= row[12]
+        nfatjet= row[13]
+        event_bsphere = row[14]
+        event_sphere = row[15]
         h_before_selection.Fill(ht)
-        if row[6]:
-          h1_after_selection.Fill(ht)
-        if row[7]:
-          h2_after_selection.Fill(ht)
-        if row[6] or row[7]:
-          h3_after_selection.Fill(ht)
-    #for entry in df.entry.unique():
-    #  ref   = df[(df["entry"]==entry) & (df["subentry"]==4)]["hltResult"].values[0]
-    #  trig1 = df[(df["entry"]==entry) & (df["subentry"]==6)]["hltResult"].values[0]
-    #  trig2 = df[(df["entry"]==entry) & (df["subentry"]==7)]["hltResult"].values[0]
-    #  ht    = df[(df["entry"]==entry) & (df["subentry"]==4)]["ht"].values[0]
-    #  if ref:
-    #    h_before_selection.Fill(ht)
-    #    if trig1:
-    #      h1_after_selection.Fill(ht)
-    #    if trig2:
-    #      h2_after_selection.Fill(ht)
-    #    if trig2 or trig1:
-    #      h3_after_selection.Fill(ht)
+        if(ht >500):
+          h_before_selection1.Fill(suep_sphere)
+          h_before_selection2.Fill(npfcand)
+          h_before_selection3.Fill(nbpfcand)
+          h_before_selection4.Fill(njet)
+          h_before_selection5.Fill(nfatjet)
+          h_before_selection6.Fill(event_bsphere)
+          h_before_selection7.Fill(event_sphere)
+          if row[7]:
+        #if row[1]:
+        #if row[6]:
+            h1_after_selection.Fill(ht)
+            h1_after_selection1.Fill(suep_sphere)
+            h1_after_selection2.Fill(npfcand)
+            h1_after_selection3.Fill(nbpfcand)
+            h1_after_selection4.Fill(njet)
+            h1_after_selection5.Fill(nfatjet)
+            h1_after_selection6.Fill(event_bsphere)
+            h1_after_selection7.Fill(event_sphere)
+        #if row[0]:
+        ##if row[7]:
+        #  h2_after_selection.Fill(ht)
+        #if row[1] or row[0]:
+        ##if row[6] or row[7]:
+        #  h3_after_selection.Fill(ht)
 
-    Path("Plots/eff").mkdir(parents=True,exist_ok=True)
-    c1 = ROOT.TCanvas("c1", "my canvas 1")
-    h_before_selection.Draw()
-    h1_after_selection.Draw("same")
-    h1_after_selection.SetLineColor(2) # 2=red
-    h_before_selection.GetXaxis().SetTitle("Ht")
-    h_before_selection.GetYaxis().SetTitle("Events")
-    c1.SaveAs("Plots/eff/eff3_%s_410.png"%(name))
-    g1_efficiency = ROOT.TGraphAsymmErrors()
-    g1_efficiency.Divide(h1_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
-    c1x = ROOT.TCanvas("c1x", "my canvas 1x")
-    g1_efficiency.Draw()
-    g1_efficiency.GetXaxis().SetTitle("Ht")
-    g1_efficiency.GetYaxis().SetTitle("Efficiency")
-    c1x.SaveAs("Plots/eff/eff3x_%s_410.png"%(name))
+    #make_trigDist(h_no_selection,h1_no_selection,h_before_selection,"ht",name)
+    make_trigeffPlot(h_before_selection,h1_after_selection,"ht",name)
+    #make_trigeffPlot(h_no_selection,h1_no_selection,"ht","noref_%s"%name)
+    #make_trigeffPlot(h_before_selection6,h1_after_selection6,"event_boost_sphericity",name)
+    #make_trigeffPlot(h_before_selection7,h1_after_selection7,"event_sphericity",name)
+
+    #make_trigeffPlot(h_before_selection1,h1_after_selection1,"suep_sphere",name)
+    #make_trigeffPlot(h_before_selection2,h1_after_selection2,"npfcand",name)
+    #make_trigeffPlot(h_before_selection3,h1_after_selection3,"nbpfcand",name)
+    #make_trigeffPlot(h_before_selection4,h1_after_selection4,"njet",name)
+    #make_trigeffPlot(h_before_selection5,h1_after_selection5,"nfatjet",name)
+    #make_trigeffPlot(h_before_selection6,h1_after_selection6,"event_sphere",name)
+    #Path("Plots/eff").mkdir(parents=True,exist_ok=True)
+    #func = TF1("func","[0]*TMath::Erf((x-[1])/[2])+1",300,800)
+    #func.SetParameters(0.1,500,5)
+    #c1 = ROOT.TCanvas("c1", "my canvas 1")
+    #h_before_selection.Draw()
+    #h1_after_selection.Draw("same")
+    #h1_after_selection.SetLineColor(2) # 2=red
+    #h_before_selection.GetXaxis().SetTitle("Ht")
+    #h_before_selection.GetYaxis().SetTitle("Events")
+    #c1.SaveAs("Plots/eff/eff3_%s_410.png"%(name))
+    #g1_efficiency = ROOT.TGraphAsymmErrors()
+    #g1_efficiency.Divide(h1_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
+    #c1x = ROOT.TCanvas("c1x", "my canvas 1x")
+    #g1_efficiency.Draw()
+    #g1_efficiency.GetXaxis().SetTitle("Ht")
+    #g1_efficiency.GetYaxis().SetTitle("Efficiency")
+    #g1_efficiency.Fit('func','R')
+    #c1x.SaveAs("Plots/eff/eff3x_%s_410.png"%(name))
 
 
-    c2 = ROOT.TCanvas("c2", "my canvas 2")
-    h_before_selection.Draw()
-    h2_after_selection.Draw("same")
-    h2_after_selection.SetLineColor(2)
-    h_before_selection.GetXaxis().SetTitle("Ht")
-    h_before_selection.GetYaxis().SetTitle("Events")
-    c2.SaveAs("Plots/eff/eff3_%s_450.png"%(name))
-    g2_efficiency = ROOT.TGraphAsymmErrors()
-    g2_efficiency.Divide(h2_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
-    c2x = ROOT.TCanvas("c2x", "my canvas 2x")
-    g2_efficiency.Draw()
-    g1_efficiency.GetXaxis().SetTitle("Ht")
-    g1_efficiency.GetYaxis().SetTitle("Efficiency")
-    c2x.SaveAs("Plots/eff/eff3x_%s_450.png"%(name))
+    #c2 = ROOT.TCanvas("c2", "my canvas 2")
+    #h_before_selection.Draw()
+    #h2_after_selection.Draw("same")
+    #h2_after_selection.SetLineColor(2)
+    #h_before_selection.GetXaxis().SetTitle("Ht")
+    #h_before_selection.GetYaxis().SetTitle("Events")
+    #c2.SaveAs("Plots/eff/eff3_%s_450.png"%(name))
+    #g2_efficiency = ROOT.TGraphAsymmErrors()
+    #g2_efficiency.Divide(h2_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
+    #c2x = ROOT.TCanvas("c2x", "my canvas 2x")
+    #g2_efficiency.Draw()
+    #g1_efficiency.GetXaxis().SetTitle("Ht")
+    #g1_efficiency.GetYaxis().SetTitle("Efficiency")
+    #c2x.SaveAs("Plots/eff/eff3x_%s_450.png"%(name))
 
-    c3 = ROOT.TCanvas("c3", "my canvas 3")
-    h_before_selection.Draw()
-    h3_after_selection.Draw("same")
-    h3_after_selection.SetLineColor(2)
-    h_before_selection.GetXaxis().SetTitle("Ht")
-    h_before_selection.GetYaxis().SetTitle("Events")
-    c3.SaveAs("Plots/eff/eff3_%s_both.png"%(name))
-    g3_efficiency = ROOT.TGraphAsymmErrors()
-    g3_efficiency.Divide(h3_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
-    c3x = ROOT.TCanvas("c3x", "my canvas 3x")
-    g3_efficiency.Draw()
-    g1_efficiency.GetXaxis().SetTitle("Ht")
-    g1_efficiency.GetYaxis().SetTitle("Efficiency")
-    c3x.SaveAs("Plots/eff/eff3x_%s_both.png"%(name))
+    #c3 = ROOT.TCanvas("c3", "my canvas 3")
+    #h_before_selection.Draw()
+    #h3_after_selection.Draw("same")
+    #h3_after_selection.SetLineColor(2)
+    #h_before_selection.GetXaxis().SetTitle("Ht")
+    #h_before_selection.GetYaxis().SetTitle("Events")
+    #c3.SaveAs("Plots/eff/eff3_%s_both.png"%(name))
+    #g3_efficiency = ROOT.TGraphAsymmErrors()
+    #g3_efficiency.Divide(h3_after_selection,h_before_selection,"cl=0.683 b(1,1) mode")
+    #c3x = ROOT.TCanvas("c3x", "my canvas 3x")
+    #g3_efficiency.Draw()
+    #g1_efficiency.GetXaxis().SetTitle("Ht")
+    #g1_efficiency.GetYaxis().SetTitle("Efficiency")
+    #c3x.SaveAs("Plots/eff/eff3x_%s_both.png"%(name))
 
 def plot_distribution(df,qcd_df,var,rx,bx,norm,log):
     fig, ax1 = plt.subplots()
