@@ -12,85 +12,97 @@ from scipy.stats import binned_statistic_2d, binned_statistic
 from matplotlib.colors import LogNorm, Normalize
 import uproot
 from plotter import *
+from plotter2 import *
 
 
 
-#open files
-#hlt125, df125 =openReco("SUEP_125_htcut/flat_step3_mMed-125_mDark-2_temp-2_decay-darkPhoHad_n-200_5385393_numEvent100000000.root",13.6,0)
-#hltqcd, dfqcd = openReco("QCD_15to7000_htcut/flat_A634C731-5B65-A143-975A-741A8DF5DFE8_numEvent100000000.root",25.24,0)
-#hltdata, dfdata = openReco("data18_numEvent100000.root",1,0)
-#hltdata = openTrigg("trigger2.root",1,0)
-#hltdata = openTrigg("triggerFull2.root",1,0)
-#hltMC = openTrigg("qcdtest1_numEvent100000000.root",1,0)
-#hltsignal = openTrigg("sampletest.root",1,0)
-#hltdata = openTrigg("newtriggerPFComm_numEvent1000000.root",1,0)
-#hltMC = openTrigg("newTriggerMC.root",1,0)
-#hltsignal = openTrigg("signal300.root",1,0)
+cutvals = [0,1,600,2,200]
+pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50,200])
+eta_bins = np.array(range(-250,250,25))/100.
+phi_bins = np.array(range(-31,31,5))/10.
+xsecs = [5962,1207,119.9,25.24] #700-200 in order # signal xsec are (125,34.8),(300,8.9), (400,5.9), (750,0.5), (1000,0.17)
+#files = [700,1000,1500,2000]
+xsec = [0.17,0.5,5.9,8.9,13.6] #1000-200
 
+cutflowHt = ["triggerHT","triggerHT","ht","n_fatjet","n_pfcand"]
+cutvalsHt = [0,1,600,2,200]
+cutflowMu = ["triggerMu","triggerMu","n_pfMu","n_fatjet","n_pfcand"]
+cutvalsMu = [0,1,4,2,200]
 
+def runPlotSet(df,sig,cutflow,cutvals):
+  plot_distribution(df,sig,"ht",range(0,1500,10)                                      ,cutflow,cutvals,0,1)
+  plot_distribution(df,sig,"n_pfcand",range(0,550,10)                                 ,cutflow,cutvals,0,1)
+  plot_distribution(df,sig,"event_sphericity",[x*0.01 for x in range(0,100,1)]        ,cutflow,cutvals,0,1)
+  plot_distribution(df,sig,"eventBoosted_sphericity",[x*0.01 for x in range(0,100,1)] ,cutflow,cutvals,0,1)
+  plot_distribution(df,sig,"n_jet",range(0,20,1)                                      ,cutflow,cutvals,0,1)
+  plot_distribution(df,sig,"n_fatjet",range(0,10,1)                                   ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig,"n_pfMu",range(0,10,1)                                     ,cutflow,cutvals,0,1) #not in QCD Yet
+def runPlotSetJet(df,sig,cutflow,cutvals,pf): 
+  plot_distributionv2(pf,df,sig,"Jet_pt",range(0,500,10)                               ,cutflow,cutvals,0,1)
+  plot_distributionv2(pf,df,sig,"Jet_eta",eta_bins                                    ,cutflow,cutvals,0,0)
+  plot_distributionv2(pf,df,sig,"Jet_phi",phi_bins                                    ,cutflow,cutvals,0,0)
+def runPlotSetFatJet(df,sig,cutflow,cutvals,pf2):
+  plot_distributionv2(pf2,df,sig,"FatJet_pt",range(0,500,10)                            ,cutflow,cutvals,0,1)
+  plot_distributionv2(pf2,df,sig,"FatJet_eta",eta_bins                                 ,cutflow,cutvals,0,0)
+  plot_distributionv2(pf2,df,sig,"FatJet_phi",phi_bins                                 ,cutflow,cutvals,0,0)
+def runPlotSetTracks(df,sig,cutflow,cutvals,pf3):
+  plot_distributionv2(pf3,df,sig,"PFcand_pt",range(0,100,1)                ,cutflow,cutvals,0,1)
+  plot_distributionv2(pf3,df,sig,"PFcand_eta",eta_bins                ,cutflow,cutvals,0,0)
+  plot_distributionv2(pf3,df,sig,"PFcand_phi",phi_bins                ,cutflow,cutvals,0,0)
 
-hltdata = openTrigg("newData/ptThreshold_Data_numEvent5000000.root",1,0)
-hltMC = openTrigg("newData/ptThreshold_MC.root",1,0)
-hltsignal = openTrigg("newData/sig300m2t2.root",1,0)
-trigger(hltdata,"data")
-trigger(hltMC,"MC")
-trigger(hltsignal,"signal300")
-
-#hltsignal400m1t1 = openTrigg("newData/sig400m1t1.root",1,0)
-#trigger(hltsignal400m1t1,"signal400m1t1")
-#hltsignal400m1t2 = openTrigg("newData/sig400m1t2.root",1,0)
-#trigger(hltsignal400m1t2,"signal400m1t2")
-#hltsignal400m1t5 = openTrigg("newData/sig400m1t5.root",1,0)
-#trigger(hltsignal400m1t5,"signal400m1t5")
-#hltsignal400m2t1 = openTrigg("newData/sig400m2t1.root",1,0)
-#trigger(hltsignal400m2t1,"signal400m2t1")
-#hltsignal400m2t5 = openTrigg("newData/sig400m2t5.root",1,0)
-#trigger(hltsignal400m2t5,"signal400m2t5")
-#hltsignal400m5t1 = openTrigg("newData/sig400m5t1.root",1,0)
-#trigger(hltsignal400m5t1,"signal400m5t1")
-#hltsignal400m5t2 = openTrigg("newData/sig400m5t2.root",1,0)
-#trigger(hltsignal400m5t2,"signal400m5t2")
-#hltsignal400m5t5 = openTrigg("newData/sig400m5t5.root",1,0)
-#trigger(hltsignal400m5t5,"signal400m5t5")
-
-## plot variable distributions
-#plot_distribution(df200,dfqcd,"PFcand_pt",[0,50] ,50,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_pt",[0,50] ,50,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_pt",[0,150],50,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_pt",[0,150],50,1,1)
+#signam = ["sig400_darkPho","sig400_darkPhoHad","sig400_generic","sig200_darkPho","sig200_darkPhoHad","sig200_generic"]
+#for sig in signam:
+#  df, pfJet,pfFat,pftrack = openReco("newData_ntrack/%s_ntrack.root"%sig,5.9,0)
+##  trigger(df,sig) 
+#  runPlotSet(df,sig,cutflowHt,cutvalsHt)
+#  runPlotSetJet(df,sig,cutflowHt,cutvalsHt,pfJet)
+#  runPlotSetFatJet(df,sig,cutflowHt,cutvalsHt,pfFat)
+#  runPlotSetTracks(df,sig,cutflowHt,cutvalsHt,pftrack)
+#  plot_distribution(df,sig,"n_pfMu",range(0,10,1)                                     ,cutflowHt,cutvalsHt,0,1)
 #
-#plot_distribution(df200,dfqcd,"PFcand_eta",[-3.2,3.2] ,50,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_eta",[-3.2,3.2] ,50,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_eta",[-3.2,3.2] ,50,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_eta",[-3.2,3.2] ,50,1,1)
-#
-#plot_distribution(df200,dfqcd,"PFcand_phi",[-3.2,3.2] ,50,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_phi",[-3.2,3.2] ,50,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_phi",[-3.2,3.2] ,50,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_phi",[-3.2,3.2] ,50,1,1)
-#
-#plot_distribution(df200,dfqcd,"PFcand_m",[0,1] ,100,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_m",[0,1] ,100,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_m",[0,1] ,100,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_m",[0,1] ,100,1,1)
-#
-#plot_distribution(df200,dfqcd,"PFcand_vertex",[0,10] ,10,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_vertex",[0,10] ,10,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_vertex",[0,10] ,10,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_vertex",[0,10] ,10,1,1)
-#
-#plot_distribution(df200,dfqcd,"PFcand_q",[-1,1] ,3,0,0)
-#plot_distribution(df200,dfqcd,"PFcand_q",[-1,1] ,3,1,0)
-#plot_distribution(df200,dfqcd,"PFcand_q",[-1,1] ,3,0,1)
-#plot_distribution(df200,dfqcd,"PFcand_q",[-1,1] ,3,1,1)
-#
-#
-## make Track ID efficiency plots
-#pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50,200])
-#eta_bins = np.array(range(-250,250,25))/100.
-#phi_bins = np.array(range(-31,31,5))/10.
-#make_eff(df200,df200,df200,"PFcand_pt",pt_bins,1,"sig200")
+#  runPlotSet(df,sig+"MU",cutflowMu,cutvalsMu)
+#  runPlotSetJet(df,sig+"MU",cutflowMu,cutvalsMu,pfJet)
+#  runPlotSetFatJet(df,sig+"MU",cutflowMu,cutvalsMu,pfFat)
+#  runPlotSetTracks(df,sig+"MU",cutflowMu,cutvalsMu,pftrack)
+#  plot_distribution(df,sig+"MU","n_pfMu",range(0,10,1)                                     ,cutflowMu,cutvalsMu,0,1)
+#  del df
+#  del pfJet
+#  del pfFat
+#  del pftrack
+#  gc.collect()
 
 
-#make significance for Track ID
-#make_eff_combo(df200,dfqcd,200, 1,30)
+#QCD
+#dfqcd, pfJetqcd,pfFatqcd = openReco("HT700",5962,2)
+dfqcd = openReco("HT700",5962,2)
+# trigger(df,sig)
+
+runPlotSet(dfqcd,"QCD700",cutflowHt,cutvalsHt)
+#runPlotSetJet(dfqcd,"QCD700",cutflowHt,cutvalsHt,pfJetqcd)
+#runPlotSetFatJet(dfqcd,"QCD700",cutflowHt,cutvalsHt,pfFatqcd)
+
+#  plot_distribution(df,sig+"Mu","ht",range(0,1500,10)                      ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","n_pfcand",range(0,550,10)                ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","event_sphericity",[x*0.01 for x in range(0,100,1)]        ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","eventBoosted_sphericity",[x*0.01 for x in range(0,100,1)] ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","n_jet",range(0,20,1)                   ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","n_fatjet",range(0,10,1)                ,cutflow,cutvals,0,1)
+#  plot_distribution(df,sig+"Mu","n_pfMu",range(0,10,1)                ,cutflow,cutvals,0,1)
+#  #plot_distributionv2(pfsig400_darkPho,dfsig400_darkPho,"sig400DarkPho","PFcand_pt",range(0,100,1)                ,cutflow,cutvals,0,1)
+#  #plot_distributionv2(pfsig400_darkPho,dfsig400_darkPho,"sig400DarkPho","PFcand_eta",eta_bins                ,cutflow,cutvals,0,0)
+#  #plot_distributionv2(pfsig400_darkPho,dfsig400_darkPho,"sig400DarkPho","PFcand_phi",phi_bins                ,cutflow,cutvals,0,0)
+
+
+
+#make_2d_correlation(hltsignal,"sig300", "ht",range(0,1500,10), "eventBoosted_sphericity",[x*0.01 for x in range(0,100,1)])
+#make_2d_correlation(hltsignal,"sig300", "ht",range(0,1500,10), "event_sphericity",[x*0.01 for x in range(0,100,1)])
+#make_2d_correlation(hltMC,"MC", "ht",range(0,1500,10), "eventBoosted_sphericity",[x*0.01 for x in range(0,100,1)])
+#make_2d_correlation(hltMC,"MC", "ht",range(0,1500,10), "event_sphericity",[x*0.01 for x in range(0,100,1)])
+#make_2d_correlation(hltdata,"DataPFComm", "ht",range(0,1500,10), "eventBoosted_sphericity",[x*0.01 for x in range(0,100,1)])
+#make_2d_correlation(hltdata,"DataPFComm", "ht",range(0,1500,10), "event_sphericity",[x*0.01 for x in range(0,100,1)])
+
+
+
+
+
+
