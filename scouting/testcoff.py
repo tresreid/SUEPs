@@ -22,22 +22,22 @@ class MyProcessor(processor.ProcessorABC):
     def accumulator(self):
         return self._accumulator
 
-    def process(self, events):
+    def process(self, arrays):
         output = self.accumulator.identity()
-
+        #print(events)
         #dataset = events.metadata['dataset']
-        arrays = {k: v for k,v in events.arrays(how=dict).items()}
-        tright = [item[7] for item in arrays.pop("hltResult")]
+        #arrays = {k: v for k,v in events.arrays(how=dict).items()}
+        tright = [item[7] for item in arrays["hltResult"]]
         vals = ak.zip({
-               'ht': arrays.pop("ht"),
-               'n_pfcand': arrays.pop("n_pfcand"),
-               'event_sphericity': arrays.pop("event_sphericity"),
-               'eventBoosted_sphericity': arrays.pop("eventBoosted_sphericity"),
-               'n_fatjet': arrays.pop("n_fatjet"),
-               'n_jet': arrays.pop("n_jet"),
-               'n_pfMu': arrays.pop("n_pfMu"),
-               'n_pfEl': arrays.pop("n_pfEl"),
-               'triggerHt': tright,
+               'ht': arrays["ht"],
+#               'n_pfcand': arrays.pop("n_pfcand"),
+#               'event_sphericity': arrays.pop("event_sphericity"),
+#               'eventBoosted_sphericity': arrays.pop("eventBoosted_sphericity"),
+#               'n_fatjet': arrays.pop("n_fatjet"),
+#               'n_jet': arrays.pop("n_jet"),
+#               'n_pfMu': arrays.pop("n_pfMu"),
+#               'n_pfEl': arrays.pop("n_pfEl"),
+#               'triggerHt': tright,
         })
 
         #cut = (ak.num(muons) == 2) & (ak.sum(muons.charge) == 0)
@@ -47,7 +47,7 @@ class MyProcessor(processor.ProcessorABC):
         #output["sumw"][dataset] += len(events)
         output["htdist"].fill(
             cut="cut 0",
-            va=vals["ht"],
+            v1=vals["ht"],
         )
 
         return output
