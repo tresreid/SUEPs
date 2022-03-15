@@ -10,8 +10,10 @@ plt.style.use(hep.style.ROOT)
 
 
 
-dir1 = "/uscms/home/mreid/nobackup/sueps/analysis/CMSSW_10_6_0/src/PhysicsTools/"
+dir1 = "root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCD/HT700/" 
 fin = uproot.open("%s/newData_ntrack/%s_ntrack.root"%(dir1,"sig400_darkPho"))
+#dir1 = "/uscms/home/mreid/nobackup/sueps/analysis/CMSSW_10_6_0/src/PhysicsTools/"
+#fin = uproot.open("%s/newData_ntrack/%s_ntrack.root"%(dir1,"sig400_darkPho"))
 tree = fin["mmtree/tree"]
 print(fin)
 print(tree)
