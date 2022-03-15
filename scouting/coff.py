@@ -31,30 +31,29 @@ vals = ak.zip({
                'n_pfMu': arrays.pop("n_pfMu"),
                'n_pfEl': arrays.pop("n_pfEl"),
                'triggerHt': tright, 
-               #'Jet_pt' : arrays.pop("Jet_pt"),
-               #'Jet_eta': arrays.pop("Jet_eta"),
-               #'Jet_phi': arrays.pop("Jet_phi"),
-               #'FatJet_pt' : arrays.pop("FatJet_pt"),
-               #'FatJet_eta': arrays.pop("FatJet_eta"),
-               #'FatJet_phi': arrays.pop("FatJet_phi"),
-               'PFcand_pt' : arrays.pop("PFcand_pt"),
-               'PFcand_eta': arrays.pop("PFcand_eta"),
-               'PFcand_phi': arrays.pop("PFcand_phi"),
 #               'triggerMu': trigmu,
               # 'triggerMu': arrays.pop("hltResult")[:][2],
               })
-print(vals.ht)
+print("loaded main")
 
-#vals_jet = ak.zip({
-#               'Jet_pt': arrays.pop("Jet_pt"),
-#               'Jet_eta': arrays.pop("Jet_eta"),
-#               'Jet_phi': arrays.pop("Jet_phi"),
-#})
-#vals_fatjet = ak.zip({
-#               'FatJet_pt' : ak.flatten(arrays.pop("FatJet_pt")),
-#               'FatJet_eta': ak.flatten(arrays.pop("FatJet_eta")),
-#               'FatJet_phi': ak.flatten(arrays.pop("FatJet_phi")),
-#})
+vals_jet = ak.zip({
+               'Jet_pt': arrays.pop("Jet_pt"),
+               'Jet_eta': arrays.pop("Jet_eta"),
+               'Jet_phi': arrays.pop("Jet_phi"),
+})
+print("loaded jet")
+vals_fatjet = ak.zip({
+               'FatJet_pt' : arrays.pop("FatJet_pt"),
+               'FatJet_eta': arrays.pop("FatJet_eta"),
+               'FatJet_phi': arrays.pop("FatJet_phi"),
+})
+print("loaded fatjet")
+vals_tracks = ak.zip({
+               'PFcand_pt' : arrays.pop("PFcand_pt"),
+               'PFcand_eta': arrays.pop("PFcand_eta"),
+               'PFcand_phi': arrays.pop("PFcand_phi"),
+})
+print("loaded tracks")
 
 #cutflow Ht
 vals1 = vals[vals.triggerHt >= 1]
@@ -62,9 +61,29 @@ vals2 = vals1[vals1.ht >= 600]
 vals3 = vals2[vals2.n_fatjet >= 2]
 vals4 = vals3[vals3.n_pfcand >= 200]
 
+vals_jet1 = vals_jet[vals.triggerHt >= 1]
+vals_jet2 = vals_jet1[vals1.ht >= 600]
+vals_jet3 = vals_jet2[vals2.n_fatjet >= 2]
+vals_jet4 = vals_jet3[vals3.n_pfcand >= 200]
+
+vals_fatjet1 = vals_fatjet[vals.triggerHt >= 1]
+vals_fatjet2 = vals_fatjet1[vals1.ht >= 600]
+vals_fatjet3 = vals_fatjet2[vals2.n_fatjet >= 2]
+vals_fatjet4 = vals_fatjet3[vals3.n_pfcand >= 200]
+
+vals_tracks1 = vals_tracks[vals.triggerHt >= 1]
+vals_tracks2 = vals_tracks1[vals1.ht >= 600]
+vals_tracks3 = vals_tracks2[vals2.n_fatjet >= 2]
+vals_tracks4 = vals_tracks3[vals3.n_pfcand >= 200]
+valx1 = [vals,vals1,vals2,vals3,vals4]
+valx2 = [vals_jet,vals_jet1,vals_jet2,vals_jet3,vals_jet4]
+valx3 = [vals_fatjet,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]
+valx4 = [vals_tracks,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
+
+print("set cutflow")
 rang = range(0,1500,10)
 
-def make_dist(var,bins,log=False):
+def make_dist(valx,var,bins,flatten,log=False):
   if len(bins) ==3:
     dist = hist.Hist(
       "Events",
@@ -77,12 +96,18 @@ def make_dist(var,bins,log=False):
       hist.Cat("cut","Cutflow"),
       hist.Bin("v1",var,bins)
       )
-  
-  dist.fill(cut="cut 0:no cut",        v1=ak.flatten(vals[var]))
-  dist.fill(cut="cut 1:TrigHt",        v1=ak.flatten(vals1[var]))
-  dist.fill(cut="cut 2:ht >= 600",     v1=ak.flatten(vals2[var]))
-  dist.fill(cut="cut 3:fj >= 2",       v1=ak.flatten(vals3[var]))
-  dist.fill(cut="cut 4:n_PfCand >=200",v1=ak.flatten(vals4[var]))
+  if flatten: 
+    dist.fill(cut="cut 0:no cut",        v1=ak.flatten(valx[0][var]))
+    dist.fill(cut="cut 1:TrigHt",        v1=ak.flatten(valx[1][var]))
+    dist.fill(cut="cut 2:ht >= 600",     v1=ak.flatten(valx[2][var]))
+    dist.fill(cut="cut 3:fj >= 2",       v1=ak.flatten(valx[3][var]))
+    dist.fill(cut="cut 4:n_PfCand >=200",v1=ak.flatten(valx[4][var]))
+  else:
+    dist.fill(cut="cut 0:no cut",        v1=valx[0][var])
+    dist.fill(cut="cut 1:TrigHt",        v1=valx[1][var])
+    dist.fill(cut="cut 2:ht >= 600",     v1=valx[2][var])
+    dist.fill(cut="cut 3:fj >= 2",       v1=valx[3][var])
+    dist.fill(cut="cut 4:n_PfCand >=200",v1=valx[4][var])
   
   fig, ax1 = plt.subplots()
   
@@ -100,25 +125,27 @@ def make_dist(var,bins,log=False):
   fig.savefig("Plots/dist_%s"%(var))
   plt.close()
 
-pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50,200])
+pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
 
-make_dist("ht",[150,0,1500])
-make_dist("n_pfcand",[50,0,500])
-make_dist("event_sphericity",[100,0,1])
-make_dist("eventBoosted_sphericity",[100,0,1])
-make_dist("n_fatjet",[10,0,10])
-make_dist("n_jet",[20,0,20])
-make_dist("n_pfMu",[10,0,10])
-make_dist("n_pfEl",[10,0,10])
-#make_dist("Jet_pt",[300,0,300])
-#make_dist("Jet_eta",eta_bins)
-#make_dist("Jet_phi",phi_bins)
-#make_dist("FatJet_pt",[300,0,300])
-#make_dist("FatJet_eta",eta_bins)
-#make_dist("FatJet_phi",phi_bins)
-make_dist("PFcand_pt",pt_bins)
-make_dist("PFcand_eta",eta_bins)
-make_dist("PFcand_phi",phi_bins)
+
+print("making distributions")
+make_dist(valx1,"ht",[150,0,1500],False)
+make_dist(valx1,"n_pfcand",[50,0,300],False)
+make_dist(valx1,"event_sphericity",[50,0,1],False)
+make_dist(valx1,"eventBoosted_sphericity",[50,0,1],False)
+make_dist(valx1,"n_fatjet",[10,0,10],False)
+make_dist(valx1,"n_jet",[20,0,20],False)
+make_dist(valx1,"n_pfMu",[10,0,10],False)
+make_dist(valx1,"n_pfEl",[10,0,10],False)
+make_dist(valx2,"Jet_pt",[100,0,300],True,True)
+make_dist(valx2,"Jet_eta",eta_bins,True)
+make_dist(valx2,"Jet_phi",phi_bins,True)
+make_dist(valx3,"FatJet_pt",[100,0,300],True,True)
+make_dist(valx3,"FatJet_eta",eta_bins,True)
+make_dist(valx3,"FatJet_phi",phi_bins,True)
+make_dist(valx4,"PFcand_pt",pt_bins,True)
+make_dist(valx4,"PFcand_eta",eta_bins,True)
+make_dist(valx4,"PFcand_phi",phi_bins,True)
 
