@@ -2,6 +2,9 @@ import awkward as ak
 from coffea import hist, processor
 import uproot
 from coffea.nanoevents import NanoEventsFactory, BaseSchema
+import matplotlib.pyplot as plt
+import mplhep as hep
+import numpy as np
 
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
@@ -81,3 +84,21 @@ out = processor.run_uproot_job(
       maxchunks=4,
 )
 print(out)
+scaled = {}
+for name, h in out.items():
+  if isinstance(h, hist.Hist):
+    scaled[name] = h.copy()
+
+fig, ax1 = plt.subplots()
+
+hist.plot1d(
+    scaled["htdist"],
+    ax=ax1,
+    overlay="cut",
+    stack=False,
+    fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
+)
+#hep.cms.label(loc=2)
+hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+fig.savefig("Plots/proccess_%s"%("ht"))
+plt.close()
