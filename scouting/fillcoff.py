@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 import numpy as np
 import uproot
+import pickle
 
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
@@ -231,34 +232,38 @@ out = processor.run_uproot_job(
       maxchunks=4,
 )
 print(out)
-lumi = 59.74*1000
-#xsecs_qcd = [5962,1207,119.9,25.24]
-#xsecs_sig = [0.17,0.5,5.9,8.9,13.6]
-#xsecs = {"HT700":5962,"HT1000": 1207,"HT1500":119.9,"HT2000":25.24, "sig1000":0.17,"sig750":0.5,"sig400_darkPhi":5.9,"sig300_darkPho":8.9,"sig200_darkPho":13.6}
-xsec = 5962
-nevents = out["sumw"]["HT700"]
-print("nevents ",nevents)
-scaled = {}
-fout = uproot.recreate("output.root")
-for name, h in out.items():
-  if isinstance(h, hist.Hist):
-    #xsec = xsecs[name]
-    scaled[name] = h.copy()
-    scaled[name].scale(lumi*xsec/nevents)
-    
 
-    fig, ax1 = plt.subplots()
-    
-    hx = hist.plot1d(
-        scaled[name],
-        ax=ax1,
-        overlay="cut",
-        stack=False,
-        fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
-    )
-    #hep.cms.label(loc=2)
-    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-    fout[name] = hist.export1d(scaled[name])
-    fig.savefig("Plots/proccess_%s"%(name))
-    plt.close()
-fout.close()
+with open("myhistos.p", "wb") as pkl_file:
+    pickle.dump(out, pkl_file)
+#
+#lumi = 59.74*1000
+##xsecs_qcd = [5962,1207,119.9,25.24]
+##xsecs_sig = [0.17,0.5,5.9,8.9,13.6]
+##xsecs = {"HT700":5962,"HT1000": 1207,"HT1500":119.9,"HT2000":25.24, "sig1000":0.17,"sig750":0.5,"sig400_darkPhi":5.9,"sig300_darkPho":8.9,"sig200_darkPho":13.6}
+#xsec = 5962
+#nevents = out["sumw"]["HT700"]
+#print("nevents ",nevents)
+#scaled = {}
+#fout = uproot.recreate("output.root")
+#for name, h in out.items():
+#  if isinstance(h, hist.Hist):
+#    #xsec = xsecs[name]
+#    scaled[name] = h.copy()
+#    scaled[name].scale(lumi*xsec/nevents)
+#    
+#
+#    fig, ax1 = plt.subplots()
+#    
+#    hx = hist.plot1d(
+#        scaled[name],
+#        ax=ax1,
+#        overlay="cut",
+#        stack=False,
+#        fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
+#    )
+#    #hep.cms.label(loc=2)
+#    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+#    fout[name] = hist.export1d(scaled[name])
+#    fig.savefig("Plots/proccess_%s"%(name))
+#    plt.close()
+#fout.close()
