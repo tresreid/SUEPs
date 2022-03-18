@@ -10,6 +10,7 @@ import pickle
 
 with open("myhistos.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
+    print(out)
     lumi = 59.74*1000
     xsec = 5962
     nevents = out["sumw"]["HT700"]
