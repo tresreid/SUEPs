@@ -135,101 +135,101 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","PFcand_phi",phi_bins)
             ),
-            "dist_n_pfMu": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfMuons",15,0,15)
-            ),
-            "dist_n_pfEl": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfElectrons",20,0,20)
-            ),
-            "mudist_ht": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",100,0,1500)
-            ),
-            "mudist_event_sphericity": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","spericity",50,0,1)
-            ),
-            "mudist_eventBoosted_sphericity": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Boosted Sphericity",50,0,1)
-            ),
-            "mudist_n_pfcand": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nPFCand",50,0,300)
-            ),
-            "mudist_n_jet": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nJet",20,0,20)
-            ),
-            "mudist_n_fatjet": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nFatJet",10,0,10)
-            ),
-            "mudist_Jet_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_pt",100,0,300)
-            ),
-            "mudist_Jet_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_eta",eta_bins)
-            ),
-            "mudist_Jet_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_phi",phi_bins)
-            ),
-            "mudist_FatJet_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_pt",100,0,300)
-            ),
-            "mudist_FatJet_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_eta",eta_bins)
-            ),
-            "mudist_FatJet_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_phi",phi_bins)
-            ),
-            "mudist_PFcand_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_pt",pt_bins)
-            ),
-            "mudist_PFcand_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_eta",eta_bins)
-            ),
-            "mudist_PFcand_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_phi",phi_bins)
-            ),
-            "mudist_n_pfMu": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfMuons",15,0,15)
-            ),
-            "mudist_n_pfEl": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfElectrons",20,0,20)
-            ),
+#            "dist_n_pfMu": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfMuons",15,0,15)
+#            ),
+#            "dist_n_pfEl": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfElectrons",20,0,20)
+#            ),
+#            "mudist_ht": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","ht",100,0,1500)
+#            ),
+#            "mudist_event_sphericity": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","spericity",50,0,1)
+#            ),
+#            "mudist_eventBoosted_sphericity": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Boosted Sphericity",50,0,1)
+#            ),
+#            "mudist_n_pfcand": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nPFCand",50,0,300)
+#            ),
+#            "mudist_n_jet": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nJet",20,0,20)
+#            ),
+#            "mudist_n_fatjet": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nFatJet",10,0,10)
+#            ),
+#            "mudist_Jet_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_pt",100,0,300)
+#            ),
+#            "mudist_Jet_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_eta",eta_bins)
+#            ),
+#            "mudist_Jet_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_phi",phi_bins)
+#            ),
+#            "mudist_FatJet_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_pt",100,0,300)
+#            ),
+#            "mudist_FatJet_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_eta",eta_bins)
+#            ),
+#            "mudist_FatJet_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_phi",phi_bins)
+#            ),
+#            "mudist_PFcand_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_pt",pt_bins)
+#            ),
+#            "mudist_PFcand_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_eta",eta_bins)
+#            ),
+#            "mudist_PFcand_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_phi",phi_bins)
+#            ),
+#            "mudist_n_pfMu": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfMuons",15,0,15)
+#            ),
+#            "mudist_n_pfEl": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfElectrons",20,0,20)
+#            ),
         })
 
     @property
@@ -274,10 +274,6 @@ class MyProcessor(processor.ProcessorABC):
                        'PFcand_eta': arrays["PFcand_eta"],
                        'PFcand_phi': arrays["PFcand_phi"],
         })
-
-        #cut = (ak.num(muons) == 2) & (ak.sum(muons.charge) == 0)
-        # add first and second muon in every event together
-        #dimuon = muons[cut][:, 0] + muons[cut][:, 1]
 
         #cutflow Ht
         vals1 = vals0[vals0.triggerHt >= 1]
@@ -394,7 +390,7 @@ if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if "HT" in fin:
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
-  fs=fs[500*batch:500*(batch+1)]
+  fs=fs[400*batch:400*(batch+1)]
   fileset = {
            fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCD/%s/%s"%(fin,f) for f in fs],
            #'HT700' : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCD/HT700/%s"%(f) for f in fs_sub],
@@ -406,7 +402,7 @@ if "HT" in fin:
 else:
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_ntrack.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_ntrackboost.root"%(fin,decays[batch])]
   }  
 
 
