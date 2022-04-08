@@ -25,7 +25,8 @@ with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
         #print(name)
         scaled[name] = h.copy()
         scaled[name].scale(lumi*xsec/nevents)
-outhists = ["HT500_0","HT500_1","HT500_2","HT500_3","HT500_4","HT500_5","HT500_6", "HT700_0","HT700_1","HT700_2","HT700_3","HT700_4","HT700_5","HT700_6","HT1000_0","HT1000_1","HT1000_2","HT1500_0","HT1500_1"]
+outhists = ["HT500_0","HT500_1","HT500_2","HT500_3","HT700_0","HT700_1","HT700_2","HT1000_0","HT1000_1","HT1500_0","HT1500_1"]
+#outhists = ["HT500_0","HT500_1","HT500_2","HT500_3","HT500_4","HT500_5","HT500_6", "HT700_0","HT700_1","HT700_2","HT700_3","HT700_4","HT700_5","HT700_6","HT1000_0","HT1000_1","HT1000_2","HT1500_0","HT1500_1"]
 #outhists = ["HT700_0","HT700_1","HT700_2","HT700_3","HT700_4","HT700_5","HT700_6","HT1000_0","HT1000_1","HT1000_2","HT1500_0","HT1500_1"]
 for ohist in outhists:
   with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
