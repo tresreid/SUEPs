@@ -16,7 +16,7 @@ import sys
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
 def packtrig(output,vals,var):
-        output["trigdist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[0][var])
+        output["trigdist_%s"%(var)].fill(cut="Cut 0:No cut", v1=vals[0][var])
         output["trigdist_%s"%(var)].fill(cut="Mu Trig noRef", v1=vals[1][var]) 
         output["trigdist_%s"%(var)].fill(cut="HT Trig noRef", v1=vals[2][var]) 
         output["trigdist_%s"%(var)].fill(cut="HT Trig MuRef", v1=vals[3][var]) 
@@ -62,7 +62,7 @@ class MyProcessor(processor.ProcessorABC):
             "SR" : hist.Hist(
                       "Events",
                       hist.Cat("axis","Axis"),
-                      hist.Bin("nPFCand","nPFCand",50,0,300),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
                       hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             ),
             "trigdist_ht": hist.Hist(
@@ -78,12 +78,12 @@ class MyProcessor(processor.ProcessorABC):
             "dist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",100,0,1500)
+                      hist.Bin("v1","Ht",100,0,2500)
             ),
             "dist_event_sphericity": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","spericity",50,0,1)
+                      hist.Bin("v1","Sphericity",50,0,1)
             ),
             "dist_eventBoosted_sphericity": hist.Hist(
                       "Events",
@@ -95,7 +95,7 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nPFCand",50,0,300)
             ),
-            "dist_n_jet": hist.Hist(
+            "dist_n_jetId": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nJet",20,0,20)
@@ -135,6 +135,21 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","FatJet_phi",phi_bins)
             ),
+            "dist_FatJet_ncount": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","FatJet_ncount",10,0,10)
+            ),
+            "dist_FatJet_ncount50": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","FatJet_ncount50",10,0,10)
+            ),
+            "dist_FatJet_ncount100": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","FatJet_ncount100",10,0,10)
+            ),
             "dist_PFcand_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -160,91 +175,91 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","n_pfElectrons",20,0,20)
             ),
-            "mudist_ht": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",100,0,1500)
-            ),
-            "mudist_event_sphericity": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","spericity",50,0,1)
-            ),
-            "mudist_eventBoosted_sphericity": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Boosted Sphericity",50,0,1)
-            ),
-            "mudist_n_pfcand": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nPFCand",50,0,300)
-            ),
-            "mudist_n_jet": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nJet",20,0,20)
-            ),
-            "mudist_n_fatjet": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","nFatJet",10,0,10)
-            ),
-            "mudist_Jet_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_pt",100,0,300)
-            ),
-            "mudist_Jet_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_eta",eta_bins)
-            ),
-            "mudist_Jet_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_phi",phi_bins)
-            ),
-            "mudist_FatJet_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_pt",100,0,300)
-            ),
-            "mudist_FatJet_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_eta",eta_bins)
-            ),
-            "mudist_FatJet_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_phi",phi_bins)
-            ),
-            "mudist_PFcand_pt": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_pt",pt_bins)
-            ),
-            "mudist_PFcand_eta": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_eta",eta_bins)
-            ),
-            "mudist_PFcand_phi": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_phi",phi_bins)
-            ),
-            "mudist_n_pfMu": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfMuons",15,0,15)
-            ),
-            "mudist_n_pfEl": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","n_pfElectrons",20,0,20)
-            ),
+#            "mudist_ht": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","ht",100,0,1500)
+#            ),
+#            "mudist_event_sphericity": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Sphericity",50,0,1)
+#            ),
+#            "mudist_eventBoosted_sphericity": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Boosted Sphericity",50,0,1)
+#            ),
+#            "mudist_n_pfcand": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nPFCand",50,0,300)
+#            ),
+#            "mudist_n_jet": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nJet",20,0,20)
+#            ),
+#            "mudist_n_fatjet": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","nFatJet",10,0,10)
+#            ),
+#            "mudist_Jet_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_pt",100,0,300)
+#            ),
+#            "mudist_Jet_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_eta",eta_bins)
+#            ),
+#            "mudist_Jet_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","Jet_phi",phi_bins)
+#            ),
+#            "mudist_FatJet_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_pt",100,0,300)
+#            ),
+#            "mudist_FatJet_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_eta",eta_bins)
+#            ),
+#            "mudist_FatJet_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","FatJet_phi",phi_bins)
+#            ),
+#            "mudist_PFcand_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_pt",pt_bins)
+#            ),
+#            "mudist_PFcand_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_eta",eta_bins)
+#            ),
+#            "mudist_PFcand_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","PFcand_phi",phi_bins)
+#            ),
+#            "mudist_n_pfMu": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfMuons",15,0,15)
+#            ),
+#            "mudist_n_pfEl": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","n_pfElectrons",20,0,20)
+#            ),
         })
 
     @property
@@ -265,7 +280,7 @@ class MyProcessor(processor.ProcessorABC):
                'event_sphericity': arrays["event_sphericity"],
                'eventBoosted_sphericity': arrays["eventBoosted_sphericity"],
                'n_fatjet': arrays["n_fatjet"],
-               'n_jet': arrays["n_jet"],
+               'n_jetId': arrays["n_jetId"],
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
                'triggerHt': tright,
@@ -282,6 +297,9 @@ class MyProcessor(processor.ProcessorABC):
                        'FatJet_pt' : arrays["FatJet_pt"],
                        'FatJet_eta': arrays["FatJet_eta"],
                        'FatJet_phi': arrays["FatJet_phi"],
+                       'FatJet_ncount': ak.count(arrays["FatJet_pt"],axis=-1),
+                       'FatJet_ncount50': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>50],axis=-1),
+                       'FatJet_ncount100': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>100],axis=-1),
         })
         print("loaded fatjet")
         vals_tracks0 = ak.zip({
@@ -315,30 +333,30 @@ class MyProcessor(processor.ProcessorABC):
         vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]
         vals_tracks = [vals_tracks0,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
 
-        #cutflow Mu
-        mu_vals1 = vals0[vals0.triggerMu >= 1]
-        mu_vals2 = mu_vals1[mu_vals1.n_pfMu >= 4]
-        mu_vals3 = mu_vals2[mu_vals2.n_fatjet >= 2]
-        mu_vals4 = mu_vals3[mu_vals3.n_pfcand >= 100]
-
-        mu_vals_jet1 = vals_jet0[vals0.triggerMu >= 1]
-        mu_vals_jet2 = mu_vals_jet1[mu_vals1.n_pfMu >= 4]
-        mu_vals_jet3 = mu_vals_jet2[mu_vals2.n_fatjet >= 2]
-        mu_vals_jet4 = mu_vals_jet3[mu_vals3.n_pfcand >= 100]
-
-        mu_vals_fatjet1 = vals_fatjet0[vals0.triggerMu >= 1]
-        mu_vals_fatjet2 = mu_vals_fatjet1[mu_vals1.n_pfMu >= 4]
-        mu_vals_fatjet3 = mu_vals_fatjet2[mu_vals2.n_fatjet >= 2]
-        mu_vals_fatjet4 = mu_vals_fatjet3[mu_vals3.n_pfcand >= 100]
-
-        mu_vals_tracks1 = vals_tracks0[vals0.triggerMu >= 1]
-        mu_vals_tracks2 = mu_vals_tracks1[mu_vals1.n_pfMu >= 4]
-        mu_vals_tracks3 = mu_vals_tracks2[mu_vals2.n_fatjet >= 2]
-        mu_vals_tracks4 = mu_vals_tracks3[mu_vals3.n_pfcand >= 100]
-        mu_vals = [vals0,mu_vals1,mu_vals2,mu_vals3,mu_vals4]
-        mu_vals_jet = [vals_jet0,mu_vals_jet1,mu_vals_jet2,mu_vals_jet3,mu_vals_jet4]
-        mu_vals_fatjet = [vals_fatjet0,mu_vals_fatjet1,mu_vals_fatjet2,mu_vals_fatjet3,mu_vals_fatjet4]
-        mu_vals_tracks = [vals_tracks0,mu_vals_tracks1,mu_vals_tracks2,mu_vals_tracks3,mu_vals_tracks4]
+#        #cutflow Mu
+#        mu_vals1 = vals0[vals0.triggerMu >= 1]
+#        mu_vals2 = mu_vals1[mu_vals1.n_pfMu >= 4]
+#        mu_vals3 = mu_vals2[mu_vals2.n_fatjet >= 2]
+#        mu_vals4 = mu_vals3[mu_vals3.n_pfcand >= 100]
+#
+#        mu_vals_jet1 = vals_jet0[vals0.triggerMu >= 1]
+#        mu_vals_jet2 = mu_vals_jet1[mu_vals1.n_pfMu >= 4]
+#        mu_vals_jet3 = mu_vals_jet2[mu_vals2.n_fatjet >= 2]
+#        mu_vals_jet4 = mu_vals_jet3[mu_vals3.n_pfcand >= 100]
+#
+#        mu_vals_fatjet1 = vals_fatjet0[vals0.triggerMu >= 1]
+#        mu_vals_fatjet2 = mu_vals_fatjet1[mu_vals1.n_pfMu >= 4]
+#        mu_vals_fatjet3 = mu_vals_fatjet2[mu_vals2.n_fatjet >= 2]
+#        mu_vals_fatjet4 = mu_vals_fatjet3[mu_vals3.n_pfcand >= 100]
+#
+#        mu_vals_tracks1 = vals_tracks0[vals0.triggerMu >= 1]
+#        mu_vals_tracks2 = mu_vals_tracks1[mu_vals1.n_pfMu >= 4]
+#        mu_vals_tracks3 = mu_vals_tracks2[mu_vals2.n_fatjet >= 2]
+#        mu_vals_tracks4 = mu_vals_tracks3[mu_vals3.n_pfcand >= 100]
+#        mu_vals = [vals0,mu_vals1,mu_vals2,mu_vals3,mu_vals4]
+#        mu_vals_jet = [vals_jet0,mu_vals_jet1,mu_vals_jet2,mu_vals_jet3,mu_vals_jet4]
+#        mu_vals_fatjet = [vals_fatjet0,mu_vals_fatjet1,mu_vals_fatjet2,mu_vals_fatjet3,mu_vals_fatjet4]
+#        mu_vals_tracks = [vals_tracks0,mu_vals_tracks1,mu_vals_tracks2,mu_vals_tracks3,mu_vals_tracks4]
 
         #trig cutflow
         trig1 = vals0[vals0.triggerMu >=1]
@@ -355,7 +373,7 @@ class MyProcessor(processor.ProcessorABC):
         output = packdist(output,vals,"event_sphericity")
         output = packdist(output,vals,"eventBoosted_sphericity")
         output = packdist(output,vals,"n_fatjet")
-        output = packdist(output,vals,"n_jet")
+        output = packdist(output,vals,"n_jetId")
         output = packdist(output,vals,"n_pfMu")
         output = packdist(output,vals,"n_pfEl")
         
@@ -368,26 +386,29 @@ class MyProcessor(processor.ProcessorABC):
         output = packdistflat(output,vals_tracks,"PFcand_pt")
         output = packdistflat(output,vals_tracks,"PFcand_eta")
         output = packdistflat(output,vals_tracks,"PFcand_phi")
+        output = packdistflat(output,vals_fatjet,"FatJet_ncount")
+        output = packdistflat(output,vals_fatjet,"FatJet_ncount50")
+        output = packdistflat(output,vals_fatjet,"FatJet_ncount100")
 
-        #fill mu hists
-        output = mupackdist(output,mu_vals,"ht")
-        output = mupackdist(output,mu_vals,"n_pfcand")
-        output = mupackdist(output,mu_vals,"event_sphericity")
-        output = mupackdist(output,mu_vals,"eventBoosted_sphericity")
-        output = mupackdist(output,mu_vals,"n_fatjet")
-        output = mupackdist(output,mu_vals,"n_jet")
-        output = mupackdist(output,mu_vals,"n_pfMu")
-        output = mupackdist(output,mu_vals,"n_pfEl")
-        
-        output = mupackdistflat(output,mu_vals_jet,"Jet_pt")
-        output = mupackdistflat(output,mu_vals_jet,"Jet_eta")
-        output = mupackdistflat(output,mu_vals_jet,"Jet_phi")
-        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_pt")
-        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_eta")
-        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_phi")
-        output = mupackdistflat(output,mu_vals_tracks,"PFcand_pt")
-        output = mupackdistflat(output,mu_vals_tracks,"PFcand_eta")
-        output = mupackdistflat(output,mu_vals_tracks,"PFcand_phi")
+#        #fill mu hists
+#        output = mupackdist(output,mu_vals,"ht")
+#        output = mupackdist(output,mu_vals,"n_pfcand")
+#        output = mupackdist(output,mu_vals,"event_sphericity")
+#        output = mupackdist(output,mu_vals,"eventBoosted_sphericity")
+#        output = mupackdist(output,mu_vals,"n_fatjet")
+#        output = mupackdist(output,mu_vals,"n_jet")
+#        output = mupackdist(output,mu_vals,"n_pfMu")
+#        output = mupackdist(output,mu_vals,"n_pfEl")
+#        
+#        output = mupackdistflat(output,mu_vals_jet,"Jet_pt")
+#        output = mupackdistflat(output,mu_vals_jet,"Jet_eta")
+#        output = mupackdistflat(output,mu_vals_jet,"Jet_phi")
+#        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_pt")
+#        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_eta")
+#        output = mupackdistflat(output,mu_vals_fatjet,"FatJet_phi")
+#        output = mupackdistflat(output,mu_vals_tracks,"PFcand_pt")
+#        output = mupackdistflat(output,mu_vals_tracks,"PFcand_eta")
+#        output = mupackdistflat(output,mu_vals_tracks,"PFcand_phi")
 
         return output
 
@@ -443,7 +464,7 @@ if __name__ == "__main__":
 
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
-    #hists, metrics = processor.run_uproot_job(
+    print("running %s %s"%(fin,batch))
     out,metrics = processor.run_uproot_job(
         fileset,
         treename="mmtree/tree",
