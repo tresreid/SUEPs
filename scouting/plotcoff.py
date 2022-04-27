@@ -16,7 +16,7 @@ import scipy
 lumi = 59.74*1000
 xsecs = {"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
 colors = ["red","green","orange","blue","black","magenta"]
-cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=100"]
+cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta"}
 
 qcdscaled = {}
@@ -195,7 +195,7 @@ def make_n1(samples,var,cut):
       sharex=True
   )
   fig.subplots_adjust(hspace=.07)
- 
+
   qcd = qcdscaled[name1].integrate("cut",slice(cut,cut+1))
   qcd.label = "QCD"
   hx = hist.plot1d(
@@ -240,6 +240,8 @@ def make_n1(samples,var,cut):
   leg = [l.replace("None","QCD") for l in leg]
   ax.legend(leg)
   ax1.legend()
+  #ax1.set_ylim([0,1e-4])
+  ax1.set_ylim([0,30])
   ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/signif_%s"%(var))
   plt.close()
@@ -401,7 +403,7 @@ def make_cutflow(samples,var):
 def make_closure():
   h1 = qcdscaled["SR"].integrate("axis",slice(0,1))
   low1 =0
-  low2 = 15
+  low2 = 30
   high1 = 100
   high2 = 61
   high1x = 300
@@ -423,9 +425,16 @@ def make_closure():
 #  print(len(h1.identifiers("eventBoostedSphericity"))) 
   rat = bbin/abin
   print(abin,bbin,cbin,dbin,rat,rat*cbin)
-  h1 = h1.rebin("nPFCand",hist.Bin("nPFCand","rebinned",150,0,300))
+  h1 = h1.rebin("nPFCand",hist.Bin("nPFCand","nPFCand",150,0,300))
+  abinx = h1.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).integrate("nPFCand",slice(low1,high1)).sum().values()[()]
+  bbinx = h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).integrate("nPFCand",slice(low1,high1)).sum().values()[()]
+  cbinx = h1.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).integrate("nPFCand",slice(high1,high1x)).sum().values()[()]
+  dbinx = h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).integrate("nPFCand",slice(high1,high1x)).sum().values()[()]
+  ratx = bbinx/abinx
+  expected = ratx*cbinx
+  print(abinx,bbinx,cbinx,dbinx,ratx,expected,dbinx/expected)
   hx = hist.plot1d(
-      h1.integrate("eventBoostedSphericity",slice(.60,1)),
+      h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),
       ax=ax,
       #overlay="cut",
       stack=False,
@@ -434,7 +443,7 @@ def make_closure():
   h2 = h1.copy()
   h2.scale(rat)
   hx2 = hist.plot1d(
-      h2.integrate("eventBoostedSphericity",slice(0,.60)),
+      h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)),
       ax=ax,
       clear=False,
       #overlay="cut",
@@ -450,7 +459,7 @@ def make_closure():
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
-      h1.integrate("eventBoostedSphericity",slice(.60,1)),h2.integrate("eventBoostedSphericity",slice(0,0.6)),
+      h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)),
       ax=ax1,
      # label="QCD",
       error_opts={'color': 'r', 'marker': '+'},
@@ -464,9 +473,9 @@ def make_closure():
   plt.close()
 
 
-make_closure()
+#make_closure()
 #make_dists("QCD")
-#make_dists("sig400_2")
+make_dists("sig400_2")
 #make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"ht")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
@@ -477,8 +486,12 @@ make_closure()
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_pt",2)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_fatjet",2)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_ncount",2)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_ncount50",2)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_ncount100",2)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4) #2
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_pfcand",3)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4)
 #makeSR("sig400")
