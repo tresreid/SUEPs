@@ -8,7 +8,7 @@ do
   python3 $dir/../make_html_listing.py $d
 done
 #outdir=/publicweb/m/mreid/SUEPs/trackStudy_ptErr
-outdir=/publicweb/m/mreid/SUEPs/trackpt_test1
+outdir=/publicweb/m/mreid/SUEPs/trackpt_test2
 #outdir=/publicweb/m/mreid/SUEPs/ProductionTestNewV1
 rm -r $outdir
 mkdir $outdir

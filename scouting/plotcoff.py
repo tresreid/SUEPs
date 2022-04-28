@@ -7,6 +7,7 @@ import mplhep as hep
 import numpy as np
 import uproot
 import pickle
+import pandas as pd
 from numpy import unravel_index
 import heapq
 from scipy.optimize import curve_fit
@@ -377,10 +378,16 @@ def makeSR(sample):
 
 def make_cutflow(samples,var):
   name1 = "dist_%s"%var
+  cutflow = {"QCD":[],"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[]}
   for cut in [0,1,2,3,4]: 
     b1 = qcdscaled[name1].integrate("cut",slice(cut,cut+1)).values()
     for (k,b) in b1.items():
       print("QCD %d %s %.2f"%(cut,name1,b.sum()))
+      cutflow["QCD"].append(b.sum())
+  b1 = qcdscaled[name1].integrate("cut",slice(4,5)).values()
+  for (k,b) in b1.items():
+    print("QCD %d %s %.2f"%(cut,name1,b[30:].sum()))
+    cutflow["QCD"].append(b[30:].sum())
   for sample in samples:
     with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
@@ -396,12 +403,32 @@ def make_cutflow(samples,var):
         
             for cut in [0,1,2,3,4]: 
               s1 = scaled[name].integrate("cut",slice(cut,cut+1)).values()
-              b1 = qcdscaled[name].integrate("cut",slice(cut,cut+1)).values()
               for (k,s) in s1.items():
                 print("%s %d %s %.2f"%(sample,cut,name,s.sum()))
+                cutflow[sample].append(s.sum())
+            s1 = scaled[name].integrate("cut",slice(4,5)).values()
+            #print(s1)
+            for (k,s) in s1.items():
+              print("%s %d %s %.2f"%(sample,cut,name,s[30:].sum()))
+              cutflow[sample].append(s[30:].sum())
+            
+  print(pd.DataFrame(cutflow))
 
-def make_closure():
-  h1 = qcdscaled["SR"].integrate("axis",slice(0,1))
+def make_closure(sample="qcd"):
+  if sample == "qcd":
+    h1 = qcdscaled["SR"].integrate("axis",slice(0,1))
+  else:
+    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+        out = pickle.load(pkl_file)
+        scale= lumi*xsecs[sample]/out["sumw"][sample]
+        scaled = {}
+        for name, h in out.items():
+          if "SR" not in name or "mu" in name or "trig" in name:
+            continue
+          if isinstance(h, hist.Hist):
+            scaled[name] = h.copy()
+            scaled[name].scale(scale)
+            h1 = (scaled["SR"]+qcdscaled["SR"]).integrate("axis",slice(0,1))
   low1 =0
   low2 = 30
   high1 = 100
@@ -469,14 +496,17 @@ def make_closure():
   #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
   ax1.set_xlim(100,175)
   ax1.set_ylim(0.5,1.5)
-  fig.savefig("Plots/closure")
+  fig.savefig("Plots/closure_%s"%sample)
   plt.close()
 
 
 #make_closure()
+#make_closure("sig400")
+#make_closure("sig200")
+#make_closure("sig1000")
 #make_dists("QCD")
-make_dists("sig400_2")
-#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"ht")
+#make_dists("sig400_2")
+make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
 #make_trigs("sig300_2")
@@ -486,13 +516,21 @@ make_dists("sig400_2")
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_pt",2)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_fatjet",2)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_ncount",2)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount30",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4) #2
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",3) #2
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_pfcand",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",3)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4)
 #makeSR("sig400")
 #makeSR("sig200")

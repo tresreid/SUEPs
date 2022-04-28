@@ -59,6 +59,9 @@ def mupackdistflat(output,vals,var):
 def packSR(output,vals):
         output["SR"].fill(axis="axis",       nPFCand=vals[3]["n_pfcand"],eventBoostedSphericity=vals[3]["eventBoosted_sphericity"])
         return output
+def packSR2(output,vals):
+        output["SR2"].fill(axis="axis",       nPFCand=vals[3]["Fatjet_nconst"],eventBoostedSphericity=vals[3]["eventBoosted_sphericity"])
+        return output
 pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
