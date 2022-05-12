@@ -38,6 +38,7 @@ def packtrkIDx(output,vals,var):
         output["dist_trkIDFK_%s"%(var)].fill(cut="cut 6: PFcand_pt > 0.8",       v1=ak.flatten(vals[6][var]))
         output["dist_trkIDFK_%s"%(var)].fill(cut="cut 7: PFcand_pt > 0.9",       v1=ak.flatten(vals[7][var]))
         output["dist_trkIDFK_%s"%(var)].fill(cut="cut 8: PFcand_pt > 1.0",       v1=ak.flatten(vals[8][var]))
+        return output
 def packtrkID(output,vals,var):
         output["dist_trkID_%s"%(var)].fill(cut="cut 0:Preselection",       v1=ak.flatten(vals[0][var]))
         output["dist_trkID_%s"%(var)].fill(cut="cut 1: dR <=0.05",       v1=ak.flatten(vals[1][var]))
@@ -297,21 +298,21 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","PFcand_phi",phi_bins)
             ),
-           # "dist_trkIDFK_PFcand_pt": hist.Hist(
-           #           "Events",
-           #           hist.Cat("cut","Cutflow"),
-           #           hist.Bin("v1","PFcand_pt",pt_bins)
-           # ),
-           # "dist_trkIDFK_PFcand_eta": hist.Hist(
-           #           "Events",
-           #           hist.Cat("cut","Cutflow"),
-           #           hist.Bin("v1","PFcand_eta",eta_bins)
-           # ),
-           # "dist_trkIDFK_PFcand_phi": hist.Hist(
-           #           "Events",
-           #           hist.Cat("cut","Cutflow"),
-           #           hist.Bin("v1","PFcand_phi",phi_bins)
-           # ),
+            "dist_trkIDFK_PFcand_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_pt",pt_bins)
+            ),
+            "dist_trkIDFK_PFcand_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_eta",eta_bins)
+            ),
+            "dist_trkIDFK_PFcand_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_phi",phi_bins)
+            ),
             "dist_trkID_PFcand_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -351,6 +352,21 @@ class MyProcessor(processor.ProcessorABC):
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","gen_dR",100,0,0.3)
+            ),
+            "dist_gen_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_pt",pt_bins)
+            ),
+            "dist_gen_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_eta",eta_bins)
+            ),
+            "dist_gen_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_phi",phi_bins)
             ),
             "dist_n_pfMu": hist.Hist(
                       "Events",
@@ -480,18 +496,18 @@ class MyProcessor(processor.ProcessorABC):
         trigs = [vals0,trig1,trig2,trig3]
 
         #trackID
-        #trkID4x = vals_tracks3[(vals_tracks3.PFcand_dR > 0.05)]
-        #trkID5x = trkID4x[trkID4x.PFcand_pt > 0.5]
-        #trkID6x = trkID5x[trkID5x.PFcand_pt > 0.6]
-        #trkID7x = trkID6x[trkID6x.PFcand_pt > 0.7]
-        #trkID8x = trkID7x[trkID7x.PFcand_pt > 0.75]
-        #trkID9x = trkID8x[trkID8x.PFcand_pt > 0.8]
-        #trkID10x = trkID9x[trkID9x.PFcand_pt > 0.9]
-        #trkID11x = trkID10x[trkID10x.PFcand_pt > 1.0]
-        #trkIDx = [vals_tracks3,trkID4x,trkID5x,trkID6x,trkID7x,trkID8x,trkID9x,trkID10x,trkID11x]
-        #output = packtrkIDx(output,trkIDx,"PFcand_pt")
-        #output = packtrkIDx(output,trkIDx,"PFcand_eta")
-        #output = packtrkIDx(output,trkIDx,"PFcand_phi")
+        trkID4fx = vals_tracks3[(vals_tracks3.PFcand_dR > 0.05) | (vals_tracks3.PFcand_dR < 0)]
+        trkID5fx = trkID4fx[trkID4fx.PFcand_pt > 0.5]
+        trkID6fx = trkID5fx[trkID5fx.PFcand_pt > 0.6]
+        trkID7fx = trkID6fx[trkID6fx.PFcand_pt > 0.7]
+        trkID8fx = trkID7fx[trkID7fx.PFcand_pt > 0.75]
+        trkID9fx = trkID8fx[trkID8fx.PFcand_pt > 0.8]
+        trkID10fx = trkID9fx[trkID9fx.PFcand_pt > 0.9]
+        trkID11fx = trkID10fx[trkID10fx.PFcand_pt > 1.0]
+        trkIDfx = [vals_tracks3,trkID4fx,trkID5fx,trkID6fx,trkID7fx,trkID8fx,trkID9fx,trkID10fx,trkID11fx]
+        output = packtrkIDx(output,trkIDfx,"PFcand_pt")
+        output = packtrkIDx(output,trkIDfx,"PFcand_eta")
+        output = packtrkIDx(output,trkIDfx,"PFcand_phi")
         trkID4 = vals_tracks3[(vals_tracks3.PFcand_dR >=0) & (vals_tracks3.PFcand_dR <= 0.05)]
         trkID5 = trkID4[trkID4.PFcand_pt > 0.5]
         trkID6 = trkID5[trkID5.PFcand_pt > 0.6]
@@ -508,6 +524,8 @@ class MyProcessor(processor.ProcessorABC):
         vals_gen1 = vals_gen0[vals0.triggerHt >= 1]
         vals_gen2 = vals_gen1[vals1.ht >= 600]
         vals_gen3 = vals_gen2[vals2.FatJet_ncount50 >= 2]
+        vals_gen4 = vals_gen3[vals3.FatJet_nconst >= 80]
+        vals_gen = [vals_gen0,vals_gen1,vals_gen2,vals_gen3,vals_gen4]
         trkID4x = vals_gen3[(vals_gen3.gen_dR >=0) & (vals_gen3.gen_dR <= 0.05)]
         trkID5x = trkID4x[trkID4x.gen_pt > 0.5]
         trkID6x = trkID5x[trkID5x.gen_pt > 0.6]
@@ -545,6 +563,10 @@ class MyProcessor(processor.ProcessorABC):
         output = packdistflat(output,vals_tracks,"PFcand_dR")
         output = packdistflat(output,vals_tracks,"PFcand_eta")
         output = packdistflat(output,vals_tracks,"PFcand_phi")
+        output = packdistflat(output,vals_gen,"gen_pt")
+        output = packdistflat(output,vals_gen,"gen_dR")
+        output = packdistflat(output,vals_gen,"gen_eta")
+        output = packdistflat(output,vals_gen,"gen_phi")
         output = packdist(output,vals,"FatJet_nconst")
         output = packdist(output,vals,"FatJet_ncount30")
         output = packdist(output,vals,"FatJet_ncount50")

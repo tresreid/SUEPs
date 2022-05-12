@@ -39,7 +39,7 @@ def make_dists(sample):
         scale= lumi*xsec/out["sumw"][sample.split("_")[0]]
       scaled = {}
       for name, h in out.items():
-        if "SR" in name or "gen" in name:
+        if "SR" in name:
           continue
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
@@ -62,7 +62,7 @@ def make_dists(sample):
           if "_pt" in name:
             ax1.set_xscale("log")
             ax1.set_xlim([20,200])
-            if "PFcand" in name:
+            if "PFcand" in name or "gen" in name:
               ax1.set_xlim([0.3,100])
             #ax1.autoscale(axis='x', tight=True)
           fig.savefig("Plots/proccess_%s_%s"%(sample,name))
@@ -90,9 +90,9 @@ def make_trkeff(sample,name):
       #s2 = out["dist_trkID_PFcand_pt"].integrate("cut",slice(0,1)).to_hist().to_numpy()[0]
       #points = np.nan_to_num(s1/s2)
       #popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
-      for cut in range(7):
+      for cut in range(8):
         hx = hist.plotratio(
-            out[name].integrate("cut",slice(2+cut,3+cut)),out[name].integrate("cut",slice(1,2)),
+            out[name].integrate("cut",slice(1+cut,2+cut)),out[name].integrate("cut",slice(0,1)),
             ax=ax1,
             clear=False,
             error_opts={'color': colors[cut], 'marker': '+'},
@@ -110,10 +110,10 @@ def make_trkeff(sample,name):
       if "_pt" in name:
         ax1.set_xscale("log")
         ax1.set_xlim([20,200])
-        if "PFcand" in name:
+        if "PFcand" in name or "gen" in name:
           ax1.set_xlim([0.3,100])
       #ax1.legend([points],loc="lower right")
-      ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+      ax1.legend(["Matching","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
       fig.suptitle("Track Efficiency: %s"%sample)
       hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
       fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
@@ -630,6 +630,8 @@ def make_closure(sample="qcd"):
 make_dists("sig400_2")
 make_trkeff("sig400_2","dist_trkID_PFcand_pt")
 make_trkeff("sig400_2","dist_trkID_PFcand_phi")
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt")
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi")
 make_trkeff("sig400_2","dist_trkID_gen_pt")
 make_trkeff("sig400_2","dist_trkID_gen_phi")
 #make_trkeff("sig750_2","dist_trkIDFK_PFcand_pt")
