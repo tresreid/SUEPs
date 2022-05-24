@@ -12,11 +12,12 @@ from numpy import unravel_index
 import heapq
 from scipy.optimize import curve_fit
 import scipy
+from matplotlib.colors import LinearSegmentedColormap
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
 xsecs = {"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
-colors = ["black","red","green","orange","blue","magenta","cyan","yellow"]
+colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta"}
 
@@ -39,7 +40,7 @@ def make_dists(sample):
         scale= lumi*xsec/out["sumw"][sample.split("_")[0]]
       scaled = {}
       for name, h in out.items():
-        if "SR" in name:
+        if "SR" in name or "trkID" in name:
           continue
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
@@ -82,29 +83,19 @@ def make_trkeff(sample,name):
         scale= lumi*xsec/out["sumw"][sample]
       out[name].scale(scale)
       
+      num = out[name].integrate("v2",slice(0,0.05)).copy()
+      numFK = out[name].integrate("v2",slice(0.05,0.3)).copy()
+      denom = out[name].integrate("v2").copy()
       
       fig, ax1 = plt.subplots()
-      #Trigger plots
-      #s = out["dist_trkID_PFcand_pt"].integrate("cut",slice(1,2)).to_hist().to_numpy()
-      #s1 = s[0]
-      #s2 = out["dist_trkID_PFcand_pt"].integrate("cut",slice(0,1)).to_hist().to_numpy()[0]
-      #points = np.nan_to_num(s1/s2)
-      #popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
-      for cut in range(8):
+      for cut in range(7):
         hx = hist.plotratio(
-            out[name].integrate("cut",slice(1+cut,2+cut)),out[name].integrate("cut",slice(0,1)),
+            num.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
             ax=ax1,
             clear=False,
             error_opts={'color': colors[cut], 'marker': '+'},
             unc='clopper-pearson'
         )
-      #xs = np.linspace(0,1500,100)
-      #p98sig = 1.65*popt[2]+popt[1]
-      #p90sig = 1.163*popt[2]+popt[1]
-      #ax1.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color="black",label="Sig: 90:%d 98:%d "%(p90sig,p98sig))
-
- #     ax1.axvline(x=p98sig,color="black",ls="--")
-  #    ax1.axvline(x=p90sig,color="black",ls=":")
 
       ax1.set_ylim(0,1.1)
       if "_pt" in name:
@@ -112,11 +103,33 @@ def make_trkeff(sample,name):
         ax1.set_xlim([20,200])
         if "PFcand" in name or "gen" in name:
           ax1.set_xlim([0.3,100])
-      #ax1.legend([points],loc="lower right")
-      ax1.legend(["Matching","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+      ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
       fig.suptitle("Track Efficiency: %s"%sample)
       hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
       fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
+      plt.close()
+
+      ###############FAKE
+      fig, ax1 = plt.subplots()
+      for cut in range(7):
+        hx1 = hist.plotratio(
+            numFK.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
+            ax=ax1,
+            clear=False,
+            error_opts={'color': colors[cut], 'marker': '+'},
+            unc='clopper-pearson'
+        )
+
+      ax1.set_ylim(0,1.1)
+      if "_pt" in name:
+        ax1.set_xscale("log")
+        ax1.set_xlim([20,200])
+        if "PFcand" in name or "gen" in name:
+          ax1.set_xlim([0.3,100])
+      ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+      fig.suptitle("Track Efficiency: %s"%sample)
+      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+      fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
       plt.close()
 def make_trigs(sample):
   with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
@@ -295,13 +308,34 @@ def get_sig2d(s,sb,rangex,rangey):
     sig.append(sig1)
     bkg.append(bkg1)
   return(sig,bkg)
-def makeSR(sample):
+def makeSR(sample,var):
   with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       #print(out)
       scale= lumi*xsecs[sample]/out["sumw"][sample]
       scaled = {}
-      var = "SR2"
+#      var = "SR2"
+      # get colormap
+      ncolors = 2048
+      color_array = plt.get_cmap('Blues')(range(ncolors))
+      color_array2 = plt.get_cmap('Reds')(range(ncolors))
+      
+      # change alpha values
+      color_array[:,-1] = np.linspace(0.0,1.0,ncolors)
+      color_array2[:,-1] = np.linspace(0.0,1.0,ncolors)
+      
+      # create a colormap object
+      map_object = LinearSegmentedColormap.from_list(name='blues_alpha',colors=color_array)
+      map_object2 = LinearSegmentedColormap.from_list(name='reds_alpha',colors=color_array2)
+      
+      # register this new colormap with matplotlib
+      plt.register_cmap(cmap=map_object)
+      plt.register_cmap(cmap=map_object2)
+
+      if var=="SR1":
+        xvar = "nPFCand"
+      else:
+        xvar = "FatJet_nconst"
       for name, h in out.items():
         if var not in name:
           continue
@@ -334,7 +368,7 @@ def makeSR(sample):
           ax.set_yticklabels([0,.20,.40,.60,.80,1])
           bar = plt.colorbar(shw)
           bar.set_label("Significance")
-          ax.set_xlabel("nPFCand")
+          ax.set_xlabel(xvar)
           ax.set_ylabel("eventBoosted_Sphericity")
           ax.text(maxindex[0],maxindex[1],"X=%.2f(%d,%.2f)"%(maxi,maxindex[0],maxindex[1]/100))
            
@@ -342,13 +376,13 @@ def makeSR(sample):
           ax.set_aspect("auto")
           fig.suptitle("Significance: %s"%sample)
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/signif2d_%s"%(sample))
+          fig.savefig("Plots/signif2d_%s_%s"%(sample,var))
           plt.close()
           fig, ax1 = plt.subplots()
       
           hx = hist.plot2d(
               scaled[name].integrate("axis",slice(0,1)),
-              "FatJet_nconst",
+              xvar,
               #"nPFCand",
               ax=ax1,
               #overlay="cut",
@@ -357,14 +391,14 @@ def makeSR(sample):
           )
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
           fig.suptitle("SR: %s"%sample)
-          fig.savefig("Plots/SR_sig_%s"%(sample))
+          fig.savefig("Plots/%s_sig_%s"%(var,sample))
           plt.close()
         
           fig, ax1 = plt.subplots()
       
           hx = hist.plot2d(
               qcdscaled[name].integrate("axis",slice(0,1)),
-              "FatJet_nconst",
+              xvar, 
               #"nPFCand",
               ax=ax1,
               #overlay="cut",
@@ -373,47 +407,47 @@ def makeSR(sample):
           )
           fig.suptitle("SR: QCD")
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/SR_bkg")
+          fig.savefig("Plots/%s_bkg"%var)
           plt.close()
         
           fig, ax1 = plt.subplots()
       
           h0 = hist.plot2d(
               scaled[name].integrate("axis",slice(0,1)),
-              "FatJet_nconst",
+              xvar, 
               #"nPFCand",
               ax=ax1,
           #    clear=False,
               #overlay="cut",
               #stack=False,
               #fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
-              patch_opts={'cmap': 'Blues',"alpha":.5,"vmin":0,"vmax":150}
+              patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":150}
           )
           h1 = hist.plot2d(
               qcdscaled[name].integrate("axis",slice(0,1)),
-              "FatJet_nconst",
+              xvar,
               #"nPFCand",
               ax=ax1,
               #clear=False,
               #overlay="cut",
               #stack=False,
               #fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
-              patch_opts={'cmap': 'Reds',"vmin":0,"vmax":80000}
+              patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":80000}
           )
           h2 = hist.plot2d(
               scaled[name].integrate("axis",slice(0,1)),
-              "FatJet_nconst",
+              xvar,
               #"nPFCand",
               ax=ax1,
               clear=False,
               #overlay="cut",
               #stack=False,
               #fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
-              patch_opts={'cmap': 'Blues',"alpha":.2,"vmin":0,"vmax":150}
+              patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":150}
           )
           fig.suptitle("SR: QCD + %s"%sample)
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/SR_%s_bkg"%sample)
+          fig.savefig("Plots/SR_%s_%s_bkg"%(sample,var))
           plt.close()
           
 
@@ -456,103 +490,90 @@ def make_cutflow(samples,var):
   print(pd.DataFrame(cutflow))
 
 
-def make_correlation():
-  SR = "SR2"
+def make_correlation(SR):
   if SR == "SR1":
     var = "nPFCand"
+    high1 = 100
   else:
     var = "FatJet_nconst"
-  h1 = qcdscaled["SR2"].integrate("axis",slice(0,1))
+    high1 = 80
+  h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   fig, ax1 = plt.subplots()
  
-  sphere = [0,0.2,0.3,0.4,0.6,0.8,1]
+  sphere = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
   #labs = []
   for i in range(len(sphere)-1): 
     h2 = h1.integrate("eventBoostedSphericity",slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
-    #ax1.hist(h2)
-    #labs.append("%s-%s"%(sphere[i],sphere[i+1]))
     norm = np.linalg.norm(h2[0])
-    ax1.step(h2[1][:-81],h2[0][:-80]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
-    #hx = hist.plot1d(
-    #    h2,
-    #    ax=ax1,
-    #    density=True, 
-    #    clear= False,
-    #    stack=False,
-    #    legend_opts={"labels":labs}
-    #)
+    ax1.step(h2[1][:-(high1+1)],h2[0][:-high1]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-  ax1.legend()
+  ax1.legend(title="Boosted\n Sphericity\n Bins")
+  ax1.set_xlabel(var)
+  ax1.set_ylabel("AU")
   ax1.set_yscale("log")
   ax1.set_xscale("log")
   ax1.autoscale(axis='y', tight=True)
   ax1.autoscale(axis='x', tight=True)
-  fig.savefig("Plots/correlation_sphere")
+  fig.savefig("Plots/correlation_sphere_%s"%var)
   plt.close()
  
-  fig, ax1 = plt.subplots()
-  sphere = [0,20,40,60,80,100]
-  #labs = []
-  for i in range(len(sphere)-1): 
-   
-    h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
-    #labs.append("%s-%s"%(sphere[i],sphere[i+1]))
-    norm = np.linalg.norm(h2[0])
-    ax1.step(h2[1][:-1],h2[0]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
-    #hx = hist.plot1d(
-    #    h2,
-    #    ax=ax1,
-    #    density=True, 
-    #    clear= False,
-    #    stack=False,
-    #    legend_opts={"labels":labs}
-    #)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-  ax1.legend()
-  ax1.set_yscale("log")
-  ax1.autoscale(axis='y', tight=True)
-  fig.savefig("Plots/correlation_npfcand")
-  plt.close()
+  #fig, ax1 = plt.subplots()
+  #sphere = [0,20,40,60,80,100]
+  #for i in range(len(sphere)-1): 
+  # 
+  #  h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
+  #  norm = np.linalg.norm(h2[0])
+  #  ax1.step(h2[1][:-1],h2[0]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
+  #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  #ax1.legend()
+  #ax1.set_yscale("log")
+  #ax1.autoscale(axis='y', tight=True)
+  #fig.savefig("Plots/correlation_npfcand_%s"%var)
+  #plt.close()
 
-  fig, ax1 = plt.subplots()
-  sphere = [0,20,40,60,80,100]
-  #labs = []
-  for i in range(len(sphere)-1): 
+  for cut in [0,15,20,25,30,35]:
+    fig, ax1 = plt.subplots()
+    sphere = [0,20,40,60,80,100]
+    for i in range(len(sphere)-1): 
 
-    h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
-    print(len(h2[0]))
-    norm = np.linalg.norm(h2[0][30:])
-    ax1.step(h2[1][30:-1],h2[0][30:]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
-  
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-  ax1.legend()
-  ax1.set_yscale("log")
-  ax1.autoscale(axis='y', tight=True)
-  fig.savefig("Plots/correlation_%s_cut"%var)
-  plt.close()
+      h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
+      norm = np.linalg.norm(h2[0][cut:])
+      ax1.step(h2[1][cut:-1],h2[0][cut:]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
+    
+    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+    ax1.legend(title="%s Bins"%var)
+    ax1.set_xlabel("Boosted Sphericity")
+    ax1.set_ylabel("AU")
+    ax1.set_yscale("log")
+    ax1.autoscale(axis='y', tight=True)
+    fig.savefig("Plots/correlation_%s_cut_%s"%(var,cut))
+    plt.close()
 
-def make_closure(sample="qcd"):
-  var = "FatJet_nconst"
+def make_closure(sample="qcd",SR="SR1"):
+  if SR == "SR2":
+    var = "FatJet_nconst"
+    high1 = 80
+    high2 = 51
+  else:
+    var = "nPFCand"
+    high1 = 100
+    high2 = 61
   if sample == "qcd":
-    h1 = qcdscaled["SR2"].integrate("axis",slice(0,1))
+    h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   else:
     with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
         scaled = {}
         for name, h in out.items():
-          if "SR2" not in name or "mu" in name or "trig" in name:
+          if SR not in name or "mu" in name or "trig" in name:
             continue
           if isinstance(h, hist.Hist):
             scaled[name] = h.copy()
             scaled[name].scale(scale)
-            h1 = (scaled["SR2"]+qcdscaled["SR2"]).integrate("axis",slice(0,1))
+            h1 = (scaled[SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
   low1 =0
   low2 = 30
-  #high1 = 100
-  #high2 = 61
-  high1 = 80
-  high2 = 51
   high1x = 300
   high2x = 100
   
@@ -580,7 +601,8 @@ def make_closure(sample="qcd"):
   dbin_err = dbin[1]
   ratx = bbinx/abinx
   expected = ratx*cbinx
-  err = np.sqrt(1/abin_err+1/bbin_err+1/cbin_err)
+  #err = np.sqrt(1/abin_err+1/bbin_err+1/cbin_err)
+  err = expected*np.sqrt(abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
   print(abinx,np.sqrt(abin_err),bbinx,cbinx,dbinx,ratx,expected,dbinx/expected,err)
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),
@@ -602,7 +624,7 @@ def make_closure(sample="qcd"):
   #ax.plot([],[],"")
   #ax.plot([],[],"")
   #ax.plot([],[],"")
-  leg = ["Observed %.2f +/- %.2f"%(dbinx,dbin_err),"Expected: %.2f"%(ratx*cbinx)]
+  leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
   ax.legend(leg)
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
@@ -618,27 +640,27 @@ def make_closure(sample="qcd"):
   #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
   ax1.set_xlim(high1,175)
   ax1.set_ylim(0.5,1.5)
-  fig.savefig("Plots/closure_%s"%sample)
+  fig.savefig("Plots/closure_%s_%s"%(sample,var))
   plt.close()
 
-#make_correlation()
-#make_closure()
+#make_correlation("SR1")
+#make_correlation("SR2")
+#make_closure("qcd")
 #make_closure("sig400")
 #make_closure("sig200")
 #make_closure("sig1000")
+#make_closure("qcd","SR2")
+#make_closure("sig400","SR2") 
+#make_closure("sig200","SR2")
+#make_closure("sig1000","SR2")
 #make_dists("QCD")
 make_dists("sig400_2")
-make_trkeff("sig400_2","dist_trkID_PFcand_pt")
-make_trkeff("sig400_2","dist_trkID_PFcand_phi")
-make_trkeff("sig400_2","dist_trkID_PFcand_eta")
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt")
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi")
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta")
-make_trkeff("sig400_2","dist_trkID_gen_pt")
-make_trkeff("sig400_2","dist_trkID_gen_phi")
-make_trkeff("sig400_2","dist_trkID_gen_eta")
-#make_trkeff("sig750_2","dist_trkIDFK_PFcand_pt")
-#make_trkeff("sig750_2","dist_trkIDFK_PFcand_phi")
+#make_trkeff("sig400_2","dist_trkID_PFcand_pt")
+#make_trkeff("sig400_2","dist_trkID_PFcand_phi")
+#make_trkeff("sig400_2","dist_trkID_PFcand_eta")
+#make_trkeff("sig400_2","dist_trkID_gen_pt")
+#make_trkeff("sig400_2","dist_trkID_gen_phi")
+#make_trkeff("sig400_2","dist_trkID_gen_eta")
 #make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
@@ -646,27 +668,28 @@ make_trkeff("sig400_2","dist_trkID_gen_eta")
 #make_trigs("sig1000_2")
 #make_trigs("sig750_2")
 #
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_pt",2)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_fatjet",2)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_ncount",2)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount30",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4) #2
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",3) #2
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"n_pfcand",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",3)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",3)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4)
-#makeSR("sig400")
-#makeSR("sig200")
-#makeSR("sig300")
-#makeSR("sig750")
-#makeSR("sig1000")
+#makeSR("sig400","SR1")
+#makeSR("sig200","SR1")
+#makeSR("sig300","SR1")
+#makeSR("sig750","SR1")
+#makeSR("sig1000","SR1")
+#makeSR("sig400","SR2")
+#makeSR("sig200","SR2")
+#makeSR("sig300","SR2")
+#makeSR("sig750","SR2")
+#makeSR("sig1000","SR2")

@@ -144,6 +144,11 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1",50,0,1)
             ),
+            "dist_sphere1b": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere1b",50,0,1)
+            ),
             "dist_event_sphericity": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -419,7 +424,7 @@ class MyProcessor(processor.ProcessorABC):
                'n_jetId': arrays["n_jetId"],
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
-               'bCandmask': [True if len(x) !=0 else False for x in arrays["bPFcand_pt"]],
+               'bCandmask': [True if len(x) > 1 else False for x in arrays["bPFcand_pt"]],
                'triggerHt': tright,
                'triggerMu': trigmu,
                'PFcand_ncount0' :  ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.0 )],axis=-1),
@@ -471,36 +476,65 @@ class MyProcessor(processor.ProcessorABC):
                          'PFcand_phi': arrays["PFcand_phi"],
           })
         bCands = ak.zip({
-            "pt":  [x for x in arrays["bPFcand_pt"]  if len(x) !=0],
-            "eta": [x for x in arrays["bPFcand_eta"] if len(x) !=0],
-            "phi": [x for x in arrays["bPFcand_phi"] if len(x) !=0],
-            "mass":[x for x in arrays["bPFcand_m"]   if len(x) !=0] 
+            "pt":  [x for x in arrays["bPFcand_pt"]  if len(x) > 1],
+            "eta": [x for x in arrays["bPFcand_eta"] if len(x) > 1],
+            "phi": [x for x in arrays["bPFcand_phi"] if len(x) > 1],
+            "mass":[x for x in arrays["bPFcand_m"]   if len(x) > 1] 
         }, with_name="Momentum4D") 
-        #bCands2 = ak.sum(bCands,axis=1)
+
+      #######################recluster
+        recluster_fatjet0 = ak.zip({
+                       'pt' : arrays["FatJet_pt"],
+                       'eta': arrays["FatJet_eta"],
+                       'phi': arrays["FatJet_phi"],
+                       'mass': arrays["FatJet_mass"],
+        },with_name="Momentum4D")
+        recluster_tracks0 = ak.zip({
+                         'pt' :  arrays["PFcand_pt"] [(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.50)] ,
+                         'eta':  arrays["PFcand_eta"] [(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.50)],
+                         'phi':  arrays["PFcand_phi"] [(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.50)],
+                         'mass': arrays["PFcand_m"]   [(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.50)],
+          },with_name="Momentum4D")
+        #recluster_fatjet0 = ak.packed(recluster_fatjet0x)
+        recluster_fatjet1y = ak.zip({'FatJet_nconst': arrays["FatJet_nconst"]})
+        recluster_fatjet1  = recluster_fatjet0[ vals0.bCandmask] # bCandmask implicitly has a cut on nFatJets >1 and nbPFCands >1
+        recluster_fatjet1x = recluster_fatjet1y[vals0.bCandmask]
+        #recluster_fatjet1 = recluster_fatjet0[vals0.FatJet_ncount30 >=2]
+        #recluster_fatjet1x = recluster_fatjet1y[vals0.FatJet_ncount30 >=2]
+        SUEP_cand = ak.where(recluster_fatjet1x.FatJet_nconst[:,1]<=recluster_fatjet1x.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
+        ISR_cand  = ak.where(recluster_fatjet1x.FatJet_nconst[:,1]> recluster_fatjet1x.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
+        boost_IRM = ak.zip({
+            "px": SUEP_cand.px*-1,
+            "py": SUEP_cand.py*-1,
+            "pz": SUEP_cand.pz*-1,
+            "mass": SUEP_cand.mass
+        }, with_name="Momentum4D")
+        #print(boost_IRM)
+        ISR_cand_b = ISR_cand.boost_p4(boost_IRM)
+
+        tracks_IRM = recluster_tracks0[vals0.bCandmask].boost_p4(boost_IRM)
+        #tracks_IRM = recluster_tracks0[vals0.FatJet_ncount30 >=2].boost_p4(boost_IRM)
+        IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.6]
+        print(len(IRM_cands))
+       ############################################################################## 
+
+
+
         print(len(bCands),len(vals0[vals0.bCandmask]))
-        #bCands2 = [x for x in bCands if x !=[]]
-        #print(bCands)
-        #for x in bCands:
-        #  print(x)
-        #print(ak.flatten(bCands,axis=1))
-        #bCands2 = ak.flatten(bCands,axis=-1)
-        #bCands2 = 
-        Cleaned_cands = ak.packed(bCands)
-        #print(Cleaned_cands)
-        eigs = sphericity(self,Cleaned_cands,2.0)
-        #vals0["sphere1"] = 1.5 * (eigs[1]+eigs[0])
-  
+        #Cleaned_cands = ak.packed(bCands)
+        #eigs = sphericity(self,Cleaned_cands,2.0)
+        #eigs2 = sphericity(self,ak.packed(IRM_cands),2.0)
+        eigs = sphericity(self,bCands,2.0)
+        eigs2 = sphericity(self,IRM_cands,2.0)
         spherex0 = vals0[vals0.bCandmask]
         spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
-        #spherex0["sphere1"] = ak.zip({"sphere1" : 1.5 * (eigs[:,1]+eigs[:,0])})
-        #print(spherex0)
+        spherex0["sphere1b"] = 1.5 * (eigs2[:,1]+eigs2[:,0])
         
         spherex1 = spherex0[spherex0.triggerHt >= 1]
         spherex2 = spherex1[spherex1.ht >= 600]
         spherex3 = spherex2[spherex2.FatJet_ncount30 >= 2]
         spherex4 = spherex3[spherex3.n_pfcand >= 140]
         
-        #sphere1x = ak.zip({"sphere1" : 1.5 * (eigs[:,1]+eigs[:,0])})
         sphere1 = [spherex0,spherex1,spherex2,spherex3,spherex4]
         
         #cutflow Ht
@@ -643,6 +677,7 @@ class MyProcessor(processor.ProcessorABC):
         #print(sphere1)
         #output = packdist(output,vals,"sphere1")
         output = packdist(output,sphere1,"sphere1")
+        output = packdist(output,sphere1,"sphere1b")
 
         return output
 
@@ -663,7 +698,7 @@ if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if "HT" in fin:
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
-  fs=fs[300*batch:300*(batch+1)]
+  fs=fs[300*batch:10*(batch+1)]
   fileset = {
            fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/%s/%s"%(fin,f) for f in fs],
   }
@@ -702,36 +737,36 @@ if __name__ == "__main__":
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
     print("running %s %s"%(fin,batch))
-#    out,metrics = processor.run_uproot_job(
-#        fileset,
-#        treename="mmtree/tree",
-#        processor_instance=proc,
-#        executor=processor.dask_executor,
-#        executor_args=exe_args,
-#        # remove this to run on the whole fileset:
-#        #maxchunks=10,
-#      #executor=processor.iterative_executor,
-#      #executor_args={
-#      #    "schema": BaseSchema,
-#      #},
-#    )
-#
-#    elapsed = time.time() - tic
-#    print(f"Output: {out}")
-#    print(f"Metrics: {metrics}")
-#    print(f"Finished in {elapsed:.1f}s")
-#    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
-    out = processor.run_uproot_job(
-      fileset,
-      treename="mmtree/tree",
-      processor_instance=proc,
-      executor=processor.iterative_executor,
-      executor_args={
-          "schema": BaseSchema,
-      },
-     # maxchunks=4,
+    out,metrics = processor.run_uproot_job(
+        fileset,
+        treename="mmtree/tree",
+        processor_instance=proc,
+        executor=processor.dask_executor,
+        executor_args=exe_args,
+        # remove this to run on the whole fileset:
+        #maxchunks=10,
+      #executor=processor.iterative_executor,
+      #executor_args={
+      #    "schema": BaseSchema,
+      #},
     )
-    print(out)
+
+    elapsed = time.time() - tic
+    print(f"Output: {out}")
+    print(f"Metrics: {metrics}")
+    print(f"Finished in {elapsed:.1f}s")
+    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
+#    out = processor.run_uproot_job(
+#      fileset,
+#      treename="mmtree/tree",
+#      processor_instance=proc,
+#      executor=processor.iterative_executor,
+#      executor_args={
+#          "schema": BaseSchema,
+#      },
+#     # maxchunks=4,
+#    )
+#    print(out)
 
     with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
