@@ -166,7 +166,7 @@ def make_trkeff(sample,name):
         if "PFcand" in name or "gen" in name:
           ax1.set_xlim([0.3,100])
       ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
-      fig.suptitle("Track Efficiency: %s"%sample)
+      fig.suptitle("Track Fake Rate: %s"%sample)
       hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
       fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
       plt.close()
@@ -272,7 +272,35 @@ def make_signif(sample,xsec):
 
 
 
-def make_n1(samples,var,cut):
+def make_threshold(samples,allmaxpoints,xs,xlab):
+  fig, (ax1) = plt.subplots(
+      nrows=1,
+      ncols=1,
+      figsize=(7,7),
+      #gridspec_kw={"height_ratios": (3, 1)},
+      #sharex=True
+  )
+  fig.subplots_adjust(hspace=.07)
+  for sample in samples: 
+       
+      ax1.errorbar(xs,allmaxpoints["sig_%s"%sample],allmaxpoints["err_%s"%sample],ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
+      #ax.errorbar(xs,allmaxpoints["evt_%s"%sample],1,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
+
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax1)
+  #ax.set_yscale("log")
+  ax1.set_xlabel(xlab)
+  ax1.set_ylabel("s/sqrt(s+b+0.5$b^{2}$)")
+  #ax.set_ylabel("Events")
+  #leg1, leg = ax.get_legend_handles_labels()
+  #leg = [l.replace("None","QCD") for l in leg]
+  #ax.legend(leg)
+  ax1.legend()
+  #ax1.set_ylim([0,1e-4])
+  #ax1.set_ylim([0,30])
+  #ax.autoscale(axis='y', tight=True)
+  fig.savefig("Plots/threshold_%s"%(xlab))
+  plt.close()
+def make_n1(samples,var,cut,maxpoints):
   name1 = "dist_%s"%var
   fig, (ax, ax1) = plt.subplots(
       nrows=2,
@@ -293,7 +321,7 @@ def make_n1(samples,var,cut):
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
   for sample in samples:
-    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open("outhists/save/myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -313,11 +341,21 @@ def make_n1(samples,var,cut):
             #sb = (qcdscaled[name].integrate("cut",slice(cut,cut+1)) + scaled[name].integrate("cut",slice(cut,cut+1))).to_hist().to_numpy()
 
             sig, sigbkg = get_sig(s[0],(sb)[0],s[1][:-1])
-            ax1.errorbar(s[1][:-1],sig/np.sqrt(sigbkg),(sig/(np.sqrt(sigbkg)))*np.sqrt(np.add(np.reciprocal(sig),np.reciprocal(np.multiply(4,sigbkg)))),ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
+            signifline = sig/np.sqrt(sigbkg)
+            err = (signifline)*np.sqrt(np.add(np.reciprocal(sig),np.reciprocal(np.multiply(4,sigbkg))))
+            ax1.errorbar(s[1][:-1],signifline,err,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
 
             #print(s[1])
             #print(s[1][:-1])
             ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+            if("fjn1" in name):
+              maxpoints["sig_%s"%sample].append(signifline[3])
+              maxpoints["err_%s"%sample].append(err[3])
+              maxpoints["evt_%s"%sample].append(sum(s[0][2:]))
+            else:
+              maxpoints["sig_%s"%sample].append(np.nanmax(signifline))
+              maxpoints["evt_%s"%sample].append(sum(s[0][np.nanargmax(signifline):]))
+              maxpoints["err_%s"%sample].append(err[np.nanargmax(signifline)])
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax1.set_xlabel(name1[5:])
@@ -333,6 +371,7 @@ def make_n1(samples,var,cut):
   fig.savefig("Plots/signif_%s"%(var))
   plt.close()
 
+  return maxpoints
 
 def get_sig2d(s,sb,rangex,rangey):
   sig = []
@@ -689,8 +728,8 @@ def make_closure(sample="qcd",SR="SR1"):
 
 ############################# HT Trigger
 #### HT Distributions
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",1)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",1)
 #### Trigger Efficiency
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
@@ -701,7 +740,7 @@ make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",1)
 
 ########################### Track Selection
 ###### DR distributions
-make_overlapdists(["sig400"],"gen_dR",2)
+#make_overlapdists(["sig400"],"gen_dR",2)
 #make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
 ##### TRK Eff and Fakes 
 ## TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
@@ -712,25 +751,31 @@ make_overlapdists(["sig400"],"gen_dR",2)
 #make_trkeff("sig400_2","dist_trkID_gen_phi")
 #make_trkeff("sig400_2","dist_trkID_gen_eta")
 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4)
+maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints)
+make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
 ## TODO make single plot to show max significance wrt pt threshold
 
 
 ##########################  FatJet Selection
 ##TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
 ## TODO make single plot to show max significance (2+ jets) wrt pt threshold
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount30",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4) 
+maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
+make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
+#print("maxpoints_50: ",maxpoints_50)
+#print("maxpoints_75: ",maxpoints_75)
+#print("maxpoints_100: ",maxpoints_100)
 
 ########################## BOOSTING and sphericity
 ## TODO ISR removal methods
