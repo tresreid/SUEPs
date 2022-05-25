@@ -13,12 +13,88 @@ from lpcjobqueue import LPCCondorCluster
 import sys
 import vector
 vector.register_awkward()
+from math import pi
 
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
 
 signal=False
+eventDisplay_knob= False
+def get_dr_ring(dr, phi_c=0, eta_c=0, n_points=600):
+    deta = np.linspace(-dr, +dr, n_points)
+    dphi = np.sqrt(dr**2 - np.square(deta))
+    deta = eta_c+np.concatenate((deta, deta[::-1]))
+    dphi = phi_c+np.concatenate((dphi, -dphi[::-1]))
+    return dphi, deta
+
+def plot_display(ievt,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbtracks):
+    fig = plt.figure(figsize=(8,8))
+    ax = plt.gca()
+
+    ax.set_xlim(-pi,pi)
+    ax.set_ylim(-2.5,2.5)
+    ax.set_xlabel(r'$\phi$', fontsize=18)
+    ax.set_ylabel(r'$\eta$', fontsize=18)
+    ax.tick_params(axis='both', which='major', labelsize=12)
+#    print(particles)
+
+    ax.scatter(particles.phi, particles.eta, s=particles.pt, c='xkcd:blue', marker='o',label="ID tracks: %d"%len(particles))
+
+    phi_s, eta_s = get_dr_ring(1.5,suepjet.phi, suepjet.eta)
+    phi_s = phi_s[1:]
+    eta_s = eta_s[1:]
+    ax.plot(phi_s[phi_s> pi] - 2*pi, eta_s[phi_s>pi], color='xkcd:green',linestyle='--')
+    ax.plot(phi_s[phi_s< -pi] + 2*pi, eta_s[phi_s<-pi], color='xkcd:green',linestyle='--')
+    ax.plot(phi_s[phi_s< pi], eta_s[phi_s<pi], color='xkcd:green',linestyle='--',label="SUEP Jet")
+    phi_i, eta_i = get_dr_ring(1.5,isrjet.phi, isrjet.eta)
+    phi_i = phi_i[1:]
+    eta_i = eta_i[1:]
+    ax.plot(phi_i[phi_i> pi] - 2*pi, eta_i[phi_i>pi], color='xkcd:red',linestyle='--')
+    ax.plot(phi_i[phi_i< -pi] + 2*pi, eta_i[phi_i<-pi], color='xkcd:red',linestyle='--')
+    ax.plot(phi_i[phi_i< pi], eta_i[phi_i<pi], color='xkcd:red',linestyle='--',label="ISR Jet")
+
+    plt.legend(title='Event (after selection): %d\n boosted Sphericity: %.2f'%(ievt,sphericity))
+    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+
+    fig.savefig("Displays/nonboosted_%s"%ievt)
+    plt.close()
+
+
+    fig = plt.figure(figsize=(8,8))
+    ax = plt.gca()
+
+    ax.set_xlim(-pi,pi)
+    ax.set_ylim(-2.5,2.5)
+    ax.set_xlabel(r'$\phi$', fontsize=18)
+    ax.set_ylabel(r'$\eta$', fontsize=18)
+    ax.tick_params(axis='both', which='major', labelsize=12)
+    ax.scatter(bparticles.phi, bparticles.eta, s=bparticles.pt, c='xkcd:magenta', marker='o',label="Boosted tracks:%s"%nbtracks)
+    phi_ib, eta_ib = get_dr_ring(1.5,bisrjet.phi, bisrjet.eta)
+    phi_ib = phi_ib[1:]
+    eta_ib = eta_ib[1:]
+    ax.plot(phi_ib[phi_ib> pi] - 2*pi, eta_ib[phi_ib>pi], color='xkcd:orange',linestyle='--')
+    ax.plot(phi_ib[phi_ib< -pi] + 2*pi, eta_ib[phi_ib<-pi], color='xkcd:orange',linestyle='--')
+    ax.plot(phi_ib[phi_ib< pi], eta_ib[phi_ib<pi], color='xkcd:orange',linestyle='--',label="Boosted ISR Jet")
+
+    topline = bisrjet.phi+1.6
+    botline = bisrjet.phi-1.6
+    if topline > pi:
+      topline = topline - 2*pi
+    if botline < -pi:
+      botline = botline + 2*pi
+    ax.axvline(x=topline)
+    ax.axvline(x=botline)
+
+    plt.legend(title='Event (after selection): %d\n boosted Sphericity: %.2f'%(ievt,sphericity))
+#    ax.text(0.0, 1.0, 'Event (after selection) %d'%ievt,fontsize=12)
+    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+
+    fig.savefig("Displays/boosted_%s"%ievt)
+    plt.close()
+    
+
+
 def sphericity(self, particles, r):
     #norm = ak.sum(particles.p ** r, axis=0, keepdims=True)
     norm = ak.sum(particles.p ** r, axis=1, keepdims=True)
@@ -512,11 +588,13 @@ class MyProcessor(processor.ProcessorABC):
         #print(boost_IRM)
         ISR_cand_b = ISR_cand.boost_p4(boost_IRM)
 
-        tracks_IRM = recluster_tracks0[vals0.bCandmask].boost_p4(boost_IRM)
+        recotracks_IRM = recluster_tracks0[vals0.bCandmask]
+        tracks_IRM = recotracks_IRM.boost_p4(boost_IRM)
         #tracks_IRM = recluster_tracks0[vals0.FatJet_ncount30 >=2].boost_p4(boost_IRM)
         IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.6]
         print(len(IRM_cands))
        ############################################################################## 
+
 
 
 
@@ -529,6 +607,10 @@ class MyProcessor(processor.ProcessorABC):
         spherex0 = vals0[vals0.bCandmask]
         spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
         spherex0["sphere1b"] = 1.5 * (eigs2[:,1]+eigs2[:,0])
+        if(eventDisplay_knob):
+          for evt in range(len(bCands)):
+            print(evt)
+            plot_display(evt,recotracks_IRM[evt],tracks_IRM[evt],SUEP_cand[evt],ISR_cand[evt],ISR_cand_b[evt],spherex0["sphere1b"][evt],len(IRM_cands[evt]))
         
         spherex1 = spherex0[spherex0.triggerHt >= 1]
         spherex2 = spherex1[spherex1.ht >= 600]
@@ -737,36 +819,36 @@ if __name__ == "__main__":
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
     print("running %s %s"%(fin,batch))
-    out,metrics = processor.run_uproot_job(
-        fileset,
-        treename="mmtree/tree",
-        processor_instance=proc,
-        executor=processor.dask_executor,
-        executor_args=exe_args,
-        # remove this to run on the whole fileset:
-        #maxchunks=10,
-      #executor=processor.iterative_executor,
-      #executor_args={
-      #    "schema": BaseSchema,
-      #},
-    )
-
-    elapsed = time.time() - tic
-    print(f"Output: {out}")
-    print(f"Metrics: {metrics}")
-    print(f"Finished in {elapsed:.1f}s")
-    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
-#    out = processor.run_uproot_job(
-#      fileset,
-#      treename="mmtree/tree",
-#      processor_instance=proc,
-#      executor=processor.iterative_executor,
-#      executor_args={
-#          "schema": BaseSchema,
-#      },
-#     # maxchunks=4,
+#    out,metrics = processor.run_uproot_job(
+#        fileset,
+#        treename="mmtree/tree",
+#        processor_instance=proc,
+#        executor=processor.dask_executor,
+#        executor_args=exe_args,
+#        # remove this to run on the whole fileset:
+#        #maxchunks=10,
+#      #executor=processor.iterative_executor,
+#      #executor_args={
+#      #    "schema": BaseSchema,
+#      #},
 #    )
-#    print(out)
+#
+#    elapsed = time.time() - tic
+#    print(f"Output: {out}")
+#    print(f"Metrics: {metrics}")
+#    print(f"Finished in {elapsed:.1f}s")
+#    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
+    out = processor.run_uproot_job(
+      fileset,
+      treename="mmtree/tree",
+      processor_instance=proc,
+      executor=processor.iterative_executor,
+      executor_args={
+          "schema": BaseSchema,
+      },
+     # maxchunks=4,
+    )
+    print(out)
 
     with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
