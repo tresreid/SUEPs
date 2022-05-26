@@ -1,6 +1,7 @@
 #!/bin/bash
 
 dir=${PWD}/Plots
+#dir=${PWD}/Displays
 for d in $(find ${dir} -type d)
 do
   #Do something, the directory is accessible with $d:
@@ -8,7 +9,7 @@ do
   python3 $dir/../make_html_listing.py $d
 done
 #outdir=/publicweb/m/mreid/SUEPs/trackStudy_ptErr
-outdir=/publicweb/m/mreid/SUEPs/recalc_sphere5
+outdir=/publicweb/m/mreid/SUEPs/overlaptestv4
 #outdir=/publicweb/m/mreid/SUEPs/ProductionTestNewV1
 rm -r $outdir
 mkdir $outdir

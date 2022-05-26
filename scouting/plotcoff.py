@@ -22,8 +22,8 @@ cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta"}
 
 qcdscaled = {}
-#with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
-with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
+with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
+#with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     for name, h in out.items():
       if isinstance(h, hist.Hist):
@@ -819,5 +819,6 @@ def make_closure(sample="qcd",SR="SR1"):
 #
 #
 ############### EXTRA
-make_dists("sig400_2100")
+#make_dists("sig400_2")
+make_dists("QCD")
 #

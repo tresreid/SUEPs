@@ -216,11 +216,11 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Ht",100,0,2500)
             ),
-            "dist_sphere1": hist.Hist(
-                      "Events",
-                      hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Sphere1",50,0,1)
-            ),
+            #"dist_sphere1": hist.Hist(
+            #          "Events",
+            #          hist.Cat("cut","Cutflow"),
+            #          hist.Bin("v1","Sphere1",50,0,1)
+            #),
             "dist_sphere1b": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -407,87 +407,87 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Bin("v1","PFcand_phi",phi_bins)
             ),
              ###########TRACKS
-#            "dist_trkIDFK_PFcand_pt": hist.Hist(
+            "dist_trkIDFK_PFcand_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_pt",pt_bins),
+                      hist.Bin("v2","PFcand_dR",100,0,0.3)
+            ),
+            "dist_trkIDFK_PFcand_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_eta",eta_bins),
+                      hist.Bin("v2","PFcand_dR",100,0,0.3)
+            ),
+            "dist_trkIDFK_PFcand_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_phi",phi_bins),
+                      hist.Bin("v2","PFcand_dR",100,0,0.3)
+            ),
+            "dist_PFcand_dR": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_mindR",100,0,0.3)
+            ),
+#            "dist_PFcand_alldR": hist.Hist(
 #                      "Events",
 #                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_pt",pt_bins),
-#                      hist.Bin("v2","PFcand_dR",100,0,0.3)
+#                      hist.Bin("v1","PFcand_alldR",100,0,0.03)
 #            ),
-#            "dist_trkIDFK_PFcand_eta": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_eta",eta_bins),
-#                      hist.Bin("v2","PFcand_dR",100,0,0.3)
-#            ),
-#            "dist_trkIDFK_PFcand_phi": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_phi",phi_bins),
-#                      hist.Bin("v2","PFcand_dR",100,0,0.3)
-#            ),
-#            "dist_PFcand_dR": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_mindR",100,0,0.3)
-#            ),
-##            "dist_PFcand_alldR": hist.Hist(
-##                      "Events",
-##                      hist.Cat("cut","Cutflow"),
-##                      hist.Bin("v1","PFcand_alldR",100,0,0.03)
-##            ),
-#            "dist_res_pt": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","res_pt",100,-10,10)
-#            ),
-#            "dist_res_mass": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","res_mass",100,0,2)
-#            ),
-#            "dist_res_dR": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","res_dR",100,0,10)
-#            ),
-#            "dist_trkID_gen_pt": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_pt",pt_bins),
-#                      hist.Bin("v2","gen_dR",100,0,0.3)
-#            ),
-#            "dist_trkID_gen_eta": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_eta",eta_bins),
-#                      hist.Bin("v2","gen_dR",100,0,0.3)
-#            ),
-#            "dist_trkID_gen_phi": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_phi",phi_bins),
-#                      hist.Bin("v2","gen_dR",100,0,0.3)
-#            ),
-#            "dist_gen_dR": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_dR",100,0,0.3)
-#            ),
-#            "dist_gen_pt": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_pt",pt_bins)
-#            ),
-#            "dist_gen_eta": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_eta",eta_bins)
-#            ),
-#            "dist_gen_phi": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","gen_phi",phi_bins)
-#            ),
+            "dist_res_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","res_pt",100,-5,5)
+            ),
+            "dist_res_mass": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","res_mass",100,-5,5)
+            ),
+            "dist_res_dR": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","res_dR",100,0,10)
+            ),
+            "dist_trkID_gen_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_pt",pt_bins),
+                      hist.Bin("v2","gen_dR",100,0,0.3)
+            ),
+            "dist_trkID_gen_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_eta",eta_bins),
+                      hist.Bin("v2","gen_dR",100,0,0.3)
+            ),
+            "dist_trkID_gen_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_phi",phi_bins),
+                      hist.Bin("v2","gen_dR",100,0,0.3)
+            ),
+            "dist_gen_dR": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_dR",100,0,0.3)
+            ),
+            "dist_gen_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_pt",pt_bins)
+            ),
+            "dist_gen_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_eta",eta_bins)
+            ),
+            "dist_gen_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","gen_phi",phi_bins)
+            ),
             "dist_n_pfMu": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -522,7 +522,7 @@ class MyProcessor(processor.ProcessorABC):
                'n_jetId': arrays["n_jetId"],
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
-               'bCandmask': [True if len(x) > 1 else False for x in arrays["bPFcand_pt"]],
+               #'bCandmask': [True if len(x) > 1 else False for x in arrays["bPFcand_pt"]],
                'triggerHt': tright,
                'triggerMu': trigmu,
                'PFcand_ncount0' :  ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.0 )],axis=-1),
@@ -611,7 +611,8 @@ class MyProcessor(processor.ProcessorABC):
 
 
 
-        recluster_fatjet1  = vals_fatjet0[ vals0.bCandmask] # bCandmask implicitly has a cut on nFatJets >1 and nbPFCands >1
+        recluster_fatjet1  = vals_fatjet0[ vals0.FatJet_ncount30 >= 2] 
+        print(len(recluster_fatjet1))
         SUEP_cand = ak.where(recluster_fatjet1.FatJet_nconst[:,1]<=recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
         ISR_cand  = ak.where(recluster_fatjet1.FatJet_nconst[:,1]> recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
 
@@ -625,38 +626,19 @@ class MyProcessor(processor.ProcessorABC):
           }, with_name="Momentum4D")
           ISR_cand_b = ISR_cand.boost_p4(boost_IRM)
 
-          recotracks_IRM = tracks_cut0[vals0.bCandmask]
+          recotracks_IRM = tracks_cut0[vals0.FatJet_ncount30 >=2]
           tracks_IRM = recotracks_IRM.boost_p4(boost_IRM)
           IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.6]
-          print(len(IRM_cands))
+          onetrackcut = (ak.num(IRM_cands) >=2) # cut to pick out events that survive the isr removal
+          IRM_cands = IRM_cands[onetrackcut]
   
 
-       ## resolution studies
-        if(signal):
-          print("calc res")
-          scalar = scalar0[vals0.bCandmask]
-          res_pt = SUEP_cand.pt.to_numpy()/scalar["pt"].to_numpy()
-          res_mass = SUEP_cand.mass.to_numpy()/scalar["mass"].to_numpy()
-          res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
-          res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
-          res_dR = np.sqrt(res_dPhi*res_dPhi + res_dEta*res_dEta)
-          resolutions = ak.zip({
-            "res_pt" : res_pt,
-            "res_mass" : res_mass,
-            "res_dR" : res_dR
-        
-          })
-          #print(resolutions)
-       ############################################################################## 
-
-
-
-
-        print(len(bCands),len(vals0[vals0.bCandmask]))
-        eigs = sphericity(self,bCands,2.0)
+        print(len(bCands),len(IRM_cands))
+        #eigs = sphericity(self,bCands,2.0)
         eigs2 = sphericity(self,IRM_cands,2.0)
-        spherex0 = vals0[vals0.bCandmask]
-        spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
+        spherex0 = vals0[vals0.FatJet_ncount30 >= 2]
+        spherex0 = spherex0[onetrackcut]
+        #spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
         spherex0["sphere1b"] = 1.5 * (eigs2[:,1]+eigs2[:,0])
         if(eventDisplay_knob):
           for evt in range(len(bCands)):
@@ -670,6 +652,24 @@ class MyProcessor(processor.ProcessorABC):
         
         sphere1 = [spherex0,spherex1,spherex2,spherex3,spherex4]
         
+       ## resolution studies
+        if(signal):
+          print("calc res")
+          scalar = scalar0[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
+          suepvals = vals0[vals0.FatJet_ncount50 >=2]
+          SUEP_cand = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
+          res_pt = (SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy())/scalar["pt"].to_numpy()
+          res_mass = (SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy())/scalar["mass"].to_numpy()
+          res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
+          res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
+          res_dR = np.sqrt(res_dPhi*res_dPhi + res_dEta*res_dEta)
+          resolutions = ak.zip({
+            "res_pt" : res_pt,
+            "res_mass" : res_mass,
+            "res_dR" : res_dR
+        
+          })
+       ############################################################################## 
         #cutflow Ht
         vals1 = vals0[vals0.triggerHt >= 1]
         vals2 = vals1[vals1.ht >= 600]
@@ -817,8 +817,7 @@ class MyProcessor(processor.ProcessorABC):
         output = packdist_fjn1(output,vals_fj,"FatJet_ncount300")
         
         #print(sphere1)
-        #output = packdist(output,vals,"sphere1")
-        output = packdist(output,sphere1,"sphere1")
+        #output = packdist(output,sphere1,"sphere1")
         output = packdist(output,sphere1,"sphere1b")
 
         return output
@@ -859,9 +858,9 @@ elif "Run" in fin:
 else:
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
 #            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num.root"%(fin,decays[batch])]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num100.root"%(fin,decays[batch])]
+#            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num100.root"%(fin,decays[batch])]
   }  
 
 
@@ -916,5 +915,5 @@ if __name__ == "__main__":
 #    )
 #    print(out)
 
-    with open("outhists/myhistos_%s_%s100.p"%(fin,batch), "wb") as pkl_file:
+    with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
