@@ -23,7 +23,7 @@ sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange",
 
 qcdscaled = {}
 #with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
-with open("outhists/save/myhistos_QCD.p", "rb") as pkl_file:
+with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     for name, h in out.items():
       if isinstance(h, hist.Hist):
@@ -41,7 +41,7 @@ def make_overlapdists(samples,var,cut):
   fig.subplots_adjust(hspace=.07)
 
   for sample in samples:
-    with open("outhists/save/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -55,7 +55,7 @@ def make_overlapdists(samples,var,cut):
         
         
             s = scaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
-            b = qcdscaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
+            #b = qcdscaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
             ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
@@ -99,12 +99,16 @@ def make_dists(sample):
           if "trkID" not in name:
             ax1.set_yscale("log")
             ax1.autoscale(axis='y', tight=True)
-          if "_pt" in name:
+          if "_pt" in name and "res" not in name:
             ax1.set_xscale("log")
             ax1.set_xlim([20,200])
             if "PFcand" in name or "gen" in name:
               ax1.set_xlim([0.3,100])
             #ax1.autoscale(axis='x', tight=True)
+          if "alldR" in name:
+            #ax1.set_xscale("log")
+            ax1.set_yscale("log")
+            ax1.set_xlim([0,.03])
           fig.savefig("Plots/proccess_%s_%s"%(sample,name))
           plt.close()
   
@@ -125,51 +129,53 @@ def make_trkeff(sample,name):
       num = out[name].integrate("v2",slice(0,0.05)).copy()
       numFK = out[name].integrate("v2",slice(0.05,0.3)).copy()
       denom = out[name].integrate("v2").copy()
-      
-      fig, ax1 = plt.subplots()
-      for cut in range(7):
-        hx = hist.plotratio(
-            num.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
-            ax=ax1,
-            clear=False,
-            error_opts={'color': colors[cut], 'marker': '+'},
-            unc='clopper-pearson'
-        )
+     
+      if("IDFK" in name): 
+        ###############FAKE
+        fig, ax1 = plt.subplots()
+        for cut in range(10):
+          hx1 = hist.plotratio(
+              numFK.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
+              ax=ax1,
+              clear=False,
+              error_opts={'color': colors[cut], 'marker': '+'},
+              unc='clopper-pearson'
+          )
 
-      ax1.set_ylim(0,1.1)
-      if "_pt" in name:
-        ax1.set_xscale("log")
-        ax1.set_xlim([20,200])
-        if "PFcand" in name or "gen" in name:
-          ax1.set_xlim([0.3,100])
-      ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
-      fig.suptitle("Track Efficiency: %s"%sample)
-      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-      fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
-      plt.close()
+        ax1.set_ylim(0,1.1)
+        if "_pt" in name:
+          ax1.set_xscale("log")
+          ax1.set_xlim([20,200])
+          if "PFcand" in name or "gen" in name:
+            ax1.set_xlim([0.3,100])
+        ax1.legend(["|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+        fig.suptitle("Track Fake Rate: %s"%sample)
+        hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+        fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
+        plt.close()
+      else:
+        fig, ax1 = plt.subplots()
+        for cut in range(7):
+          hx = hist.plotratio(
+              num.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
+              ax=ax1,
+              clear=False,
+              error_opts={'color': colors[cut], 'marker': '+'},
+              unc='clopper-pearson'
+          )
 
-      ###############FAKE
-      fig, ax1 = plt.subplots()
-      for cut in range(7):
-        hx1 = hist.plotratio(
-            numFK.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
-            ax=ax1,
-            clear=False,
-            error_opts={'color': colors[cut], 'marker': '+'},
-            unc='clopper-pearson'
-        )
+        ax1.set_ylim(0,1.1)
+        if "_pt" in name:
+          ax1.set_xscale("log")
+          ax1.set_xlim([20,200])
+          if "PFcand" in name or "gen" in name:
+            ax1.set_xlim([0.3,100])
+        ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+        fig.suptitle("Track Efficiency: %s"%sample)
+        hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+        fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
+        plt.close()
 
-      ax1.set_ylim(0,1.1)
-      if "_pt" in name:
-        ax1.set_xscale("log")
-        ax1.set_xlim([20,200])
-        if "PFcand" in name or "gen" in name:
-          ax1.set_xlim([0.3,100])
-      ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
-      fig.suptitle("Track Fake Rate: %s"%sample)
-      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-      fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
-      plt.close()
 def make_trigs(sample):
   with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
@@ -321,7 +327,7 @@ def make_n1(samples,var,cut,maxpoints):
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
   for sample in samples:
-    with open("outhists/save/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -726,66 +732,69 @@ def make_closure(sample="qcd",SR="SR1"):
 
 
 
-############################# HT Trigger
-#### HT Distributions
+############################## HT Trigger
+##### HT Distributions
+#print("running trigger studies")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0)
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",1)
-#### Trigger Efficiency
+##### Trigger Efficiency
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
 #make_trigs("sig300_2")
 #make_trigs("sig1000_2")
 #make_trigs("sig750_2")
-
-
-########################### Track Selection
-###### DR distributions
-#make_overlapdists(["sig400"],"gen_dR",2)
+#
+#
+############################ Track Selection
+####### DR distributions
+#print("running track studies")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"gen_dR",2)
 #make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
-##### TRK Eff and Fakes 
-## TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
-#make_trkeff("sig400_2","dist_trkID_PFcand_pt") ## TODO fix fake labels
-#make_trkeff("sig400_2","dist_trkID_PFcand_phi")
-#make_trkeff("sig400_2","dist_trkID_PFcand_eta")
+###### TRK Eff and Fakes 
+### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt") ## TODO fix fake labels
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi")
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta")
 #make_trkeff("sig400_2","dist_trkID_gen_pt") #TODO check why efficiency is so high?
 #make_trkeff("sig400_2","dist_trkID_gen_phi")
 #make_trkeff("sig400_2","dist_trkID_gen_eta")
-
-maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints)
-make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
-## TODO make single plot to show max significance wrt pt threshold
-
-
-##########################  FatJet Selection
-##TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
-## TODO make single plot to show max significance (2+ jets) wrt pt threshold
-maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
-make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
-#print("maxpoints_50: ",maxpoints_50)
-#print("maxpoints_75: ",maxpoints_75)
-#print("maxpoints_100: ",maxpoints_100)
-
-########################## BOOSTING and sphericity
-## TODO ISR removal methods
+#
+#maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints)
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
+### TODO make single plot to show max significance wrt pt threshold
+#
+#
+###########################  FatJet Selection
+###TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
+### TODO make single plot to show max significance (2+ jets) wrt pt threshold
+#print("running Jet studies")
+#maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
+#
+########################### BOOSTING and sphericity
+### TODO ISR removal methods
+#print("running sphericity studies")
 #make_correlation("SR1") #TODO revisit correlation plots
 #make_correlation("SR2")
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4)
-
-
-######################### ABCD
+#empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
+#
+#
+########################## ABCD
+#print("running ABCD studies")
 #makeSR("sig400","SR1")
 #makeSR("sig200","SR1")
 #makeSR("sig300","SR1")
@@ -804,11 +813,11 @@ make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,1
 #make_closure("sig400","SR2") 
 #make_closure("sig200","SR2")
 #make_closure("sig1000","SR2")
-
-## TODO cutflow table and significance by cut
-#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
-
-
-############# EXTRA
-#make_dists("QCD")
+#
+### TODO cutflow table and significance by cut
+##make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
+#
+#
+############### EXTRA
+make_dists("sig400_2100")
 #

@@ -12,7 +12,6 @@ from distributed import Client
 from lpcjobqueue import LPCCondorCluster
 import sys
 import vector
-vector.register_awkward()
 from math import pi
 
 # register our candidate behaviors
@@ -124,6 +123,9 @@ def packtrig(output,vals,var):
         output["trigdist_%s"%(var)].fill(cut="HT Trig noRef", v1=vals[2][var]) 
         output["trigdist_%s"%(var)].fill(cut="HT Trig MuRef", v1=vals[3][var]) 
         return output
+def packsingledist(output,vals,var):
+        output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
+        return output
 def packdist(output,vals,var):
         output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[0][var])
         output["dist_%s"%(var)].fill(cut="cut 1:HT Trig", v1=vals[1][var]) 
@@ -135,29 +137,28 @@ def packdist(output,vals,var):
           output["dist_%s"%(var)].fill(cut="cut 4:nPFCand>=140", v1=vals[4][var]) 
         #output["dist_%s"%(var)].fill(cut="cut 4:FJ nPFCand>=80", v1=vals[4][var]) 
         return output
-def packtrkFKID(output,vals,var):
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 1: |eta| < 2.4",           v1=ak.flatten(vals[1][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 2: q != 0",                v1=ak.flatten(vals[2][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 3: PV = 0",                v1=ak.flatten(vals[3][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 4: PFcand_pt > 0.5",       v1=ak.flatten(vals[4][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 5: PFcand_pt > 0.6",       v1=ak.flatten(vals[5][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 6: PFcand_pt > 0.7",       v1=ak.flatten(vals[6][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 7: PFcand_pt > 0.75",      v1=ak.flatten(vals[7][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 8: PFcand_pt > 0.8",       v1=ak.flatten(vals[8][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 9: PFcand_pt > 0.9",       v1=ak.flatten(vals[9][var]))
-        output["dist_trkIDFK_%s"%(var)].fill(cut="cut 10: PFcand_pt > 1.0",      v1=ak.flatten(vals[10][var]))
+def packtrkFKID(output,vals,var,var2,prefix=""):
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",          v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 1: |eta| < 2.4",          v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 2: q != 0",               v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 3: PV = 0",               v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.5",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.6",      v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.7",      v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 0.75",     v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 8: PFcand_pt > 0.8",      v1=ak.flatten(vals[8][var]), v2=ak.flatten(vals[8][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 9: PFcand_pt > 0.9",      v1=ak.flatten(vals[9][var]), v2=ak.flatten(vals[9][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 10: PFcand_pt > 1.0",     v1=ak.flatten(vals[10][var]), v2=ak.flatten(vals[10][var2]))
         return output
-def packtrkID(output,vals,var,var2):
-#        output["dist_trkID_%s"%(var)].fill(cut="cut 1: dR <=0.05",       v1=ak.flatten(vals[1][var]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]))
-        output["dist_trkID_%s"%(var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]))
+def packtrkID(output,vals,var,var2,prefix=""):
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]))
         return output
 def packdistflat(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var]))
@@ -405,20 +406,20 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","PFcand_phi",phi_bins)
             ),
-#             ###########TRACKS
-#            "dist_trkFKID_PFcand_pt": hist.Hist(
+             ###########TRACKS
+#            "dist_trkIDFK_PFcand_pt": hist.Hist(
 #                      "Events",
 #                      hist.Cat("cut","Cutflow"),
 #                      hist.Bin("v1","PFcand_pt",pt_bins),
 #                      hist.Bin("v2","PFcand_dR",100,0,0.3)
 #            ),
-#            "dist_trkFKID_PFcand_eta": hist.Hist(
+#            "dist_trkIDFK_PFcand_eta": hist.Hist(
 #                      "Events",
 #                      hist.Cat("cut","Cutflow"),
 #                      hist.Bin("v1","PFcand_eta",eta_bins),
 #                      hist.Bin("v2","PFcand_dR",100,0,0.3)
 #            ),
-#            "dist_trkFKID_PFcand_phi": hist.Hist(
+#            "dist_trkIDFK_PFcand_phi": hist.Hist(
 #                      "Events",
 #                      hist.Cat("cut","Cutflow"),
 #                      hist.Bin("v1","PFcand_phi",phi_bins),
@@ -429,10 +430,25 @@ class MyProcessor(processor.ProcessorABC):
 #                      hist.Cat("cut","Cutflow"),
 #                      hist.Bin("v1","PFcand_mindR",100,0,0.3)
 #            ),
-#            "dist_PFcand_alldR": hist.Hist(
+##            "dist_PFcand_alldR": hist.Hist(
+##                      "Events",
+##                      hist.Cat("cut","Cutflow"),
+##                      hist.Bin("v1","PFcand_alldR",100,0,0.03)
+##            ),
+#            "dist_res_pt": hist.Hist(
 #                      "Events",
 #                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_alldR",100,0,0.3)
+#                      hist.Bin("v1","res_pt",100,-10,10)
+#            ),
+#            "dist_res_mass": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","res_mass",100,0,2)
+#            ),
+#            "dist_res_dR": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","res_dR",100,0,10)
 #            ),
 #            "dist_trkID_gen_pt": hist.Hist(
 #                      "Events",
@@ -489,6 +505,7 @@ class MyProcessor(processor.ProcessorABC):
         return self._accumulator
 
     def process(self, arrays):
+        vector.register_awkward()
         output = self.accumulator.identity()
         #print(events)
         dataset = arrays.metadata['dataset']
@@ -546,18 +563,17 @@ class MyProcessor(processor.ProcessorABC):
                          'phi': arrays["PFcand_phi"],
                          'mass': arrays["PFcand_m"],
                          'PFcand_dR': arrays["PFcand_dR"],
-                         'PFcand_alldR': arrays["PFcand_alldR"],
                          'PFcand_fromsuep': arrays["PFcand_fromsuep"],
-                         'PFcand_q': arrays["PFcand_"],
+                         'PFcand_q': arrays["PFcand_q"],
                          'PFcand_vertex': arrays["PFcand_vertex"],
           },with_name="Momentum4D")
           vals_gen0 = ak.zip({
                          'pt' : arrays["gen_pt"],
                          'eta': arrays["gen_eta"],
                          'phi': arrays["gen_phi"],
-                         'mass': arrays["gen_mass"],
+                         #'mass': arrays["gen_mass"],
                          'gen_dR':  arrays["gen_dR"],
-                         'gen_fromSuep':  arrays["gen_fromSuep"],
+                         #'gen_fromSuep':  arrays["gen_fromSuep"],
           },with_name="Momentum4D")
           scalar0  = ak.zip({
                          'pt' : arrays["scalar_pt"],
@@ -571,9 +587,10 @@ class MyProcessor(processor.ProcessorABC):
                          'eta': arrays["PFcand_eta"],
                          'phi': arrays["PFcand_phi"],
                          'mass': arrays["PFcand_m"],
-                         'PFcand_q': arrays["PFcand_"],
+                         'PFcand_q': arrays["PFcand_q"],
                          'PFcand_vertex': arrays["PFcand_vertex"],
           }, with_name="Momentum4D")
+        print("loaded tracks")
         bCands = ak.zip({
             "pt":  [x for x in arrays["bPFcand_pt"]  if len(x) > 1],
             "eta": [x for x in arrays["bPFcand_eta"] if len(x) > 1],
@@ -582,6 +599,11 @@ class MyProcessor(processor.ProcessorABC):
         }, with_name="Momentum4D") 
 
 
+
+#        alldRtracks = ak.zip({'PFcand_alldR': arrays["PFcand_alldR"]})
+#        alldRtracks = ak.flatten(alldRtracks)
+#        print(alldRtracks)
+#        print(len(alldRtracks))
 
         track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.50))
         tracks_cut0 = vals_tracks0[track_cuts]
@@ -594,6 +616,7 @@ class MyProcessor(processor.ProcessorABC):
         ISR_cand  = ak.where(recluster_fatjet1.FatJet_nconst[:,1]> recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
 
         if (redoISRRM):
+          print("calc sphericity")
           boost_IRM = ak.zip({
               "px": SUEP_cand.px*-1,
               "py": SUEP_cand.py*-1,
@@ -609,13 +632,21 @@ class MyProcessor(processor.ProcessorABC):
   
 
        ## resolution studies
-       if(signal):
+        if(signal):
+          print("calc res")
           scalar = scalar0[vals0.bCandmask]
-          res_pt = SUEP_cand.pt/scalar["pt"]
-          res_mass = SUEP_cand.mass/scalar["mass"]
-          res_dPhi = SUEP_cand.phi-scalar["phi"]
-          res_dEta = SUEP_cand.eta-scalar["eta"]
+          res_pt = SUEP_cand.pt.to_numpy()/scalar["pt"].to_numpy()
+          res_mass = SUEP_cand.mass.to_numpy()/scalar["mass"].to_numpy()
+          res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
+          res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
           res_dR = np.sqrt(res_dPhi*res_dPhi + res_dEta*res_dEta)
+          resolutions = ak.zip({
+            "res_pt" : res_pt,
+            "res_mass" : res_mass,
+            "res_dR" : res_dR
+        
+          })
+          #print(resolutions)
        ############################################################################## 
 
 
@@ -631,7 +662,7 @@ class MyProcessor(processor.ProcessorABC):
           for evt in range(len(bCands)):
             print(evt)
             plot_display(evt,recotracks_IRM[evt],tracks_IRM[evt],SUEP_cand[evt],ISR_cand[evt],ISR_cand_b[evt],spherex0["sphere1b"][evt],len(IRM_cands[evt]))
-        
+        print("filling cutflows") 
         spherex1 = spherex0[spherex0.triggerHt >= 1]
         spherex2 = spherex1[spherex1.ht >= 600]
         spherex3 = spherex2[spherex2.FatJet_ncount30 >= 2]
@@ -655,6 +686,7 @@ class MyProcessor(processor.ProcessorABC):
         #vals_jet4 = vals_jet3[vals3.FatJet_nconst >= 80]
         vals_jet4 = vals_jet3[vals3.n_pfcand >= 140]
         
+        print("filling cutflows fj") 
         vals_fatjet1 = vals_fatjet0[vals0.triggerHt >= 1]
         vals_fatjet2 = vals_fatjet1[vals1.ht >= 600]
         vals_fatjet3 = vals_fatjet2[vals2.FatJet_ncount50 >= 2]
@@ -663,6 +695,7 @@ class MyProcessor(processor.ProcessorABC):
         vals_fatjet4 = vals_fatjet3[vals3.n_pfcand >= 140]
         
      
+        print("filling cutflows trk") 
         vals_tracks1 = tracks_cut0[vals0.triggerHt >= 1]
         vals_tracks2 = vals_tracks1[vals1.ht >= 600]
         vals_tracks3 = vals_tracks2[vals2.FatJet_ncount50 >= 2]
@@ -690,11 +723,12 @@ class MyProcessor(processor.ProcessorABC):
         trigs = [vals0,trig1,trig2,trig3]
 
         if(signal):
+          print("filling cutflows trkID") 
           trkID1 = vals_tracks0[(vals0.triggerHt >= 1) & (vals0.ht >=600) &(vals0.FatJet_ncount50 >= 2)]
 
           trkID2 = trkID1[abs(trkID1.eta) < 2.4]
-          trkID3 = trkID2[trkID2.q != 0]
-          trkID4 = trkID3[trkID3.vertex == 0]
+          trkID3 = trkID2[trkID2.PFcand_q != 0]
+          trkID4 = trkID3[trkID3.PFcand_vertex == 0]
           trkID5 = trkID4[trkID4.pt > 0.5]
           trkID6 = trkID5[trkID5.pt > 0.6]
           trkID7 = trkID6[trkID6.pt > 0.7]
@@ -703,9 +737,9 @@ class MyProcessor(processor.ProcessorABC):
           trkID10 = trkID9[trkID9.pt > 0.9]
           trkID11 = trkID10[trkID10.pt > 1.0]
           trkID = [trkID1,trkID2,trkID3,trkID4,trkID5,trkID6,trkID7,trkID8,trkID9,trkID10,trkID11]
-          output = packtrkFKID(output,trkID,"pt" ,"PFcand_dR")
-          output = packtrkFKID(output,trkID,"eta","PFcand_dR")
-          output = packtrkFKID(output,trkID,"phi","PFcand_dR")
+          output = packtrkFKID(output,trkID,"pt" ,"PFcand_dR","PFcand_")
+          output = packtrkFKID(output,trkID,"eta","PFcand_dR","PFcand_")
+          output = packtrkFKID(output,trkID,"phi","PFcand_dR","PFcand_")
 
           vals_gen1 = vals_gen0[vals0.triggerHt >= 1]
           vals_gen2 = vals_gen1[vals1.ht >= 600]
@@ -713,27 +747,31 @@ class MyProcessor(processor.ProcessorABC):
           vals_gen4 = vals_gen3[vals3.n_pfcand >= 140]
           #vals_gen4 = vals_gen3[vals3.FatJet_nconst >= 80]
           vals_gen = [vals_gen0,vals_gen1,vals_gen2,vals_gen3,vals_gen4]
-          trkID5x = vals_gen3[vals_gen3.gen_pt > 0.5]
-          trkID6x = trkID5x[trkID5x.gen_pt > 0.6]
-          trkID7x = trkID6x[trkID6x.gen_pt > 0.7]
-          trkID8x = trkID7x[trkID7x.gen_pt > 0.75]
-          trkID9x = trkID8x[trkID8x.gen_pt > 0.8]
-          trkID10x = trkID9x[trkID9x.gen_pt > 0.9]
-          trkID11x = trkID10x[trkID10x.gen_pt > 1.0]
+          trkID5x = vals_gen3[vals_gen3.pt > 0.5]
+          trkID6x = trkID5x[trkID5x.pt > 0.6]
+          trkID7x = trkID6x[trkID6x.pt > 0.7]
+          trkID8x = trkID7x[trkID7x.pt > 0.75]
+          trkID9x = trkID8x[trkID8x.pt > 0.8]
+          trkID10x = trkID9x[trkID9x.pt > 0.9]
+          trkID11x = trkID10x[trkID10x.pt > 1.0]
           trkIDx = [vals_gen3,trkID5x,trkID6x,trkID7x,trkID8x,trkID9x,trkID10x,trkID11x]
-          output = packtrkID(output,trkIDx,"gen_pt" ,"gen_dR")
-          output = packtrkID(output,trkIDx,"gen_eta","gen_dR")
-          output = packtrkID(output,trkIDx,"gen_phi","gen_dR")
+          output = packtrkID(output,trkIDx,"pt" ,"gen_dR","gen_")
+          output = packtrkID(output,trkIDx,"eta","gen_dR","gen_")
+          output = packtrkID(output,trkIDx,"phi","gen_dR","gen_")
           output = packdistflat(output,vals_tracks,"PFcand_dR")
-          output = packdistflat(output,vals_tracks,"PFcand_alldR")
-          output = packdistflat(output,vals_gen,"gen_pt")
+          output = packdistflat(output,vals_gen,"pt","gen_")
           output = packdistflat(output,vals_gen,"gen_dR")
-          output = packdistflat(output,vals_gen,"gen_eta")
-          output = packdistflat(output,vals_gen,"gen_phi")
+          output = packdistflat(output,vals_gen,"eta","gen_")
+          output = packdistflat(output,vals_gen,"phi","gen_")
+#          output = packsingledist(output,alldRtracks,"PFcand_alldR")
+          output = packsingledist(output,resolutions,"res_pt")
+          output = packsingledist(output,resolutions,"res_mass")
+          output = packsingledist(output,resolutions,"res_dR")
 
         output = packtrig(output,trigs,"ht")
         output = packtrig(output,trigs,"n_pfMu")
         #fill hists
+        print("filling hists") 
         output = packSR(output,vals)
         output = packSR2(output,vals)
         output = packdist(output,vals,"ht")
@@ -802,7 +840,12 @@ if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if "HT" in fin:
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
-  fs=fs[300*batch:10*(batch+1)]
+  start = 300*batch
+  end = 300*(batch+1)
+  if (end > len(fs)):
+    fs = fs[start:]
+  else:
+    fs=fs[300*batch:300*(batch+1)]
   fileset = {
            fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/%s/%s"%(fin,f) for f in fs],
   }
@@ -817,7 +860,8 @@ else:
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num.root"%(fin,decays[batch])]
+#            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR_num100.root"%(fin,decays[batch])]
   }  
 
 
@@ -841,36 +885,36 @@ if __name__ == "__main__":
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
     print("running %s %s"%(fin,batch))
-#    out,metrics = processor.run_uproot_job(
-#        fileset,
-#        treename="mmtree/tree",
-#        processor_instance=proc,
-#        executor=processor.dask_executor,
-#        executor_args=exe_args,
-#        # remove this to run on the whole fileset:
-#        #maxchunks=10,
-#      #executor=processor.iterative_executor,
-#      #executor_args={
-#      #    "schema": BaseSchema,
-#      #},
-#    )
-#
-#    elapsed = time.time() - tic
-#    print(f"Output: {out}")
-#    print(f"Metrics: {metrics}")
-#    print(f"Finished in {elapsed:.1f}s")
-#    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
-    out = processor.run_uproot_job(
-      fileset,
-      treename="mmtree/tree",
-      processor_instance=proc,
-      executor=processor.iterative_executor,
-      executor_args={
-          "schema": BaseSchema,
-      },
-     # maxchunks=4,
+    out,metrics = processor.run_uproot_job(
+        fileset,
+        treename="mmtree/tree",
+        processor_instance=proc,
+        executor=processor.dask_executor,
+        executor_args=exe_args,
+        # remove this to run on the whole fileset:
+        #maxchunks=10,
+      #executor=processor.iterative_executor,
+      #executor_args={
+      #    "schema": BaseSchema,
+      #},
     )
-    print(out)
 
-    with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
+    elapsed = time.time() - tic
+    print(f"Output: {out}")
+    print(f"Metrics: {metrics}")
+    print(f"Finished in {elapsed:.1f}s")
+    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
+#    out = processor.run_uproot_job(
+#      fileset,
+#      treename="mmtree/tree",
+#      processor_instance=proc,
+#      executor=processor.iterative_executor,
+#      executor_args={
+#          "schema": BaseSchema,
+#      },
+#     # maxchunks=4,
+#    )
+#    print(out)
+
+    with open("outhists/myhistos_%s_%s100.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
