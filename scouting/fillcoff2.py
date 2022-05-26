@@ -840,12 +840,12 @@ if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if "HT" in fin:
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
-  start = 300*batch
-  end = 300*(batch+1)
+  start = 150*batch
+  end = 150*(batch+1)
   if (end > len(fs)):
     fs = fs[start:]
   else:
-    fs=fs[300*batch:300*(batch+1)]
+    fs=fs[150*batch:150*(batch+1)]
   fileset = {
            fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/%s/%s"%(fin,f) for f in fs],
   }
