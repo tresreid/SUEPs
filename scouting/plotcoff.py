@@ -16,10 +16,10 @@ from matplotlib.colors import LinearSegmentedColormap
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
-xsecs = {"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
+xsecs = {"RunA":0,"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
-sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta"}
+sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black"}
 
 qcdscaled = {}
 with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
@@ -41,10 +41,18 @@ def make_overlapdists(samples,var,cut):
   fig.subplots_adjust(hspace=.07)
 
   for sample in samples:
-    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    if "Data" in sample:
+      fil = "outhists/myhistos_%s.p"%sample
+    else:
+      fil = "outhists/myhistos_%s_2.p"%sample
+    with open(fil, "rb") as pkl_file:
         out = pickle.load(pkl_file)
-        #print(out)
-        scale= lumi*xsecs[sample]/out["sumw"][sample]
+        print(out)
+        xsec = xsecs[sample]
+        if xsec ==0:
+          scale = 1
+        else:
+          scale= lumi*xsec/out["sumw"][sample]
         scaled = {}
         for name, h in out.items():
           if var not in name or "mu" in name or "trig" in name:
@@ -81,6 +89,7 @@ def make_dists(sample):
       for name, h in out.items():
         if "SR" in name or "trkID" in name:
           continue
+        print(name)
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
           scaled[name].scale(scale)
@@ -142,7 +151,7 @@ def make_trkeff(sample,name):
               unc='clopper-pearson'
           )
 
-        ax1.set_ylim(0,1.1)
+        #ax1.set_ylim(0,0.5)
         if "_pt" in name:
           ax1.set_xscale("log")
           ax1.set_xlim([20,200])
@@ -164,7 +173,7 @@ def make_trkeff(sample,name):
               unc='clopper-pearson'
           )
 
-        ax1.set_ylim(0,1.1)
+        #ax1.set_ylim(0,1.1)
         if "_pt" in name:
           ax1.set_xscale("log")
           ax1.set_xlim([20,200])
@@ -733,11 +742,12 @@ def make_closure(sample="qcd",SR="SR1"):
 
 
 ############################## HT Trigger
-##### HT Distributions
+###### HT Distributions
 #print("running trigger studies")
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",1)
+make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
+make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
 ##### Trigger Efficiency
+make_trigs("RunA")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
 #make_trigs("sig300_2")
@@ -749,7 +759,7 @@ def make_closure(sample="qcd",SR="SR1"):
 ####### DR distributions
 #print("running track studies")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"gen_dR",2)
-#make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
+##make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
 ###### TRK Eff and Fakes 
 ### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
 #make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt") ## TODO fix fake labels
@@ -767,13 +777,17 @@ def make_closure(sample="qcd",SR="SR1"):
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints)
 #make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
-### TODO make single plot to show max significance wrt pt threshold
+#
 #
 #
 ###########################  FatJet Selection
-###TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
-### TODO make single plot to show max significance (2+ jets) wrt pt threshold
+#
 #print("running Jet studies")
+###TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
+#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_pt",0)
+#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_mass",0)
+#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_dR",0)
+#
 #maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
@@ -788,37 +802,45 @@ def make_closure(sample="qcd",SR="SR1"):
 #print("running sphericity studies")
 #make_correlation("SR1") #TODO revisit correlation plots
 #make_correlation("SR2")
+#make_correlation("SR3")
 #empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
 #
 #
 ########################## ABCD
-#print("running ABCD studies")
-#makeSR("sig400","SR1")
-#makeSR("sig200","SR1")
-#makeSR("sig300","SR1")
-#makeSR("sig750","SR1")
-#makeSR("sig1000","SR1")
-#makeSR("sig400","SR2")
-#makeSR("sig200","SR2")
-#makeSR("sig300","SR2")
-#makeSR("sig750","SR2")
-#makeSR("sig1000","SR2")
-#make_closure("qcd")
-#make_closure("sig400")
-#make_closure("sig200")
-#make_closure("sig1000")
-#make_closure("qcd","SR2")
-#make_closure("sig400","SR2") 
-#make_closure("sig200","SR2")
-#make_closure("sig1000","SR2")
-#
+print("running ABCD studies")
+makeSR("sig400","SR1")
+makeSR("sig200","SR1")
+makeSR("sig300","SR1")
+makeSR("sig750","SR1")
+makeSR("sig1000","SR1")
+makeSR("sig400","SR3")
+makeSR("sig200","SR3")
+makeSR("sig300","SR3")
+makeSR("sig750","SR3")
+makeSR("sig1000","SR3")
+makeSR("sig400","SR2")
+makeSR("sig200","SR2")
+makeSR("sig300","SR2")
+makeSR("sig750","SR2")
+makeSR("sig1000","SR2")
+make_closure("qcd")
+make_closure("sig400")
+make_closure("sig200")
+make_closure("sig1000")
+make_closure("qcd","SR2")
+make_closure("qcd","SR3")
+make_closure("sig400","SR2") 
+make_closure("sig200","SR2")
+make_closure("sig1000","SR2")
+
 ### TODO cutflow table and significance by cut
 ##make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
 #
 #
 ############### EXTRA
-#make_dists("sig400_2")
-make_dists("QCD")
+make_dists("sig400_2")
+#make_dists("QCD")
+#make_dists("RunA")
 #
