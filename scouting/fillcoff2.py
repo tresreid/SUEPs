@@ -13,15 +13,14 @@ from lpcjobqueue import LPCCondorCluster
 import sys
 import vector
 from math import pi
+import dask
 
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
 
-signal=False
 eventDisplay_knob= False
 redoISRRM = True
-
 def get_dr_ring(dr, phi_c=0, eta_c=0, n_points=600):
     deta = np.linspace(-dr, +dr, n_points)
     dphi = np.sqrt(dr**2 - np.square(deta))
@@ -176,13 +175,13 @@ def packdist_fjn1(output,vals,var):
         output["dist_fjn1_%s"%(var)].fill(cut="cut 4:BSphericity >=0.6",        v1=vals[4][var])
         return output
 def packSR(output,vals):
-        output["SR1"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphereb"])
+        output["SR1"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphereb_16"])
         return output
 def packSR3(output,vals):
-        output["SR3"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1b"])
+        output["SR3"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1b_16"])
         return output
 def packSR2(output,vals):
-        output["SR2"].fill(axis="axis",       FatJet_nconst=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphereb"])
+        output["SR2"].fill(axis="axis",       FatJet_nconst=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphereb_16"])
         return output
 pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
@@ -222,22 +221,52 @@ class MyProcessor(processor.ProcessorABC):
             "dist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Ht",100,0,2500)
+                      hist.Bin("v1","Ht",350,0,3500)
             ),
             #"dist_sphere1": hist.Hist(
             #          "Events",
             #          hist.Cat("cut","Cutflow"),
             #          hist.Bin("v1","Sphere1",50,0,1)
             #),
-            "dist_sphereb": hist.Hist(
+            "dist_sphereb_16": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Sphereb",50,0,1)
+                      hist.Bin("v1","Sphereb_16",50,0,1)
             ),
-            "dist_sphere1b": hist.Hist(
+            "dist_sphere1b_16": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Sphere1b",50,0,1)
+                      hist.Bin("v1","Sphere1b_16",50,0,1)
+            ),
+            "dist_sphereb_10": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphereb_10",50,0,1)
+            ),
+            "dist_sphere1b_10": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere1b_10",50,0,1)
+            ),
+            "dist_sphereb_8": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphereb_8",50,0,1)
+            ),
+            "dist_sphere1b_8": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere1b_8",50,0,1)
+            ),
+            "dist_sphereb_4": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphereb_4",50,0,1)
+            ),
+            "dist_sphere1b_4": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere1b_4",50,0,1)
             ),
             "dist_event_sphericity": hist.Hist(
                       "Events",
@@ -253,6 +282,16 @@ class MyProcessor(processor.ProcessorABC):
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nPVs",100,0,100)
+            ),
+            "dist_Vertex_valid": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Vertex Valid",5,0,5)
+            ),
+            "dist_Vertex_tracksSize": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Vertex Track Size",200,0,200)
             ),
             "dist_n_pfcand": hist.Hist(
                       "Events",
@@ -561,6 +600,10 @@ class MyProcessor(processor.ProcessorABC):
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
 
+        vals_vertex0 = ak.zip({
+                      'Vertex_valid': arrays["Vertex_isValidVtx"],
+                      'Vertex_tracksSize': arrays["Vertex_tracksSize"],
+        })
         vals_jet0 = ak.zip({
                        'Jet_pt' : arrays["Jet_pt"],
                        'Jet_eta': arrays["Jet_eta"],
@@ -647,36 +690,72 @@ class MyProcessor(processor.ProcessorABC):
 
           recotracks_IRM = tracks_cut0[vals0.FatJet_ncount30 >=2]
           tracks_IRM = recotracks_IRM.boost_p4(boost_IRM)
-          IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.6]
-          onetrackcut = (ak.num(IRM_cands) >=2) # cut to pick out events that survive the isr removal
-          IRM_cands = IRM_cands[onetrackcut]
+          def sphericityCalc(cut):
+            IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= cut/10.]
+            onetrackcut = (ak.num(IRM_cands) >=2) # cut to pick out events that survive the isr removal
+            IRM_cands = IRM_cands[onetrackcut]
   
 
-          print(len(bCands),len(IRM_cands))
-          #eigs = sphericity(self,bCands,2.0)
-          spherex0 = vals0[vals0.FatJet_ncount30 >= 2]
-          spherex0 = spherex0[onetrackcut]
-          if(len(IRM_cands)!=0):
-            eigs2 = sphericity(self,IRM_cands,2.0) # normal sphericity
-            eigs1 = sphericity(self,IRM_cands,1.0) # sphere 1
-            #spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
-            spherex0["sphere1b"] = 1.5 * (eigs1[:,1]+eigs1[:,0])
-            spherex0["sphereb"] = 1.5 * (eigs2[:,1]+eigs2[:,0])
-          else:
-            spherex0["sphere1b"] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
-            spherex0["sphereb"] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
-          
+            print(len(IRM_cands))
+            #eigs = sphericity(self,bCands,2.0)
+            spherex0 = vals0[vals0.FatJet_ncount30 >= 2]
+            spherex0 = spherex0[onetrackcut]
+            if(len(IRM_cands)!=0):
+              eigs2 = sphericity(self,IRM_cands,2.0) # normal sphericity
+              eigs1 = sphericity(self,IRM_cands,1.0) # sphere 1
+              #spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
+              spherex0["sphere1b_%s"%cut] = 1.5 * (eigs1[:,1]+eigs1[:,0])
+              spherex0["sphereb_%s"%cut] = 1.5 * (eigs2[:,1]+eigs2[:,0])
+            else:
+              spherex0["sphere1b_%s"%cut] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
+              spherex0["sphereb_%s"%cut] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
+            spherex1 = spherex0[spherex0.triggerHt >= 1]
+            spherex2 = spherex1[spherex1.ht >= 600]
+            spherex3 = spherex2[spherex2.FatJet_ncount50 >= 2]
+            spherex4 = spherex3[spherex3.PFcand_ncount75 >= 140]
+            
+            sphere1 = [spherex0,spherex1,spherex2,spherex3,spherex4]
+            return sphere1
+          sphere16 = sphericityCalc(16)
+          sphere10 = sphericityCalc(10)
+          sphere08 = sphericityCalc(8)
+          sphere04 = sphericityCalc(4)
+#          IRM_cands16 = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.6]
+#          onetrackcut16 = (ak.num(IRM_cands16) >=2) # cut to pick out events that survive the isr removal
+#          IRM_cands10 = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 1.0]
+#          onetrackcut10 = (ak.num(IRM_cands10) >=2) # cut to pick out events that survive the isr removal
+#          IRM_cands08 = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 0.8]
+#          onetrackcut08 = (ak.num(IRM_cands08) >=2) # cut to pick out events that survive the isr removal
+#          IRM_cands04 = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= 0.4]
+#          onetrackcut04 = (ak.num(IRM_cands04) >=2) # cut to pick out events that survive the isr removal
+#          IRM_cands16 = IRM_cands16[onetrackcut16]
+#          IRM_cands10 = IRM_cands10[onetrackcut10]
+#          IRM_cands08 = IRM_cands08[onetrackcut08]
+#          IRM_cands04 = IRM_cands04[onetrackcut04]
+#  
+#
+#          print(len(bCands),len(IRM_cands16),len(IRM_cans10),len(IRM_cans08),len(IRM_cans04))
+#          #eigs = sphericity(self,bCands,2.0)
+#          spherex0 = vals0[vals0.FatJet_ncount30 >= 2]
+#          spherex16 = spherex0[onetrackcut16]
+#          spherex10 = spherex0[onetrackcut10]
+#          spherex08 = spherex0[onetrackcut08]
+#          spherex04 = spherex0[onetrackcut04]
+#          if(len(IRM_cands)!=0):
+#            eigs2 = sphericity(self,IRM_cands,2.0) # normal sphericity
+#            eigs1 = sphericity(self,IRM_cands,1.0) # sphere 1
+#            #spherex0["sphere1"] = 1.5 * (eigs[:,1]+eigs[:,0])
+#            spherex0["sphere1b"] = 1.5 * (eigs1[:,1]+eigs1[:,0])
+#            spherex0["sphereb"] = 1.5 * (eigs2[:,1]+eigs2[:,0])
+#          else:
+#            spherex0["sphere1b"] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
+#            spherex0["sphereb"] = -1 #1.5 * (eigs2[:,1]+eigs2[:,0])
+#          
           if(eventDisplay_knob):
             for evt in range(len(bCands)):
               print(evt)
               plot_display(evt,recotracks_IRM[evt],tracks_IRM[evt],SUEP_cand[evt],ISR_cand[evt],ISR_cand_b[evt],spherex0["sphere1b"][evt],len(IRM_cands[evt]))
           print("filling cutflows") 
-          spherex1 = spherex0[spherex0.triggerHt >= 1]
-          spherex2 = spherex1[spherex1.ht >= 600]
-          spherex3 = spherex2[spherex2.FatJet_ncount50 >= 2]
-          spherex4 = spherex3[spherex3.PFcand_ncount75 >= 140]
-          
-          sphere1 = [spherex0,spherex1,spherex2,spherex3,spherex4]
         
        ## resolution studies
         if(signal):
@@ -728,12 +807,18 @@ class MyProcessor(processor.ProcessorABC):
         #vals_tracks3 = vals_tracks2[vals2.n_fatjet >= 2]
         #vals_tracks4 = vals_tracks3[vals3.FatJet_nconst >= 80]
         vals_tracks4 = vals_tracks3[vals3.PFcand_ncount75 >= 140]
+        print("filling cutflows vertex") 
+        vals_vertex1 = vals_vertex0[vals0.triggerHt >= 1]
+        vals_vertex2 = vals_vertex1[vals1.ht >= 600]
+        vals_vertex3 = vals_vertex2[vals2.FatJet_ncount50 >= 2]
+        vals_vertex4 = vals_vertex3[vals3.PFcand_ncount75 >= 140]
 
         vals = [vals0,vals1,vals2,vals3,vals4]
         valsx = [vals0,vals1,vals2,vals3,vals4x]
         vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4]
         vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]
         vals_tracks = [vals_tracks0,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
+        vals_vertex = [vals_vertex0,vals_vertex1,vals_vertex2,vals_vertex3,vals_vertex4]
 
         #fatjet n-1 cutflow
         #fj3 = vals2[vals2.FatJet_nconst >=80]
@@ -789,22 +874,30 @@ class MyProcessor(processor.ProcessorABC):
           output = packdistflat(output,vals_gen,"gen_dR")
           output = packdistflat(output,vals_gen,"eta","gen_")
           output = packdistflat(output,vals_gen,"phi","gen_")
+          output = packdistflat(output,vals_vertex,"Vertex_valid","")
+          output = packdistflat(output,vals_vertex,"Vertex_tracksSize","")
 #          output = packsingledist(output,alldRtracks,"PFcand_alldR")
           output = packsingledist(output,resolutions,"res_pt")
           output = packsingledist(output,resolutions,"res_mass")
           output = packsingledist(output,resolutions,"res_dR")
           #print(sphere1)
           #output = packdist(output,sphere1,"sphere1")
-        output = packdist(output,sphere1,"sphere1b")
-        output = packdist(output,sphere1,"sphereb")
+        output = packdist(output,sphere16,"sphere1b_16")
+        output = packdist(output,sphere16,"sphereb_16")
+        output = packdist(output,sphere10,"sphere1b_10")
+        output = packdist(output,sphere10,"sphereb_10")
+        output = packdist(output,sphere08,"sphere1b_8")
+        output = packdist(output,sphere08,"sphereb_8")
+        output = packdist(output,sphere04,"sphere1b_4")
+        output = packdist(output,sphere04,"sphereb_4")
 
         output = packtrig(output,trigs,"ht")
         output = packtrig(output,trigs,"n_pfMu")
         #fill hists
         print("filling hists") 
-        output = packSR(output,sphere1)
-        output = packSR2(output,sphere1)
-        output = packSR3(output,sphere1)
+        output = packSR(output,sphere16)
+        output = packSR2(output,sphere16)
+        output = packSR3(output,sphere16)
         output = packdist(output,vals,"ht")
         output = packdist(output,vals,"n_pfcand")
         output = packdist(output,vals,"event_sphericity")
@@ -813,6 +906,7 @@ class MyProcessor(processor.ProcessorABC):
         output = packdist(output,vals,"n_jetId")
         output = packdist(output,vals,"n_pfMu")
         output = packdist(output,vals,"n_pfEl")
+        output = packdist(output,vals,"n_pvs")
         
         output = packdistflat(output,vals_jet,"Jet_pt")
         output = packdistflat(output,vals_jet,"Jet_eta")
@@ -860,6 +954,8 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 
 fin = "HT2000"
 batch = 0
+signal=False
+runInteractive=False
 if len(sys.argv) >= 2:
   fin = sys.argv[1]
 #fin = "sig400"
@@ -884,6 +980,8 @@ elif "Run" in fin:
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/%s/%s"%(fin,f) for f in fs]
   }  
 else:
+  signal=True
+  runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
@@ -895,7 +993,11 @@ else:
 if __name__ == "__main__":
     tic = time.time()
     #print(sys.argv)
-    cluster = LPCCondorCluster()
+    #dask.config.set({"distributed.scheduler.worker-ttl": "10min"})
+
+    cluster = LPCCondorCluster(
+          memory="4GB",
+    )
     # minimum > 0: https://github.com/CoffeaTeam/coffea/issues/465
     cluster.adapt(minimum=1, maximum=10)
     client = Client(cluster)
@@ -904,7 +1006,7 @@ if __name__ == "__main__":
         "client": client,
         "savemetrics": True,
         "schema": BaseSchema, #nanoevents.NanoAODSchema,
-        "align_clusters": True,
+        #"align_clusters": True,
     }
 
     proc = MyProcessor()
@@ -912,36 +1014,40 @@ if __name__ == "__main__":
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
     print("running %s %s"%(fin,batch))
-#    out,metrics = processor.run_uproot_job(
-#        fileset,
-#        treename="mmtree/tree",
-#        processor_instance=proc,
-#        executor=processor.dask_executor,
-#        executor_args=exe_args,
-#        # remove this to run on the whole fileset:
-#        #maxchunks=10,
-#      #executor=processor.iterative_executor,
-#      #executor_args={
-#      #    "schema": BaseSchema,
-#      #},
-#    )
-#
-#    elapsed = time.time() - tic
-#    print(f"Output: {out}")
-#    print(f"Metrics: {metrics}")
-#    print(f"Finished in {elapsed:.1f}s")
-#    print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
-    out = processor.run_uproot_job(
-      fileset,
-      treename="mmtree/tree",
-      processor_instance=proc,
-      executor=processor.iterative_executor,
-      executor_args={
-          "schema": BaseSchema,
-      },
-     # maxchunks=4,
-    )
-    print(out)
+    if(runInteractive):
+      out = processor.run_uproot_job(
+        fileset,
+        treename="mmtree/tree",
+        processor_instance=proc,
+        executor=processor.iterative_executor,
+        executor_args={
+            "schema": BaseSchema,
+        },
+       # maxchunks=4,
+      )
+      print(out)
+    else:
+      out,metrics = processor.run_uproot_job(
+          fileset,
+          treename="mmtree/tree",
+          processor_instance=proc,
+          executor=processor.dask_executor,
+          executor_args=exe_args,
+          #dynamic_chunksize= {"memory":2048},
+          chunksize= 10000,
+          # remove this to run on the whole fileset:
+          #maxchunks=10,
+        #executor=processor.iterative_executor,
+        #executor_args={
+        #    "schema": BaseSchema,
+        #},
+      )
+
+      elapsed = time.time() - tic
+      print(f"Output: {out}")
+      print(f"Metrics: {metrics}")
+      print(f"Finished in {elapsed:.1f}s")
+      print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
     with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)

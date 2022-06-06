@@ -29,28 +29,27 @@ with open("outhists/myhistos_RunA_0.p", "rb") as pkl_file:
         #print(name)
         scaled[name] = h.copy()
         scaled[name].scale(lumi*xsec/nevents)
-outhists = [
-"RunA_1",
-"RunA_2",
-"RunA_3",
-"RunA_4",
-"RunA_5",
-"RunA_6",
-"RunA_7",
-"RunA_8"
-]
+#outhists = [
+#"RunA_1",
+#"RunA_2",
+#"RunA_3",
+#"RunA_4",
+#"RunA_5",
+#"RunA_6",
+#"RunA_7",
+#"RunA_8"
+#]
+outhists = ["RunA_%s"%x for x in range(1,100)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(22,41)]
+#print(outhists)
 
 for ohist in outhists:
   with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
-      qcd_samp = ohist.split("_")[0]
-      print(qcd_samp)
+      print(ohist)
       out = pickle.load(pkl_file)
       print(out)
-      xsec = 1#xsecs[qcd_samp]
-      #nevents = out["sumw"]["sig400"]
-      nevents = 1#out["sumw"][qcd_samp]
-      print("nevents ",nevents)
-      #fout = uproot.recreate("output.root")
+      xsec = 1
+      nevents = 1
       for name, h in out.items():
         if "PFcand_dR" in name or "res" in name or "gen" in name:
           continue

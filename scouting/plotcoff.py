@@ -19,11 +19,11 @@ lumi = 59.74*1000
 xsecs = {"RunA":0,"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
-sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black"}
+sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"brown","QCD":"black"}
 
 qcdscaled = {}
-with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
-#with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
+#with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
+with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     for name, h in out.items():
       if isinstance(h, hist.Hist):
@@ -41,10 +41,10 @@ def make_overlapdists(samples,var,cut):
   fig.subplots_adjust(hspace=.07)
 
   for sample in samples:
-    if "Data" in sample:
-      fil = "outhists/myhistos_%s.p"%sample
-    else:
+    if "sig" in sample:
       fil = "outhists/myhistos_%s_2.p"%sample
+    else:
+      fil = "outhists/myhistos_%s.p"%sample
     with open(fil, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         print(out)
@@ -71,7 +71,7 @@ def make_overlapdists(samples,var,cut):
   ax.set_ylabel("Events")
   ax.legend()
   ax.autoscale(axis='y', tight=True)
-  fig.savefig("Plots/overlap_sigdist_%s_cut%s"%(var,cut))
+  fig.savefig("Plots/overlap_dist_%s_cut%s"%(var,cut))
   plt.close()
   
 
@@ -80,7 +80,7 @@ def make_dists(sample):
   with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       xsec = xsecs[sample.split("_")[0]]
-#      print(out)
+      #print(out)
       if xsec ==0:
         scale = 1
       else:
@@ -425,10 +425,10 @@ def makeSR(sample,var):
       plt.register_cmap(cmap=map_object)
       plt.register_cmap(cmap=map_object2)
 
-      if var=="SR1":
-        xvar = "nPFCand"
-      else:
+      if var=="SR2":
         xvar = "FatJet_nconst"
+      else:
+        xvar = "nPFCand"
       for name, h in out.items():
         if var not in name:
           continue
@@ -744,10 +744,10 @@ def make_closure(sample="qcd",SR="SR1"):
 ############################## HT Trigger
 ###### HT Distributions
 #print("running trigger studies")
-make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
+#make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
+#make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
 ##### Trigger Efficiency
-make_trigs("RunA")
+#make_trigs("RunA")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
 #make_trigs("sig300_2")
@@ -808,32 +808,32 @@ make_trigs("RunA")
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
 #
 #
-########################## ABCD
-print("running ABCD studies")
-makeSR("sig400","SR1")
-makeSR("sig200","SR1")
-makeSR("sig300","SR1")
-makeSR("sig750","SR1")
-makeSR("sig1000","SR1")
-makeSR("sig400","SR3")
-makeSR("sig200","SR3")
-makeSR("sig300","SR3")
-makeSR("sig750","SR3")
-makeSR("sig1000","SR3")
-makeSR("sig400","SR2")
-makeSR("sig200","SR2")
-makeSR("sig300","SR2")
-makeSR("sig750","SR2")
-makeSR("sig1000","SR2")
-make_closure("qcd")
-make_closure("sig400")
-make_closure("sig200")
-make_closure("sig1000")
-make_closure("qcd","SR2")
-make_closure("qcd","SR3")
-make_closure("sig400","SR2") 
-make_closure("sig200","SR2")
-make_closure("sig1000","SR2")
+########################### ABCD
+#print("running ABCD studies")
+#makeSR("sig400","SR1")
+#makeSR("sig200","SR1")
+#makeSR("sig300","SR1")
+#makeSR("sig750","SR1")
+#makeSR("sig1000","SR1")
+#makeSR("sig400","SR3")
+#makeSR("sig200","SR3")
+#makeSR("sig300","SR3")
+#makeSR("sig750","SR3")
+#makeSR("sig1000","SR3")
+#makeSR("sig400","SR2")
+#makeSR("sig200","SR2")
+#makeSR("sig300","SR2")
+#makeSR("sig750","SR2")
+#makeSR("sig1000","SR2")
+#make_closure("qcd")
+#make_closure("sig400")
+#make_closure("sig200")
+#make_closure("sig1000")
+#make_closure("qcd","SR2")
+#make_closure("qcd","SR3")
+#make_closure("sig400","SR2") 
+#make_closure("sig200","SR2")
+#make_closure("sig1000","SR2")
 
 ### TODO cutflow table and significance by cut
 ##make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
@@ -841,6 +841,17 @@ make_closure("sig1000","SR2")
 #
 ############### EXTRA
 make_dists("sig400_2")
+#maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
 #make_dists("RunA")
 #
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","QCD","RunA"],"n_pvs",1)
