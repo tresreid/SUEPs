@@ -9,9 +9,10 @@ import uproot
 import pickle
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
-lumi = 59.74*1000
+lumi = 1# no luminosity. set to nEvents from data. #59.74*1000
 scaled = {}
-xsecs = {"HT200":1559000,"HT300":347700,"HT500":32100,"HT700":6831,"HT1000":1207,"HT1500":119.9,"HT2000":25.24}
+xsecs = {"HT200":1735000,"HT300":366800,"HT500":29370,"HT700":6524,"HT1000":1064*3,"HT1500":121.5*3,"HT2000":25.42*6}
+#xsecs = {"HT200":1559000,"HT300":347700,"HT500":32100,"HT700":6831,"HT1000":1207,"HT1500":119.9,"HT2000":25.24}
 with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     print(out)
@@ -27,7 +28,28 @@ with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
         #print(name)
         scaled[name] = h.copy()
         scaled[name].scale(lumi*xsec/nevents)
-#outhists = ["HT200_0","HT200_1","HT200_2","HT200_3","HT200_4","HT200_5","HT200_6","HT200_7","HT200_8","HT300_0","HT300_1","HT300_2","HT300_3","HT300_4","HT300_5","HT300_7","HT500_0","HT500_1","HT500_2","HT500_3","HT500_4","HT500_5","HT500_6", "HT700_0","HT700_1","HT700_2","HT700_3","HT700_4","HT700_5","HT700_6","HT700_7","HT1000_0","HT1000_1","HT1500_0","HT1500_1"]
+    #h1 = scaled["dist_ht"].integrate("cut",slice(2,3))
+    #scaled["nEvents"] = sum(h1.values(sumw2=True)[()][0])
+#outhists = [
+#"HT1500_0",
+#"HT1500_1",
+#"HT1000_0",
+#"HT1000_1",
+#"HT1000_2",
+#"HT700_0",
+#"HT700_1",
+#"HT700_2",
+#"HT700_3",
+#"HT500_0",
+#"HT500_1",
+#"HT300_0",
+#"HT300_1",
+#"HT300_2",
+#"HT200_0",
+#"HT200_1",
+#"HT200_2",
+#"HT200_3",
+#"HT200_4"
 outhists = [
 "HT2000_1"
 ,"HT2000_2"
@@ -53,7 +75,7 @@ outhists = [
 ,"HT700_3"
 ,"HT700_4"
 ,"HT700_5"
-,"HT700_6"
+#,"HT700_6"
 ,"HT700_7"
 ,"HT700_8"
 ,"HT700_9"
@@ -79,7 +101,7 @@ outhists = [
 ,"HT500_2"
 ,"HT500_3"
 ,"HT500_4"
-,"HT500_5"
+#,"HT500_5"
 ,"HT500_6"
 ,"HT500_7"
 ,"HT500_8"
@@ -152,8 +174,8 @@ outhists = [
 ,"HT200_18"
 ,"HT200_19"
 ,"HT200_20"
-,"HT200_21"
-,"HT200_22"
+#,"HT200_21"
+#,"HT200_22"
 ,"HT200_23"
 ,"HT200_24"
 ,"HT200_25"
@@ -166,7 +188,7 @@ outhists = [
 for ohist in outhists:
   with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
       qcd_samp = ohist.split("_")[0]
-      print(qcd_samp)
+      print(ohist)
       out = pickle.load(pkl_file)
       print(out)
       xsec = xsecs[qcd_samp]
@@ -181,6 +203,10 @@ for ohist in outhists:
           print(name)
           temphist = h.copy()
           temphist.scale(lumi*xsec/nevents)
+          #h1 = temphist["dist_ht"].integrate("cut",slice(2,3))
+          #scaled["nEvents"] = scaled["nEvents"]+sum(h1.values(sumw2=True)[()][0])
           scaled[name] = scaled[name]+temphist
+      #h1 = scaled["dist_ht"].integrate("cut",slice(2,3))
+      #scaled["nEvents"] = scaled["nEvents"]+sum(h1.values(sumw2=True)[()][0])
 with open("outhists/myhistos_QCD.p", "wb") as pkl_file:
         pickle.dump(scaled, pkl_file)

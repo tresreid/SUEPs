@@ -16,59 +16,117 @@ from matplotlib.colors import LinearSegmentedColormap
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
-xsecs = {"RunA":0,"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6} #1000-200
+xsecs = {"RunA_0":0,"RunA":0,"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"brown","QCD":"black"}
 
+directory = "outhists/"
+#directory = "outhists/nPV/"
 qcdscaled = {}
+datascaled = {}
+datalumi = 0
 #with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
-with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
+with open(directory+"myhistos_RunA.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
+    #datalumi = out["nEvents"]#/1000000
+    for name, h in out.items():
+      if isinstance(h, hist.Hist):
+        datascaled[name] = h.copy()
+    h1 = datascaled["dist_ht"].integrate("cut",slice(2,3))
+    datalumi = sum(h1.values(sumw2=True)[()][0])
+#with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
+with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
+    out = pickle.load(pkl_file)
+    #qcdlumi = out["nEvents"]
+    h1 = out["dist_ht"].integrate("cut",slice(2,3))
+    qcdlumi = sum(h1.values(sumw2=True)[()][0])
+    print(qcdlumi)
+    print(datalumi)
     for name, h in out.items():
       if isinstance(h, hist.Hist):
         qcdscaled[name] = h.copy()
+        qcdscaled[name].scale(datalumi/qcdlumi)
 
 def make_overlapdists(samples,var,cut):
   name1 = "dist_%s"%var
-  fig, (ax) = plt.subplots(
-      nrows=1,
+  fig, (ax,ax1) = plt.subplots(
+      nrows=2,
       ncols=1,
       figsize=(7,7),
-      #gridspec_kw={"height_ratios": (3, 1)},
-      #sharex=True
+      gridspec_kw={"height_ratios": (3, 1)},
+      sharex=True
   )
   fig.subplots_adjust(hspace=.07)
 
+  make_ratio=False
+  if "RunA" in samples:
+    h1 = datascaled[name1].integrate("cut",slice(cut,cut+1))
+    h1_scale = h1.values(sumw2=True)[()]
+    #h1.scale(1./sum(h1_scale[0]))
+    sdat = h1.to_hist().to_numpy()
+    ax.step(sdat[1][:-1],sdat[0],color=sigcolors["RunA"],label="Data",linestyle="--",where="post")
+    make_ratio=True
+
   for sample in samples:
     if "sig" in sample:
-      fil = "outhists/myhistos_%s_2.p"%sample
-    else:
-      fil = "outhists/myhistos_%s.p"%sample
-    with open(fil, "rb") as pkl_file:
-        out = pickle.load(pkl_file)
-        print(out)
-        xsec = xsecs[sample]
-        if xsec ==0:
-          scale = 1
-        else:
+      fil = directory+"myhistos_%s_2.p"%sample
+      with open(fil, "rb") as pkl_file:
+          out = pickle.load(pkl_file)
+          print(out)
+          xsec = xsecs[sample]
+          #if xsec ==0:
+          #  scale = 1
+          #else:
           scale= lumi*xsec/out["sumw"][sample]
-        scaled = {}
-        for name, h in out.items():
-          if var not in name or "mu" in name or "trig" in name:
-            continue
-          if isinstance(h, hist.Hist):
-            scaled[name] = h.copy()
-            scaled[name].scale(scale)
+          scaled = {}
+          for name, h in out.items():
+            if "dist_%s"%var != name:#if var not in name or "mu" in name or "trig" in name:
+              continue
+            if isinstance(h, hist.Hist):
+              scaled[name] = h.copy()
+              scaled[name].scale(scale)
+              s = scaled[name].integrate("cut",slice(cut,cut+1))#.to_hist().to_numpy()
+              s_scale = s.values(sumw2=True)[()]
+              #s.scale(1./sum(s_scale[0]))
+              s1= s.to_hist().to_numpy()
+              ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+              if(make_ratio):
+                hist.plotratio(
+                h1,s,
+                ax=ax1,
+                clear=False,
+     #         label="QCD",
+                error_opts={'color': sigcolors[sample], 'marker': '+'},
+                unc='num'
+              #unc='clopper-pearson'
+                )
+    #elif "Run" in sample:
+    #  #fil = directory+"myhistos_%s.p"%sample
+    elif "QCD" in sample:
+      h2x = qcdscaled[name1]
+      h2= h2x.integrate("cut",slice(cut,cut+1))
+      h2_scale = h2.values(sumw2=True)[()]
+      #h2.scale(1./sum(h2_scale[0]))
+      s = h2.to_hist().to_numpy()
+      ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+      if(make_ratio):
+        hist.plotratio(
+        h1,h2,
+        ax=ax1,
+        clear=False,
+     # label="QCD",
+        error_opts={'color': sigcolors[sample], 'marker': '+'},
+        unc='num'
+      #unc='clopper-pearson'
+        )
         
-        
-            s = scaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
-            #b = qcdscaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
-            ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+  ax1.set_ylim(0.5,1.5)     
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.set_xlabel(name1[5:])
   ax.set_ylabel("Events")
+  ax1.set_ylabel("Data/QCD")
   ax.legend()
   ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/overlap_dist_%s_cut%s"%(var,cut))
@@ -76,8 +134,8 @@ def make_overlapdists(samples,var,cut):
   
 
 
-def make_dists(sample):
-  with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
+def make_dists(sample,runPV=0):
+  with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       xsec = xsecs[sample.split("_")[0]]
       #print(out)
@@ -89,6 +147,8 @@ def make_dists(sample):
       for name, h in out.items():
         if "SR" in name or "trkID" in name:
           continue
+        if "dR" in name or "res" in name or "gen" in name:
+          continue
         print(name)
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
@@ -96,7 +156,16 @@ def make_dists(sample):
       
       
           fig, ax1 = plt.subplots()
-      
+          #print(scaled[name].cat("v1")) 
+          #print(scaled[name].sparse_nbins())
+          #if(scaled[name].sparse_nbins() >4):
+          if(runPV):
+            scaled[name] = scaled[name].remove(["cut 3:fj>=2"],"cut")
+            scaled[name] = scaled[name].remove(["cut 4:nPFCand75>=140"],"cut")
+          else:
+            scaled[name] = scaled[name].remove(["cut 3:Pre + nPVs < 30"],"cut")
+            scaled[name] = scaled[name].remove(["cut 4:Pre + nPVs >=30"],"cut")
+        
           hx = hist.plot1d(
               scaled[name],
               ax=ax1,
@@ -118,14 +187,14 @@ def make_dists(sample):
             #ax1.set_xscale("log")
             ax1.set_yscale("log")
             ax1.set_xlim([0,.03])
-          fig.savefig("Plots/proccess_%s_%s"%(sample,name))
+          fig.savefig("Plots/proccess_%s_%s_PV%s"%(sample,name,runPV))
           plt.close()
   
 #      fig, ax1 = plt.subplots()
 def func(x,a,b,c,d):
   return a*scipy.special.erf((x-b)/c)+d 
 def make_trkeff(sample,name):
-  with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
+  with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       sample = sample.split("_")[0]
       xsec = xsecs[sample.split("_")[0]]
@@ -186,7 +255,7 @@ def make_trkeff(sample,name):
         plt.close()
 
 def make_trigs(sample):
-  with open("outhists/myhistos_%s.p"%sample, "rb") as pkl_file:
+  with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       sample = sample.split("_")[0]
       xsec = xsecs[sample.split("_")[0]]
@@ -255,12 +324,12 @@ def get_sig(s,sb,rangex):
 
 def make_signif(sample,xsec):
   qcdscaled = {}
-  with open("outhists/myhistos_QCD.p", "rb") as pkl_file:
+  with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           qcdscaled[name] = h.copy()
-  with open("outhists/myhistos_%s_0.p"%sample, "rb") as pkl_file:
+  with open(directory+"myhistos_%s_0.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       scale= lumi*xsec/out["sumw"][sample]
       scaled = {}
@@ -336,7 +405,7 @@ def make_n1(samples,var,cut,maxpoints):
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
   for sample in samples:
-    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -402,7 +471,7 @@ def get_sig2d(s,sb,rangex,rangey):
     bkg.append(bkg1)
   return(sig,bkg)
 def makeSR(sample,var):
-  with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+  with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       #print(out)
       scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -557,7 +626,7 @@ def make_cutflow(samples,var):
     print("QCD %d %s %.2f"%(cut,name1,b[30:].sum()))
     cutflow["QCD"].append(b[30:].sum())
   for sample in samples:
-    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -652,9 +721,9 @@ def make_closure(sample="qcd",SR="SR1"):
     high1 = 100
     high2 = 61
   if sample == "qcd":
-    h1 = qcdscaled[SR].integrate("axis",slice(0,1))
+     h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   else:
-    with open("outhists/myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
         scaled = {}
@@ -734,6 +803,66 @@ def make_closure(sample="qcd",SR="SR1"):
   ax1.set_xlim(high1,175)
   ax1.set_ylim(0.5,1.5)
   fig.savefig("Plots/closure_%s_%s"%(sample,var))
+  plt.close()
+def make_datacompare(var,cut):
+  var1 = "dist_%s"%var
+  h1 = qcdscaled[var1]#.integrate("cut",slice(cut,cut+1))
+  print(h1)
+  h2 = datascaled[var1].integrate("cut",slice(cut,cut+1))
+  h1_scale = h1.values(sumw2=True)[()]
+  h2_scale = h2.values(sumw2=True)[()]
+  h1.scale(1./sum(h1_scale[0]))
+  h2.scale(1./sum(h2_scale[0]))
+  #h1.scale(1./sum(h1_scale[0][25:]))
+  #h2.scale(1./sum(h2_scale[0][25:]))
+  fig, (ax, ax1) = plt.subplots(
+      nrows=2,
+      ncols=1,
+      figsize=(7,7),
+      gridspec_kw={"height_ratios": (3, 1)},
+      sharex=True
+  )
+  cuts = ["no cut","HT Trig","Ht >=600","fj>=2","nPCcand>=140","nPV < 30","nPV>= 30"]
+  fig.suptitle("QCD/Data: %s [%s]"%(var,cuts[cut]))
+  h1x = h1.to_hist().to_numpy()
+  h2x = h2.to_hist().to_numpy()
+  ax.errorbar(h1x[1][:-1],h1x[0],h1_scale[1],ecolor="blue",color="blue",label="QCD",drawstyle="steps-post")
+  ax.errorbar(h2x[1][:-1],h2x[0],h2_scale[1],ecolor="red" ,color="red" ,label="data",drawstyle="steps-post")
+#  ax.errorbar(h1x[1][:-1],h1x[0],h1_scale[1],ecolor="blue",color="blue",label="QCD", marker="+")
+#  ax.errorbar(h2x[1][:-1],h2x[0],h2_scale[1],ecolor="red" ,color="red" ,label="data",marker="=")
+  #hx = hist.plot1d(
+  #    h1,
+  #    ax=ax,
+  ##    overlay="cut",
+  #    stack=False,
+  #    fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"blue"}
+  #) 
+  #hx2 = hist.plot1d(
+  #    h2,
+  #    ax=ax,
+  #    clear=False,
+  #    #overlay="cut",
+  #    stack=False,
+  #    fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
+  #)
+  #leg = ["QCD","Data"]
+  #ax.legend(leg)
+  ax.legend()
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  ax.set_yscale("log")
+  ax.autoscale(axis='y', tight=True)
+  hx1 = hist.plotratio(
+      h1,h2,
+      ax=ax1,
+     # label="QCD",
+      error_opts={'color': 'r', 'marker': '+'},
+      unc='num'
+      #unc='clopper-pearson'
+  )
+  #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  #ax1.set_xlim(high1,175)
+  ax1.set_ylim(0.5,1.5)
+  fig.savefig("Plots/compare_%s_%s"%(var,cut))
   plt.close()
 
 
@@ -840,7 +969,6 @@ def make_closure(sample="qcd",SR="SR1"):
 #
 #
 ############### EXTRA
-make_dists("sig400_2")
 #maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
@@ -850,8 +978,34 @@ make_dists("sig400_2")
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
-#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
+##make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
 #make_dists("RunA")
-#
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","QCD","RunA"],"n_pvs",1)
+make_dists("sig400_2")
+#make_dists("sig400_2",1)
+##make_dists("HT2000_0")
+##
+
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphereb_16",3)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",1)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_ncount50",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_pt",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_eta",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_phi",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_pt",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_eta",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_phi",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_jetId",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_pvs",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize0",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_z",2)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_minZ",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good4",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good5",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good6",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good7",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good8",2)
+make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good9",2)
+
