@@ -147,8 +147,6 @@ def make_dists(sample,runPV=0):
       for name, h in out.items():
         if "SR" in name or "trkID" in name:
           continue
-        if "dR" in name or "res" in name or "gen" in name:
-          continue
         print(name)
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
@@ -969,43 +967,44 @@ def make_datacompare(var,cut):
 #
 #
 ############### EXTRA
-#maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
-##make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
+maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
+make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
 #make_dists("RunA")
-make_dists("sig400_2")
+#make_dists("sig400_2")
 #make_dists("sig400_2",1)
 ##make_dists("HT2000_0")
 ##
 
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphereb_16",3)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",1)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_ncount50",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_pt",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_eta",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_phi",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_pt",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_eta",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_phi",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_jetId",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_pvs",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize0",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_z",2)
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_minZ",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good4",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good5",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good6",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good7",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good8",2)
-make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good9",2)
-
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphereb_16",3)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1b_16",3)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",1)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_ncount50",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_pt",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_eta",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_phi",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_pt",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_eta",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Jet_phi",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_jetId",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"n_pvs",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_tracksSize0",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_z",2)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"Vertex_minZ",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good4",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good5",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good6",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good7",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good8",2)
+#make_overlapdists(["sig1000","sig400","sig200","QCD","RunA"],"nPVs_good9",2)
+#
