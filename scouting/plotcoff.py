@@ -952,7 +952,7 @@ def make_datacompare(var,cut):
 #makeSR("sig300","SR2")
 #makeSR("sig750","SR2")
 #makeSR("sig1000","SR2")
-#make_closure("qcd")
+make_closure("qcd")
 #make_closure("sig400")
 #make_closure("sig200")
 #make_closure("sig1000")
@@ -967,16 +967,16 @@ def make_datacompare(var,cut):
 #
 #
 ############### EXTRA
-maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
-make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
+#maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
 #make_dists("RunA")
 #make_dists("sig400_2")
