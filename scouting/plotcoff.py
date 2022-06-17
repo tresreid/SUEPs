@@ -709,6 +709,7 @@ def make_correlation(SR):
     fig.savefig("Plots/correlation_%s_cut_%s"%(var,cut))
     plt.close()
 
+
 def make_closure(sample="qcd",SR="SR1"):
   if SR == "SR2":
     var = "FatJet_nconst"
@@ -746,7 +747,6 @@ def make_closure(sample="qcd",SR="SR1"):
   )
   fig.subplots_adjust(hspace=.07)
   h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
-  #h1 = h1.rebin("nPFCand",hist.Bin("nPFCand","nPFCand",150,0,300))
   abin = h1.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).integrate(  var,slice(low1,high1)).sum().values(sumw2=True)[()]
   bbin = h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).integrate(var,slice(low1,high1)).sum().values(sumw2=True)[()]
   cbin = h1.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).integrate(  var,slice(high1,high1x)).sum().values(sumw2=True)[()]
@@ -761,13 +761,11 @@ def make_closure(sample="qcd",SR="SR1"):
   dbin_err = dbin[1]
   ratx = bbinx/abinx
   expected = ratx*cbinx
-  #err = np.sqrt(1/abin_err+1/bbin_err+1/cbin_err)
   err = expected*np.sqrt(abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
   print(abinx,np.sqrt(abin_err),bbinx,cbinx,dbinx,ratx,expected,dbinx/expected,err)
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),
       ax=ax,
-      #overlay="cut",
       stack=False,
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"blue"}
   )
@@ -777,13 +775,9 @@ def make_closure(sample="qcd",SR="SR1"):
       h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)),
       ax=ax,
       clear=False,
-      #overlay="cut",
       stack=False,
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
-  #ax.plot([],[],"")
-  #ax.plot([],[],"")
-  #ax.plot([],[],"")
   leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
   ax.legend(leg)
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
@@ -792,16 +786,209 @@ def make_closure(sample="qcd",SR="SR1"):
   hx1 = hist.plotratio(
       h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)),
       ax=ax1,
-     # label="QCD",
       error_opts={'color': 'r', 'marker': '+'},
       unc='num'
-      #unc='clopper-pearson'
   )
-  #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
   ax1.set_xlim(high1,175)
   ax1.set_ylim(0.5,1.5)
   fig.savefig("Plots/closure_%s_%s"%(sample,var))
   plt.close()
+def make_closure_correction6(sample="qcd",SR="SR1"):
+  if SR == "SR2":
+    var = "FatJet_nconst"
+    high1 = 80
+    high2 = 51
+  else:
+    var = "nPFCand"
+    highx1 = 75
+    highx2 = 100
+    highy1 = 50
+  if sample == "qcd":
+     h1 = qcdscaled[SR].integrate("axis",slice(0,1))
+  else:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+        out = pickle.load(pkl_file)
+        scale= lumi*xsecs[sample]/out["sumw"][sample]
+        scaled = {}
+        for name, h in out.items():
+          if SR not in name or "mu" in name or "trig" in name:
+            continue
+          if isinstance(h, hist.Hist):
+            scaled[name] = h.copy()
+            scaled[name].scale(scale)
+            h1 = (scaled[SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
+  lowx =0
+  lowy = 30
+  highx3 = 300
+  highy2 = 100
+  
+  fig, (ax, ax1) = plt.subplots(
+      nrows=2,
+      ncols=1,
+      figsize=(7,7),
+      gridspec_kw={"height_ratios": (3, 1)},
+      sharex=True
+  )
+  fig.subplots_adjust(hspace=.07)
+  h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
+  abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  SRbin = h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+
+  abinx = abin[0]
+  bbinx = bbin[0]
+  cbinx = cbin[0]
+  dbinx = dbin[0]
+  ebinx = ebin[0]
+  SRbinx = SRbin[0]
+  abin_err = abin[1]
+  bbin_err = bbin[1]
+  cbin_err = cbin[1]
+  dbin_err = dbin[1]
+  ebin_err = ebin[1]
+  SRbin_err = SRbin[1]
+  ratx = ((ebinx**2)*abinx)/((bbinx**2)*dbinx)
+  #expected = ratx*cbinx
+  #err = expected*np.sqrt(abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
+  #print(abinx,np.sqrt(abin_err),bbinx,cbinx,dbinx,ratx,expected,dbinx/expected,err)
+  hx = hist.plot1d(
+      h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
+      ax=ax,
+      stack=False,
+      fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"blue"}
+  )
+  h2 = h1.copy()
+  h2.scale(ratx)
+  hx2 = hist.plot1d(
+      h2.integrate("eventBoostedSphericity",slice(lowy/100,highy1/100)),
+      ax=ax,
+      clear=False,
+      stack=False,
+      fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
+  )
+  #leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
+  leg = ["Observed %.2f"%(SRbinx),"Expected: %.2f"%(ratx*cbinx)]
+  ax.legend(leg)
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  ax.set_yscale("log")
+  ax.autoscale(axis='y', tight=True)
+  hx1 = hist.plotratio(
+      h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),h2.integrate("eventBoostedSphericity",slice(lowy/100,highy1/100)),
+      ax=ax1,
+      error_opts={'color': 'r', 'marker': '+'},
+      unc='num'
+  )
+  ax1.set_xlim(highx2,175)
+  ax1.set_ylim(0.5,1.5)
+  fig.savefig("Plots/closure6_%s_%s"%(sample,var))
+  plt.close()
+def make_closure_correction9(sample="qcd",SR="SR1"):
+  if SR == "SR2":
+    var = "FatJet_nconst"
+    high1 = 80
+    high2 = 51
+  else:
+    var = "nPFCand"
+    highx1 = 75
+    highx2 = 100
+    highy1 = 40
+    highy2 = 50
+  if sample == "qcd":
+     h1 = qcdscaled[SR].integrate("axis",slice(0,1))
+  else:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+        out = pickle.load(pkl_file)
+        scale= lumi*xsecs[sample]/out["sumw"][sample]
+        scaled = {}
+        for name, h in out.items():
+          if SR not in name or "mu" in name or "trig" in name:
+            continue
+          if isinstance(h, hist.Hist):
+            scaled[name] = h.copy()
+            scaled[name].scale(scale)
+            h1 = (scaled[SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
+  lowx =0
+  lowy = 30
+  highx3 = 300
+  highy3 = 100
+  
+  fig, (ax, ax1) = plt.subplots(
+      nrows=2,
+      ncols=1,
+      figsize=(7,7),
+      gridspec_kw={"height_ratios": (3, 1)},
+      sharex=True
+  )
+  fig.subplots_adjust(hspace=.07)
+  h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
+  abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+
+  abinx = abin[0]
+  bbinx = bbin[0]
+  cbinx = cbin[0]
+  dbinx = dbin[0]
+  ebinx = ebin[0]
+  fbinx = fbin[0]
+  gbinx = gbin[0]
+  hbinx = hbin[0]
+  SRbinx = SRbin[0]
+  abin_err = abin[1]
+  bbin_err = bbin[1]
+  cbin_err = cbin[1]
+  dbin_err = dbin[1]
+  ebin_err = ebin[1]
+  fbin_err = fbin[1]
+  gbin_err = gbin[1]
+  hbin_err = hbin[1]
+  SRbin_err = SRbin[1]
+  #ratx = (fbinx*(hbinx**2)*(dbinx**4))/(abinx*(ebinx**4)*cbinx*gbinx)
+  ratx = (gbinx*cbinx/abinx)*((hbinx/ebinx)**4)*(fbinx**3)/(((gbinx*fbinx/dbinx)**2)*((hbinx*cbinx/bbinx)**2)) 
+  #expected = ratx*cbinx
+  #err = expected*np.sqrt(abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
+  #print(abinx,np.sqrt(abin_err),bbinx,cbinx,dbinx,ratx,expected,dbinx/expected,err)
+  hx = hist.plot1d(
+      h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)),
+      ax=ax,
+      stack=False,
+      fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"blue"}
+  )
+  h2 = h1.copy()
+  h2.scale(ratx)
+  hx2 = hist.plot1d(
+      h2.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
+      ax=ax,
+      clear=False,
+      stack=False,
+      fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
+  )
+#  leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
+  leg = ["Observed %.2f"%(SRbinx),"Expected: %.2f"%(ratx*fbinx)]
+  ax.legend(leg)
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  ax.set_yscale("log")
+  ax.autoscale(axis='y', tight=True)
+  hx1 = hist.plotratio(
+      h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)),h2.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
+      ax=ax1,
+      error_opts={'color': 'r', 'marker': '+'},
+      unc='num'
+  )
+  ax1.set_xlim(highx2,175)
+  ax1.set_ylim(0.5,1.5)
+  fig.savefig("Plots/closure9_%s_%s"%(sample,var))
+  plt.close()
+
 def make_datacompare(var,cut):
   var1 = "dist_%s"%var
   h1 = qcdscaled[var1]#.integrate("cut",slice(cut,cut+1))
@@ -953,6 +1140,17 @@ def make_datacompare(var,cut):
 #makeSR("sig750","SR2")
 #makeSR("sig1000","SR2")
 make_closure("qcd")
+make_closure_correction9("qcd")
+make_closure_correction6("qcd")
+#make_closure("sig200")
+#make_closure_correction9("sig200")
+#make_closure_correction6("sig200")
+#make_closure("sig400")
+#make_closure_correction9("sig400")
+#make_closure_correction6("sig400")
+#make_closure("sig1000")
+#make_closure_correction9("sig1000")
+#make_closure_correction6("sig1000")
 #make_closure("sig400")
 #make_closure("sig200")
 #make_closure("sig1000")
