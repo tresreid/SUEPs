@@ -212,14 +212,11 @@ def packdist_fjn1(output,vals,var):
         #output["dist_fjn1_%s"%(var)].fill(cut="cut 3:FJ nPFCand>=80", v1=vals[3][var]) 
         output["dist_fjn1_%s"%(var)].fill(cut="cut 4:BSphericity >=0.6",        v1=vals[4][var])
         return output
-def packSR(output,vals):
-        output["SR1"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere_suep"])
-        return output
-def packSR3(output,vals):
-        output["SR3"].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1_suep"])
-        return output
-def packSR2(output,vals):
-        output["SR2"].fill(axis="axis",       FatJet_nconst=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphere_suep"])
+def packSR(output,vals,var):
+        output["SR1_%s_0"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere_%s"%var])
+        output["SR1_%s_1"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1_%s"%var])
+        output["SR1_%s_2"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst0"],eventBoostedSphericity=vals[3]["sphere_%s"%var])
+        output["SR1_%s_3"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst0"],eventBoostedSphericity=vals[3]["sphere1_%s"%var])
         return output
 def pack2D(output,vals,var1,var2):
         output["2d_%s_%s"%(var1,var2)].fill(cut="cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2])
@@ -235,24 +232,162 @@ class MyProcessor(processor.ProcessorABC):
     def __init__(self):
         self._accumulator = processor.dict_accumulator({
             "sumw": processor.defaultdict_accumulator(float),
-            "SR1" : hist.Hist(
+            "SR1_isr_0" : hist.Hist(
                       "Events",
                       hist.Cat("axis","Axis"),
                       hist.Bin("nPFCand","nPFCand",300,0,300),
                       hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             ),
-            "SR2" : hist.Hist(
-                      "Events",
-                      hist.Cat("axis","Axis"),
-                      hist.Bin("FatJet_nconst","FatJet_nconst",300,0,300),
-                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
-            ),
-            "SR3" : hist.Hist(
+            "SR1_suep_0" : hist.Hist(
                       "Events",
                       hist.Cat("axis","Axis"),
                       hist.Bin("nPFCand","nPFCand",300,0,300),
                       hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             ),
+            "SR1_16_0" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_10_0" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_8_0" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_4_0" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isr_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_suep_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_16_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_10_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_8_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_4_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isr_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_suep_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_16_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_10_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_8_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_4_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isr_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_suep_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_16_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_10_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_8_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_4_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            #"SR2" : hist.Hist(
+            #          "Events",
+            #          hist.Cat("axis","Axis"),
+            #          hist.Bin("FatJet_nconst","FatJet_nconst",300,0,300),
+            #          hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            #),
+            #"SR3" : hist.Hist(
+            #          "Events",
+            #          hist.Cat("axis","Axis"),
+            #          hist.Bin("nPFCand","nPFCand",300,0,300),
+            #          hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            #),
             "trigdist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -273,42 +408,42 @@ class MyProcessor(processor.ProcessorABC):
             #          hist.Cat("cut","Cutflow"),
             #          hist.Bin("v1","Sphere1",50,0,1)
             #),
-            "dist_sphereb_16": hist.Hist(
+            "dist_sphere_16": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphereb_16",50,0,1)
             ),
-            "dist_sphere1b_16": hist.Hist(
+            "dist_sphere1_16": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1b_16",50,0,1)
             ),
-            "dist_sphereb_10": hist.Hist(
+            "dist_sphere_10": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphereb_10",50,0,1)
             ),
-            "dist_sphere1b_10": hist.Hist(
+            "dist_sphere1_10": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1b_10",50,0,1)
             ),
-            "dist_sphereb_8": hist.Hist(
+            "dist_sphere_8": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphereb_8",50,0,1)
             ),
-            "dist_sphere1b_8": hist.Hist(
+            "dist_sphere1_8": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1b_8",50,0,1)
             ),
-            "dist_sphereb_4": hist.Hist(
+            "dist_sphere_4": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphereb_4",50,0,1)
             ),
-            "dist_sphere1b_4": hist.Hist(
+            "dist_sphere1_4": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1b_4",50,0,1)
@@ -911,6 +1046,7 @@ class MyProcessor(processor.ProcessorABC):
           tracks_cuts1x = (tracks_IRM.p !=0)
           tracks_IRM = tracks_IRM[tracks_cuts1x]
           spherex0 = vals0[ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2]
+          spherex0["FatJet_nconst0"] = SUEP_cand["FatJet_nconst"]
         
           reSUEP_cand = reSUEP_cand.boost_p4(boost_IRM)
           tracks_cuts2x = (reSUEP_cand.p !=0)
@@ -934,11 +1070,12 @@ class MyProcessor(processor.ProcessorABC):
           spherey2 = spherey1[spherey1.ht >= 600]
           spherey3 = spherey2[spherey2.FatJet_ncount50 >= 2]
           spherey4 = spherey3[spherey3.PFcand_ncount75 >= 140]
-          spherey5 = spherey2[spherey2.n_pvs < 30]
-          spherey6 = spherey2[spherey2.n_pvs <= 30]
-          sphere1y = [spherey0,spherey1,spherey2,spherey3,spherey4,spherey5,spherey6]
+          #spherey5 = spherey2[spherey2.n_pvs < 30]
+          #spherey6 = spherey2[spherey2.n_pvs <= 30]
+          sphere1y = [spherey0,spherey1,spherey2,spherey3,spherey4]#,spherey5,spherey6]
           output = packdist(output,sphere1y,"sphere1_suep")
           output = packdist(output,sphere1y,"sphere_suep")
+          output = packSR(output,sphere1y,"suep")
           IRM_candsvx2 = tracks_IRM[abs(recotracks_IRM[tracks_cuts1x].deltaR(ISR_cand)) >= 1.5] # remove all tracks that would be in the ISR jet unboosted
           #IRM_candsvx2 = recotracks_IRM[abs(recotracks_IRM.deltaR(ISR_cand)) >= 1.5] # remove all tracks that would be in the ISR jet unboosted
           #IRM_candvx2 = IRM_candsvx2.boost_p4(boost_IRM)
@@ -958,12 +1095,13 @@ class MyProcessor(processor.ProcessorABC):
           spherez2 = spherez1[spherez1.ht >= 600]
           spherez3 = spherez2[spherez2.FatJet_ncount50 >= 2]
           spherez4 = spherez3[spherez3.PFcand_ncount75 >= 140]
-          spherez5 = spherez2[spherez2.n_pvs < 30]
-          spherez6 = spherez2[spherez2.n_pvs <= 30]
+          #spherez5 = spherez2[spherez2.n_pvs < 30]
+          #spherez6 = spherez2[spherez2.n_pvs <= 30]
           
-          sphere1z = [spherez0,spherez1,spherez2,spherez3,spherez4,spherez5,spherez6]
+          sphere1z = [spherez0,spherez1,spherez2,spherez3,spherez4]#,spherez5,spherez6]
           output = packdist(output,sphere1z,"sphere1_isr")
           output = packdist(output,sphere1z,"sphere_isr")
+          output = packSR(output,sphere1z,"isr")
 
           def sphericityCalc(output,cut):
             IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= cut/10.]
@@ -977,28 +1115,29 @@ class MyProcessor(processor.ProcessorABC):
             if(len(IRM_cands)!=0):
               eigs2 = sphericity(self,IRM_cands,2.0) # normal sphericity
               eigs1 = sphericity(self,IRM_cands,1.0) # sphere 1
-              spherexx["sphere1b_%s"%cut] = 1.5 * (eigs1[:,1]+eigs1[:,0])
-              spherexx["sphereb_%s"%cut] = 1.5 * (eigs2[:,1]+eigs2[:,0])
+              spherexx["sphere1_%s"%cut] = 1.5 * (eigs1[:,1]+eigs1[:,0])
+              spherexx["sphere_%s"%cut] = 1.5 * (eigs2[:,1]+eigs2[:,0])
             else:
-              spherexx["sphere1b_%s"%cut] = -1 
-              spherexx["sphereb_%s"%cut] = -1
+              spherexx["sphere1_%s"%cut] = -1 
+              spherexx["sphere_%s"%cut] = -1
             spherex1 = spherexx[spherexx.triggerHt >= 1]
             spherex2 = spherex1[spherex1.ht >= 600]
             spherex3 = spherex2[spherex2.FatJet_ncount50 >= 2]
             spherex4 = spherex3[spherex3.PFcand_ncount75 >= 140]
-            spherex5 = spherex2[spherex2.n_pvs < 30]
-            spherex6 = spherex2[spherex2.n_pvs <= 30]
-            sphere1 = [spherexx,spherex1,spherex2,spherex3,spherex4,spherex5,spherex6]
-            output = packdist(output,sphere1,"sphere1b_%s"%cut)
-            output = packdist(output,sphere1,"sphereb_%s"%cut)
+            #spherex5 = spherex2[spherex2.n_pvs < 30]
+            #spherex6 = spherex2[spherex2.n_pvs <= 30]
+            sphere1 = [spherexx,spherex1,spherex2,spherex3,spherex4]#,spherex5,spherex6]
+            output = packdist(output,sphere1,"sphere1_%s"%cut)
+            output = packdist(output,sphere1,"sphere_%s"%cut)
+            output = packSR(output,sphere1,cut)
             del sphere1
             del spherexx
             del spherex1
             del spherex2
             del spherex3
             del spherex4
-            del spherex5
-            del spherex6
+            #del spherex5
+            #del spherex6
             return output
           output = sphericityCalc(output,16)
           output = sphericityCalc(output,10)
@@ -1037,8 +1176,8 @@ class MyProcessor(processor.ProcessorABC):
         #vals4 = vals3[vals3.FatJet_nconst >= 80]
         vals4 = vals3[vals3.PFcand_ncount75 >= 140]
         vals4x = vals3[vals3.eventBoosted_sphericity >= 0.6]
-        vals5 = vals2[vals2.n_pvs < 30]
-        vals6 = vals2[vals2.n_pvs >= 30]
+        #vals5 = vals2[vals2.n_pvs < 30]
+        #vals6 = vals2[vals2.n_pvs >= 30]
 
         vals_jet1 = vals_jet0[vals0.triggerHt >= 1]
         vals_jet2 = vals_jet1[vals1.ht >= 600]
@@ -1046,8 +1185,8 @@ class MyProcessor(processor.ProcessorABC):
         #vals_jet3 = vals_jet2[vals2.n_fatjet >= 2]
         #vals_jet4 = vals_jet3[vals3.FatJet_nconst >= 80]
         vals_jet4 = vals_jet3[vals3.PFcand_ncount75 >= 140]
-        vals_jet5 = vals_jet2[vals2.n_pvs < 30]
-        vals_jet6 = vals_jet2[vals2.n_pvs >= 30]
+        #vals_jet5 = vals_jet2[vals2.n_pvs < 30]
+        #vals_jet6 = vals_jet2[vals2.n_pvs >= 30]
         
         print("filling cutflows fj") 
         vals_fatjet1 = vals_fatjet0[vals0.triggerHt >= 1]
@@ -1056,15 +1195,15 @@ class MyProcessor(processor.ProcessorABC):
         #vals_fatjet3 = vals_fatjet2[vals2.n_fatjet >= 2]
         #vals_fatjet4 = vals_fatjet3[vals3.FatJet_nconst >= 80]
         vals_fatjet4 = vals_fatjet3[vals3.PFcand_ncount75 >= 140]
-        vals_fatjet5 = vals_fatjet2[vals2.n_pvs < 30]
-        vals_fatjet6 = vals_fatjet2[vals2.n_pvs >= 30]
+        #vals_fatjet5 = vals_fatjet2[vals2.n_pvs < 30]
+        #vals_fatjet6 = vals_fatjet2[vals2.n_pvs >= 30]
         
         vals_refatjet1 = vals_refatjet0[vals0.triggerHt >=1]
         vals_refatjet2 = vals_refatjet1[vals1.ht >= 600]
         vals_refatjet3 = vals_refatjet2[vals2.FatJet_ncount50 >= 2]
         vals_refatjet4 = vals_refatjet3[vals3.PFcand_ncount75 >= 140]
-        vals_refatjet5 = vals_refatjet2[vals2.n_pvs < 30]
-        vals_refatjet6 = vals_refatjet2[vals2.n_pvs >= 30]
+        #vals_refatjet5 = vals_refatjet2[vals2.n_pvs < 30]
+        #vals_refatjet6 = vals_refatjet2[vals2.n_pvs >= 30]
         
      
         print("filling cutflows trk") 
@@ -1079,17 +1218,17 @@ class MyProcessor(processor.ProcessorABC):
         vals_vertex2 = vals_vertex1[vals1.ht >= 600]
         vals_vertex3 = vals_vertex2[vals2.FatJet_ncount50 >= 2]
         vals_vertex4 = vals_vertex3[vals3.PFcand_ncount75 >=140]
-        vals_vertex5 = vals_vertex3[vals3.n_pvs < 30]
-        vals_vertex6 = vals_vertex3[vals3.n_pvs >= 30]
+        #vals_vertex5 = vals_vertex3[vals3.n_pvs < 30]
+        #vals_vertex6 = vals_vertex3[vals3.n_pvs >= 30]
         #vals_vertex4 = vals_vertex3[vals3.PFcand_ncount75 >= 140]
 
-        vals = [vals0,vals1,vals2,vals3,vals4,vals5,vals6]
-        valsx = [vals0,vals1,vals2,vals3,vals4x,vals5,vals6]
-        vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4,vals_jet5,vals_jet6]
-        vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4,vals_fatjet5,vals_fatjet6]
-        vals_refatjet = [vals_refatjet0,vals_refatjet1,vals_refatjet2,vals_refatjet3,vals_refatjet4,vals_refatjet5,vals_refatjet6]
+        vals = [vals0,vals1,vals2,vals3,vals4]#,vals5,vals6]
+        valsx = [vals0,vals1,vals2,vals3,vals4x]#,vals5,vals6]
+        vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4]#,vals_jet5,vals_jet6]
+        vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]#,vals_fatjet5,vals_fatjet6]
+        vals_refatjet = [vals_refatjet0,vals_refatjet1,vals_refatjet2,vals_refatjet3,vals_refatjet4]#,vals_refatjet5,vals_refatjet6]
         vals_tracks = [vals_tracks0,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
-        vals_vertex = [vals_vertex0,vals_vertex1,vals_vertex2,vals_vertex3,vals_vertex4,vals_vertex5,vals_vertex6]
+        vals_vertex = [vals_vertex0,vals_vertex1,vals_vertex2,vals_vertex3,vals_vertex4]#,vals_vertex5,vals_vertex6]
 
         #fatjet n-1 cutflow
         #fj3 = vals2[vals2.FatJet_nconst >=80]
@@ -1166,9 +1305,9 @@ class MyProcessor(processor.ProcessorABC):
         output = packtrig(output,trigs,"n_pfMu")
         #fill hists
         print("filling hists") 
-        output = packSR(output,sphere1y)
-        output = packSR2(output,sphere1y)
-        output = packSR3(output,sphere1y)
+        #output = packSR(output,sphere1y)
+        #output = packSR2(output,sphere1y)
+        #output = packSR3(output,sphere1y)
         output = packdist(output,vals,"ht")
         output = packdist(output,vals,"n_pfcand")
         output = packdist(output,vals,"event_sphericity")

@@ -16,7 +16,7 @@ from matplotlib.colors import LinearSegmentedColormap
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
-xsecs = {"RunA_0":0,"RunA":0,"QCD":0,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
+xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"brown","QCD":"black"}
@@ -29,7 +29,6 @@ datalumi = 0
 #with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
 with open(directory+"myhistos_RunA.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
-    #datalumi = out["nEvents"]#/1000000
     for name, h in out.items():
       if isinstance(h, hist.Hist):
         datascaled[name] = h.copy()
@@ -38,7 +37,6 @@ with open(directory+"myhistos_RunA.p", "rb") as pkl_file:
 #with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
 with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
-    #qcdlumi = out["nEvents"]
     h1 = out["dist_ht"].integrate("cut",slice(2,3))
     qcdlumi = sum(h1.values(sumw2=True)[()][0])
     print(qcdlumi)
@@ -46,7 +44,8 @@ with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
     for name, h in out.items():
       if isinstance(h, hist.Hist):
         qcdscaled[name] = h.copy()
-        qcdscaled[name].scale(datalumi/qcdlumi)
+        qcdscaled[name].scale(lumi)
+        #qcdscaled[name].scale(datalumi/qcdlumi)
 
 def make_overlapdists(samples,var,cut):
   name1 = "dist_%s"%var
@@ -139,7 +138,9 @@ def make_dists(sample,runPV=0):
       out = pickle.load(pkl_file)
       xsec = xsecs[sample.split("_")[0]]
       #print(out)
-      if xsec ==0:
+      if "QCD" in sample:
+        scale=lumi
+      elif xsec ==0:
         scale = 1
       else:
         scale= lumi*xsec/out["sumw"][sample.split("_")[0]]
@@ -468,7 +469,7 @@ def get_sig2d(s,sb,rangex,rangey):
     sig.append(sig1)
     bkg.append(bkg1)
   return(sig,bkg)
-def makeSR(sample,var):
+def makeSR(sample,var,cut):
   with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       #print(out)
@@ -492,10 +493,11 @@ def makeSR(sample,var):
       plt.register_cmap(cmap=map_object)
       plt.register_cmap(cmap=map_object2)
 
-      if var=="SR2":
-        xvar = "FatJet_nconst"
-      else:
-        xvar = "nPFCand"
+      #if var=="SR2":
+      #  xvar = "FatJet_nconst"
+      #else:
+      #  xvar = "nPFCand"
+      xvar = "nPFCand"
       for name, h in out.items():
         if var not in name:
           continue
@@ -503,11 +505,16 @@ def makeSR(sample,var):
           scaled[name] = h.copy()
           scaled[name].scale(scale)
           s = scaled[name].to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
+          #s = scaled[name].integrate("axis",slice(cut,cut+1)).to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
           b = qcdscaled[name].to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
+          #b = qcdscaled[name].integrate("axis",slice(cut,cut+1)).to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
+          #s = scaled[name].to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
+          #b = qcdscaled[name].to_hist().to_numpy()#[0][0] #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
           print(s)
-          print(b)
+          #print(b)
           #sb =  (scaled[name]+qcdscaled[name]).to_hist().to_numpy()#[0][0]) #.integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
           sb = np.add(np.add(s[0][0],b[0][0]),0.5*np.square(b[0][0]))
+          #sig, sigbkg = get_sig2d(s[0][0],(sb),s[1][:-1],s[2][:-1])
           sig, sigbkg = get_sig2d(s[0][0],(sb),s[2][:-1],s[3][:-1])
           signif = sig/ np.sqrt(sigbkg)
           signif = np.nan_to_num(signif)
@@ -536,7 +543,7 @@ def makeSR(sample,var):
           ax.set_aspect("auto")
           fig.suptitle("Significance: %s"%sample)
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/signif2d_%s_%s"%(sample,var))
+          fig.savefig("Plots/signif2d_%s_%s_%s"%(sample,var,cut))
           plt.close()
           fig, ax1 = plt.subplots()
       
@@ -545,13 +552,13 @@ def makeSR(sample,var):
               xvar,
               #"nPFCand",
               ax=ax1,
-              #overlay="cut",
+              #overlay="axis",
               #stack=False,
               #fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
           )
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
           fig.suptitle("SR: %s"%sample)
-          fig.savefig("Plots/%s_sig_%s"%(var,sample))
+          fig.savefig("Plots/%s_sig_%s_%s"%(var,sample,cut))
           plt.close()
         
           fig, ax1 = plt.subplots()
@@ -567,7 +574,7 @@ def makeSR(sample,var):
           )
           fig.suptitle("SR: QCD")
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/%s_bkg"%var)
+          fig.savefig("Plots/%s_bkg_%s"%(var,cut))
           plt.close()
         
           fig, ax1 = plt.subplots()
@@ -607,7 +614,7 @@ def makeSR(sample,var):
           )
           fig.suptitle("SR: QCD + %s"%sample)
           hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-          fig.savefig("Plots/SR_%s_%s_bkg"%(sample,var))
+          fig.savefig("Plots/SR_%s_%s_bkg_%s"%(sample,var,cut))
           plt.close()
           
 
@@ -1124,7 +1131,10 @@ def make_datacompare(var,cut):
 #
 ########################### ABCD
 #print("running ABCD studies")
-#makeSR("sig400","SR1")
+makeSR("sig400","SR1_16",0)
+#makeSR("sig400","SR1_16",1)
+#makeSR("sig400","SR1_16",2)
+#makeSR("sig400","SR1_16",3)
 #makeSR("sig200","SR1")
 #makeSR("sig300","SR1")
 #makeSR("sig750","SR1")
@@ -1139,9 +1149,9 @@ def make_datacompare(var,cut):
 #makeSR("sig300","SR2")
 #makeSR("sig750","SR2")
 #makeSR("sig1000","SR2")
-make_closure("qcd")
-make_closure_correction9("qcd")
-make_closure_correction6("qcd")
+#make_closure("qcd")
+#make_closure_correction9("qcd")
+#make_closure_correction6("qcd")
 #make_closure("sig200")
 #make_closure_correction9("sig200")
 #make_closure_correction6("sig200")
@@ -1166,22 +1176,31 @@ make_closure_correction6("qcd")
 #
 ############### EXTRA
 #maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",4,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",4,maxpointssphere) 
-#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1b_16","sb_16","s1b_10","sb_10","s1b_8","sb_8","s1b_4","sb_4"],"Sphericity_wrt_ISR_RM")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_suep",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_isr",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_isr",6,maxpointssphere) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1_16","s_16","s1_10","s_10","s1_8","s_8","s1_4","s_4","s1_s","s_s","s1_i","s_i"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
+#make_dists("QCD",1)
 #make_dists("RunA")
 #make_dists("sig400_2")
 #make_dists("sig400_2",1)
 ##make_dists("HT2000_0")
 ##
 
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_suep",3)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1_suep",3)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_isr",3)
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1_isr",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphereb_16",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1b_16",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",1)
