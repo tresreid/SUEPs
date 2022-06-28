@@ -1411,7 +1411,7 @@ elif "Run" in fin:
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/%s/%s"%(fin,f) for f in fs]
   }  
-elif "Scouting" in fin:
+elif "Trigger" in fin:
   #Runs = ["RunA","RunB","RunC"]
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
   fs=fs[10*batch:10*(batch+1)]
