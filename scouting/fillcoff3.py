@@ -1411,6 +1411,13 @@ elif "Run" in fin:
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/%s/%s"%(fin,f) for f in fs]
   }  
+elif "Scouting" in fin:
+  #Runs = ["RunA","RunB","RunC"]
+  fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
+  fs=fs[10*batch:10*(batch+1)]
+  fileset = {
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/ScoutingPFCommissioning+Run2018A-v1+RAW/%s"%(f) for f in fs]
+  }  
 else:
   signal=True
   runInteractive=True

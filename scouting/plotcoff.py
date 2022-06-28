@@ -44,8 +44,8 @@ with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
     for name, h in out.items():
       if isinstance(h, hist.Hist):
         qcdscaled[name] = h.copy()
-        qcdscaled[name].scale(lumi)
-        #qcdscaled[name].scale(datalumi/qcdlumi)
+        #qcdscaled[name].scale(lumi)
+        qcdscaled[name].scale(datalumi/qcdlumi)
 
 def make_overlapdists(samples,var,cut):
   name1 = "dist_%s"%var
@@ -102,7 +102,7 @@ def make_overlapdists(samples,var,cut):
                 )
     #elif "Run" in sample:
     #  #fil = directory+"myhistos_%s.p"%sample
-    elif "QCD" in sample:
+    if "QCD" in sample:
       h2x = qcdscaled[name1]
       h2= h2x.integrate("cut",slice(cut,cut+1))
       h2_scale = h2.values(sumw2=True)[()]
@@ -497,9 +497,11 @@ def makeSR(sample,var,cut):
       #  xvar = "FatJet_nconst"
       #else:
       #  xvar = "nPFCand"
+      var2 = var+"_%s"%cut
+      print(var2)
       xvar = "nPFCand"
       for name, h in out.items():
-        if var not in name:
+        if var2 not in name:
           continue
         if isinstance(h, hist.Hist):
           scaled[name] = h.copy()
@@ -657,13 +659,13 @@ def make_cutflow(samples,var):
   print(pd.DataFrame(cutflow))
 
 
-def make_correlation(SR):
-  if SR == "SR1":
-    var = "nPFCand"
+def make_correlation(SR,cut):
+  if cut==0 or cut==1:
     high1 = 100
   else:
-    var = "FatJet_nconst"
     high1 = 80
+  var = "nPFCand"
+  SR=SR+"_%s"%cut
   h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   fig, ax1 = plt.subplots()
  
@@ -717,15 +719,16 @@ def make_correlation(SR):
     plt.close()
 
 
-def make_closure(sample="qcd",SR="SR1"):
-  if SR == "SR2":
-    var = "FatJet_nconst"
-    high1 = 80
-    high2 = 51
+def make_closure(sample="qcd",SR="SR1_suep",cut=0):
+  if cut == 2 or cut ==3:
+    #var = "FatJet_nconst"
+    high1 = 70
+    high2 = 50
   else:
-    var = "nPFCand"
     high1 = 100
-    high2 = 61
+    high2 = 60
+  var = "nPFCand"
+  SR = SR+"_%s"%cut
   if sample == "qcd":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   else:
@@ -798,18 +801,24 @@ def make_closure(sample="qcd",SR="SR1"):
   )
   ax1.set_xlim(high1,175)
   ax1.set_ylim(0.5,1.5)
-  fig.savefig("Plots/closure_%s_%s"%(sample,var))
-  plt.close()
-def make_closure_correction6(sample="qcd",SR="SR1"):
-  if SR == "SR2":
-    var = "FatJet_nconst"
-    high1 = 80
-    high2 = 51
+  if cut== 2 or cut ==3:
+    ax1.set_xlabel("Suep Tracks")
   else:
-    var = "nPFCand"
+    ax1.set_xlabel("Event Tracks")
+  fig.savefig("Plots/closure_%s_%s"%(sample,SR))
+  plt.close()
+def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0):
+  if cut == 2 or cut == 3:
+    #var = "FatJet_nconst"
+    highx1 = 50
+    highx2 = 70
+    highy1 = 50
+  else:
     highx1 = 75
     highx2 = 100
     highy1 = 50
+  var = "nPFCand"
+  SR = SR+"_%s"%cut
   if sample == "qcd":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   else:
@@ -890,19 +899,26 @@ def make_closure_correction6(sample="qcd",SR="SR1"):
   )
   ax1.set_xlim(highx2,175)
   ax1.set_ylim(0.5,1.5)
-  fig.savefig("Plots/closure6_%s_%s"%(sample,var))
-  plt.close()
-def make_closure_correction9(sample="qcd",SR="SR1"):
-  if SR == "SR2":
-    var = "FatJet_nconst"
-    high1 = 80
-    high2 = 51
+  if cut== 2 or cut ==3:
+    ax1.set_xlabel("Suep Tracks")
   else:
-    var = "nPFCand"
+    ax1.set_xlabel("Event Tracks")
+  fig.savefig("Plots/closure6_%s_%s"%(sample,SR))
+  plt.close()
+def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0):
+  if cut == 2 or cut == 3:
+    #var = "FatJet_nconst"
+    highx1 = 50
+    highx2 = 70
+    highy1 = 40
+    highy2 = 50
+  else:
     highx1 = 75
     highx2 = 100
     highy1 = 40
     highy2 = 50
+  var = "nPFCand"
+  SR = SR+"_%s"%cut
   if sample == "qcd":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   else:
@@ -993,7 +1009,11 @@ def make_closure_correction9(sample="qcd",SR="SR1"):
   )
   ax1.set_xlim(highx2,175)
   ax1.set_ylim(0.5,1.5)
-  fig.savefig("Plots/closure9_%s_%s"%(sample,var))
+  if cut== 2 or cut ==3:
+    ax1.set_xlabel("Suep Tracks")
+  else:
+    ax1.set_xlabel("Event Tracks")
+  fig.savefig("Plots/closure9_%s_%s"%(sample,SR))
   plt.close()
 
 def make_datacompare(var,cut):
@@ -1062,13 +1082,13 @@ def make_datacompare(var,cut):
 
 
 
-############################## HT Trigger
-###### HT Distributions
-#print("running trigger studies")
-#make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-#make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
-##### Trigger Efficiency
-#make_trigs("RunA")
+############################### HT Trigger
+####### HT Distributions
+##print("running trigger studies")
+##make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
+##make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
+###### Trigger Efficiency
+##make_trigs("RunA")
 #make_trigs("sig400_2")
 #make_trigs("sig200_2")
 #make_trigs("sig300_2")
@@ -1076,20 +1096,20 @@ def make_datacompare(var,cut):
 #make_trigs("sig750_2")
 #
 #
-############################ Track Selection
-####### DR distributions
+############################# Track Selection
+######## DR distributions
 #print("running track studies")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"gen_dR",2)
-##make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
-###### TRK Eff and Fakes 
-### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
+###make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
+####### TRK Eff and Fakes 
+#### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
 #make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt") ## TODO fix fake labels
 #make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi")
 #make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta")
 #make_trkeff("sig400_2","dist_trkID_gen_pt") #TODO check why efficiency is so high?
 #make_trkeff("sig400_2","dist_trkID_gen_phi")
 #make_trkeff("sig400_2","dist_trkID_gen_eta")
-#
+##
 #maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints)
@@ -1105,9 +1125,9 @@ def make_datacompare(var,cut):
 #
 #print("running Jet studies")
 ###TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
-#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_pt",0)
-#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_mass",0)
-#make_overlapdists(["sig750","sig400","sig300","sig200"],"res_dR",0)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0)
 #
 #maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
@@ -1121,9 +1141,9 @@ def make_datacompare(var,cut):
 ########################### BOOSTING and sphericity
 ### TODO ISR removal methods
 #print("running sphericity studies")
-#make_correlation("SR1") #TODO revisit correlation plots
-#make_correlation("SR2")
-#make_correlation("SR3")
+##make_correlation("SR1_suep",0) #TODO revisit correlation plots
+##make_correlation("SR2")
+##make_correlation("SR3")
 #empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
@@ -1131,78 +1151,60 @@ def make_datacompare(var,cut):
 #
 ########################### ABCD
 #print("running ABCD studies")
-makeSR("sig400","SR1_16",0)
-#makeSR("sig400","SR1_16",1)
-#makeSR("sig400","SR1_16",2)
-#makeSR("sig400","SR1_16",3)
-#makeSR("sig200","SR1")
-#makeSR("sig300","SR1")
-#makeSR("sig750","SR1")
-#makeSR("sig1000","SR1")
-#makeSR("sig400","SR3")
-#makeSR("sig200","SR3")
-#makeSR("sig300","SR3")
-#makeSR("sig750","SR3")
-#makeSR("sig1000","SR3")
-#makeSR("sig400","SR2")
-#makeSR("sig200","SR2")
-#makeSR("sig300","SR2")
-#makeSR("sig750","SR2")
-#makeSR("sig1000","SR2")
-#make_closure("qcd")
-#make_closure_correction9("qcd")
-#make_closure_correction6("qcd")
-#make_closure("sig200")
-#make_closure_correction9("sig200")
-#make_closure_correction6("sig200")
-#make_closure("sig400")
-#make_closure_correction9("sig400")
-#make_closure_correction6("sig400")
-#make_closure("sig1000")
-#make_closure_correction9("sig1000")
-#make_closure_correction6("sig1000")
-#make_closure("sig400")
-#make_closure("sig200")
-#make_closure("sig1000")
-#make_closure("qcd","SR2")
-#make_closure("qcd","SR3")
-#make_closure("sig400","SR2") 
-#make_closure("sig200","SR2")
-#make_closure("sig1000","SR2")
-
-### TODO cutflow table and significance by cut
+#for sig in ["sig200","sig300","sig400","sig750","sig1000"]:
+#  for i in [0,1,2,3]:
+#    makeSR(sig,"SR1_suep",i)
+#    makeSR(sig,"SR1_isr",i)
+#    makeSR(sig,"SR1_16",i)
+#    makeSR(sig,"SR1_10",i)
+#    makeSR(sig,"SR1_8",i)
+#    makeSR(sig,"SR1_4",i)
+#make_closure("qcd","SR1_suep",1)
+#make_closure_correction9("qcd","SR1_suep",1)
+#make_closure_correction6("qcd","SR1_suep",1)
+#make_closure("qcd","SR1_16",1)
+#make_closure_correction9("qcd","SR1_16",1)
+#make_closure_correction6("qcd","SR1_16",1)
+#make_closure("qcd","SR1_suep",3)
+#make_closure_correction9("qcd","SR1_suep",3)
+#make_closure_correction6("qcd","SR1_suep",3)
+#make_closure("qcd","SR1_16",3)
+#make_closure_correction9("qcd","SR1_16",3)
+#make_closure_correction6("qcd","SR1_16",3)
+#
+#### TODO cutflow table and significance by cut
 ##make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
-#
-#
-############### EXTRA
-#maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_suep",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_isr",6,maxpointssphere) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_isr",6,maxpointssphere) 
-#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1_16","s_16","s1_10","s_10","s1_8","s_8","s1_4","s_4","s1_s","s_s","s1_i","s_i"],"Sphericity_wrt_ISR_RM")
-#make_dists("QCD")
-#make_dists("QCD",1)
-#make_dists("RunA")
-#make_dists("sig400_2")
-#make_dists("sig400_2",1)
-##make_dists("HT2000_0")
 ##
-
+##
+################ EXTRA
+##maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_suep",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_isr",6,maxpointssphere) 
+##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_isr",6,maxpointssphere) 
+##make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1_16","s_16","s1_10","s_10","s1_8","s_8","s1_4","s_4","s1_s","s_s","s1_i","s_i"],"Sphericity_wrt_ISR_RM")
+#make_dists("QCD")
+##make_dists("QCD",1)
+##make_dists("RunA")
+#make_dists("sig400_2")
+##make_dists("sig400_2",1)
+###
+#
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_suep",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1_suep",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_isr",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1_isr",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphereb_16",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1b_16",3)
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",0)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"ht",1)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_ncount50",2)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_pt",2)
