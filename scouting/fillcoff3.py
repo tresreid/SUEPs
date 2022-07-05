@@ -876,6 +876,16 @@ class MyProcessor(processor.ProcessorABC):
         output["sumw"][dataset] += len(arrays) # get number of events
         tright = [item[7] for item in arrays["hltResult"]]
         trigmu = [item[2] for item in arrays["hltResult"]]
+        #trigger order:
+        #HLT Trigger DST_DoubleMu1_noVtx_CaloScouting_v2
+        #HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6
+        #HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_v6
+        #HLT Trigger DST_DoubleMu3_noVtx_Mass10_PFScouting_v3
+        #HLT Trigger DST_L1HTT_CaloScouting_PFScouting_v15
+        #HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15
+        #HLT Trigger DST_HT250_CaloScouting_v10
+
+
         vals0 = ak.zip({
                'ht': arrays["ht"],
                'n_pfcand': arrays["n_pfcand"],
