@@ -875,7 +875,7 @@ class MyProcessor(processor.ProcessorABC):
         #arrays = {k: v for k,v in events.arrays(how=dict).items()}
         output["sumw"][dataset] += len(arrays) # get number of events
         tright = [item[7] for item in arrays["hltResult"]]
-        trigmu = [item[2] for item in arrays["hltResult"]]
+        trigmu = [item[5] for item in arrays["hltResult"]] #actually calojet40 reference trigger
         #trigger order:
         #HLT Trigger DST_DoubleMu1_noVtx_CaloScouting_v2
         #HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6
@@ -884,6 +884,7 @@ class MyProcessor(processor.ProcessorABC):
         #HLT Trigger DST_L1HTT_CaloScouting_PFScouting_v15
         #HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15
         #HLT Trigger DST_HT250_CaloScouting_v10
+	#HLT Trigger DST_HT410_PFScouting_v16
 
 
         vals0 = ak.zip({
@@ -1423,6 +1424,7 @@ elif "Run" in fin:
   }  
 elif "Trigger" in fin:
   #Runs = ["RunA","RunB","RunC"]
+  #runInteractive=True
   fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
   fs=fs[10*batch:10*(batch+1)]
   fileset = {

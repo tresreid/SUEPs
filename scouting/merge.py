@@ -8,28 +8,6 @@ import numpy as np
 import uproot
 import pickle
 
-#with open("myhistos_sig400_0.p", "rb") as pkl_file:
-lumi = 1# no luminosity. set to nEvents from data. #59.74*1000
-scaled = {}
-xsecs = {"HT200":1735000,"HT300":366800,"HT500":29370,"HT700":6524,"HT1000":1064*3,"HT1500":121.5*3,"HT2000":25.42*6}
-#xsecs = {"HT200":1559000,"HT300":347700,"HT500":32100,"HT700":6831,"HT1000":1207,"HT1500":119.9,"HT2000":25.24}
-with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
-    out = pickle.load(pkl_file)
-    print(out)
-    xsec = xsecs["HT2000"]
-    #nevents = out["sumw"]["sig400"]
-    nevents = out["sumw"]["HT2000"]
-    print("nevents ",nevents)
-    #fout = uproot.recreate("output.root")
-    for name, h in out.items():
-      if "PFcand_dR" in name or "res" in name or "gen" in name:
-        continue
-      if isinstance(h, hist.Hist):
-        #print(name)
-        scaled[name] = h.copy()
-        scaled[name].scale(lumi*xsec/nevents)
-    #h1 = scaled["dist_ht"].integrate("cut",slice(2,3))
-    #scaled["nEvents"] = sum(h1.values(sumw2=True)[()][0])
 #outhists = [
 #"HT1500_0",
 #"HT1500_1",
@@ -164,7 +142,7 @@ outhists = [
 ,"HT200_9"
 ,"HT200_10"
 ,"HT200_11"
-,"HT200_12"
+#,"HT200_12"
 ,"HT200_13"
 ,"HT200_14"
 ,"HT200_15"
@@ -183,6 +161,39 @@ outhists = [
 ,"HT200_28"
 ,"HT200_29"
 ]
+neventsHT= {"HT200":0,"HT300":0,"HT500":0,"HT700":0,"HT1000":0,"HT1500":0,"HT2000":0}
+for ohist in ["HT2000_0"]+outhists:
+  with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
+      qcd_samp = ohist.split("_")[0]
+      print(ohist)
+      out = pickle.load(pkl_file)
+      #print(out)
+      #xsec = xsecs[qcd_samp]
+      #nevents = out["sumw"]["sig400"]
+      neventsHT[qcd_samp] = neventsHT[qcd_samp] + out["sumw"][qcd_samp]
+      #print(qcd_samp,nevents[qcd_samp])
+
+lumi = 1# no luminosity. set to nEvents from data. #59.74*1000
+scaled = {}
+#xsecs = {"HT200":1735000,"HT300":366800,"HT500":29370,"HT700":6524,"HT1000":1064*3,"HT1500":121.5*3,"HT2000":25.42*6}
+xsecs = {"HT200":1735000,"HT300":366800,"HT500":29370,"HT700":6524,"HT1000":1064,"HT1500":121.5,"HT2000":25.42}
+with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
+    out = pickle.load(pkl_file)
+    print(out)
+    xsec = xsecs["HT2000"]
+    #nevents = out["sumw"]["sig400"]
+    nevents = neventsHT["HT2000"] #out["sumw"]["HT2000"]
+    print("nevents ",nevents)
+    #fout = uproot.recreate("output.root")
+    for name, h in out.items():
+      if "PFcand_dR" in name or "res" in name or "gen" in name:
+        continue
+      if isinstance(h, hist.Hist):
+        #print(name)
+        scaled[name] = h.copy()
+        scaled[name].scale(lumi*xsec/nevents)
+    #h1 = scaled["dist_ht"].integrate("cut",slice(2,3))
+    #scaled["nEvents"] = sum(h1.values(sumw2=True)[()][0])
 
 for ohist in outhists:
   with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
@@ -192,7 +203,7 @@ for ohist in outhists:
       print(out)
       xsec = xsecs[qcd_samp]
       #nevents = out["sumw"]["sig400"]
-      nevents = out["sumw"][qcd_samp]
+      nevents = neventsHT[qcd_samp] #out["sumw"][qcd_samp]
       print("nevents ",nevents)
       #fout = uproot.recreate("output.root")
       for name, h in out.items():
