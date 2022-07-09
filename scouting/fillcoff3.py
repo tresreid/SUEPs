@@ -147,10 +147,10 @@ def sphericity(self, particles, r):
     return evals
 
 def packtrig(output,vals,var):
-        output["trigdist_%s"%(var)].fill(cut="Cut 0:No cut", v1=vals[0][var])
-        output["trigdist_%s"%(var)].fill(cut="Mu Trig noRef", v1=vals[1][var]) 
-        output["trigdist_%s"%(var)].fill(cut="HT Trig noRef", v1=vals[2][var]) 
-        output["trigdist_%s"%(var)].fill(cut="HT Trig MuRef", v1=vals[3][var]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var])
+        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var]) 
         return output
 def packsingledist(output,vals,var):
         output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
@@ -388,10 +388,35 @@ class MyProcessor(processor.ProcessorABC):
             #          hist.Bin("nPFCand","nPFCand",300,0,300),
             #          hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             #),
+            "trigdist_event_sphericity": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","eventSphericity (not boosted)",100,0,1)
+            ),
             "trigdist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",100,0,1500)
+                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+            ),
+            "trigdist_ht20": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+            ),
+            "trigdist_ht30": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+            ),
+            "trigdist_ht40": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+            ),
+            "trigdist_ht50": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
             ),
             "trigdist_n_pfMu": hist.Hist(
                       "Events",
@@ -977,6 +1002,12 @@ class MyProcessor(processor.ProcessorABC):
                          'phi': arrays["scalar_phi"],
                          'mass': arrays["scalar_m"],
           },with_name="Momentum4D")
+          vals0['ht20'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 20)],axis=-1)
+          vals0['ht30'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 30)],axis=-1)
+          vals0['ht40'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 40)],axis=-1)
+          vals0['ht50'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 50)],axis=-1)
+          print(vals0['ht20'])
+          
         else:
           vals_tracks0 = ak.zip({
                          'pt' : arrays["PFcand_pt"],
@@ -1301,6 +1332,10 @@ class MyProcessor(processor.ProcessorABC):
           output = packsingledist(output,resolutions,"res_pt")
           output = packsingledist(output,resolutions,"res_mass")
           output = packsingledist(output,resolutions,"res_dR")
+          output = packtrig(output,trigs,"ht20")
+          output = packtrig(output,trigs,"ht30")
+          output = packtrig(output,trigs,"ht40")
+          output = packtrig(output,trigs,"ht50")
           #print(sphere1)
           #output = packdist(output,sphere1,"sphere1")
         #output = packdist(output,sphere1,"sphere1b_16")
@@ -1313,7 +1348,9 @@ class MyProcessor(processor.ProcessorABC):
         #output = packdist(output,sphere1,"sphereb_4")
 
         output = packtrig(output,trigs,"ht")
+     
         output = packtrig(output,trigs,"n_pfMu")
+        output = packtrig(output,trigs,"event_sphericity")
         #fill hists
         print("filling hists") 
         #output = packSR(output,sphere1y)
@@ -1435,7 +1472,7 @@ else:
   runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PV.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
   }  
 
