@@ -14,6 +14,10 @@ from scipy.optimize import curve_fit
 import scipy
 from matplotlib.colors import LinearSegmentedColormap
 
+#parameters = {'axes.labelsize': 25,
+#          'axes.titlesize': 35}
+#plt.rcParams.update(parameters)
+
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
@@ -261,90 +265,227 @@ def make_trkeff(sample,name):
         fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
         plt.close()
 
-def make_trigs(sample):
-  with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
-      out = pickle.load(pkl_file)
-      sample = sample.split("_")[0]
-      xsec = xsecs[sample.split("_")[0]]
-      if xsec ==0:
-        scale = 1
-      else:
-        scale= lumi*xsec/out["sumw"][sample]
-      out["trigdist_ht"].scale(scale)
-      
-      
-      fig, (ax,ax1) = plt.subplots(
-      nrows=2,
-      ncols=1,
-      figsize=(7,7),
-      gridspec_kw={"height_ratios": (3, 1)},
-      sharex=True
-      )
+def make_multitrigs(sig,varsx):
+  fig, ax = plt.subplots(
+  nrows=1,
+  ncols=1,
+  figsize=(7,7),
+  #gridspec_kw={"height_ratios": (3, 1)},
+  #sharex=True
+  )
+  xs = np.linspace(0,1500,100)
+  #hx1 = hist.plotratio(
+  #    #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
+  #    qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+  #    ax=ax,
+  #    error_opts={'color': 'r', 'marker': '.'},
+  #    unc='clopper-pearson'
+  #)
+  ##b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+  #b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+  #b1 = b[0]
+  ##b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+  #b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+  #points2 = np.nan_to_num(b1/b2)
+  #popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
+  #p98bkg = 1.65*popt2[2]+popt2[1]
+  #p90bkg = 1.163*popt2[2]+popt2[1]
+  #ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
+  for i,var in enumerate(varsx):
+    with open(directory+"myhistos_%s.p"%sig, "rb") as pkl_file:
+        out = pickle.load(pkl_file)
+        sample = sig.split("_")[0]
+        xsec = xsecs[sample.split("_")[0]]
+        if xsec ==0:
+          scale = 1
+        else:
+          scale= lumi*xsec/out["sumw"][sample]
+        out["trigdist_%s"%var].scale(scale)
+        
+        
+
+        #Trigger plots
+        s = out["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+        s1 = s[0]
+        s2 = out["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+        points = np.nan_to_num(s1/s2)
+        popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
+        hx = hist.plotratio(
+            out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+            ax=ax,
+            clear=False,
+            error_opts={'color': colors[i], 'marker': '.'},
+            unc='clopper-pearson'
+        )
+        p98sig = 1.65*popt[2]+popt[1]
+        p90sig = 1.163*popt[2]+popt[1]
+        ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=colors[i],label="%s"%var)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
+
+        
+
+        #ax.axvline(x=600,color="grey",ls="--")
+        #ax.axvline(x=p98sig,color="blue",ls="--")
+        #ax.axvline(x=p90sig,color="blue",ls=":")
+        #ax.axvline(x=p98bkg,color="red",ls="--")
+        #ax.axvline(x=p90bkg,color="red",ls=":")
+
+        #hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(s1/s2),marker=".",color=colors[i])
+
+  #ax1.axhline(y=1,color="grey",ls="--")
+  ax.set_ylim(0,1.1)
+  #ax1.set_ylim(0.5,1.5)
+  ax.legend(loc="lower right")
+  ax.set_xlabel("Ht [GeV]")
+  fig.suptitle("HT Trigger Efficiency CaloJet40 reference: %s"%sig)
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  fig.savefig("Plots/trigmulti_%s"%sig)
+  plt.close()
+def make_trigs(samples,var="ht"):
+  fig, (ax,ax1) = plt.subplots(
+  nrows=2,
+  ncols=1,
+  figsize=(7,7),
+  gridspec_kw={"height_ratios": (3, 1)},
+  sharex=True
+  )
+  if(var=="event_sphericity"):
+    xs = np.linspace(0,1,100)
+    ax1.set_xlabel("Event Sphericity (unbooosted)")
+  else:
+    xs = np.linspace(0,1500,100)
+    ax1.set_xlabel("Ht [GeV]")
+  if("Data" in samples):
       fig.subplots_adjust(hspace=.07)
 
-      #Trigger plots
-      s = out["trigdist_ht"].integrate("cut",slice(2,3)).to_hist().to_numpy()
-      s1 = s[0]
-      s2 = out["trigdist_ht"].integrate("cut",slice(0,1)).to_hist().to_numpy()[0]
-      points = np.nan_to_num(s1/s2)
-      popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
       hx1 = hist.plotratio(
-          qcdscaled["trigdist_ht"].integrate("cut",slice(2,3)),qcdscaled["trigdist_ht"].integrate("cut",slice(0,1)),
+          #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
+          qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
           ax=ax,
           error_opts={'color': 'r', 'marker': '.'},
           unc='clopper-pearson'
       )
       hx2 = hist.plotratio(
-          trigscaled["trigdist_ht"].integrate("cut",slice(2,3)),trigscaled["trigdist_ht"].integrate("cut",slice(0,1)),
+          #trigscaled["trigdist_ht"].integrate("cut",slice(1,2)),trigscaled["trigdist_ht"].integrate("cut",slice(3,4)),
+          trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
           ax=ax,
+          clear=False,
           error_opts={'color': 'k', 'marker': '.'},
           unc='clopper-pearson'
       )
-      hx = hist.plotratio(
-          out["trigdist_ht"].integrate("cut",slice(2,3)),out["trigdist_ht"].integrate("cut",slice(0,1)),
-          ax=ax,
-          clear=False,
-          error_opts={'color': 'b', 'marker': '.'},
-          unc='clopper-pearson'
-      )
-      xs = np.linspace(0,1500,100)
-      p98sig = 1.65*popt[2]+popt[1]
-      p90sig = 1.163*popt[2]+popt[1]
-      ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color="blue",label="Sig: 90:%d 98:%d "%(p90sig,p98sig))
+      
+      #p98sig = 1.65*popt[2]+popt[1]
+      #p90sig = 1.163*popt[2]+popt[1]
+      #ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color="blue",label="Sig: 90:%d 98:%d "%(p90sig,p98sig))
 
-      b = qcdscaled["trigdist_ht"].integrate("cut",slice(2,3)).to_hist().to_numpy()
+      #b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+      b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
       b1 = b[0]
-      b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(0,1)).to_hist().to_numpy()[0]
+      #b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+      b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
       points2 = np.nan_to_num(b1/b2)
       popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
       p98bkg = 1.65*popt2[2]+popt2[1]
       p90bkg = 1.163*popt2[2]+popt2[1]
-      ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD: 90:%d 98:%d"%(p90bkg,p98bkg))
+      ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
       
-      d = trigscaled["trigdist_ht"].integrate("cut",slice(2,3)).to_hist().to_numpy()
+      #d = trigscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+      d = trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
       d1 = d[0]
-      d2 = trigscaled["trigdist_ht"].integrate("cut",slice(0,1)).to_hist().to_numpy()[0]
+      #d2 = trigscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+      d2 = trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
       points3 = np.nan_to_num(d1/d2)
       popt3, pcov3 = curve_fit(func,d[1][:-1],points3,p0=[0.5,500,100,0.5])
       p98dat = 1.65*popt3[2]+popt3[1]
       p90dat = 1.163*popt3[2]+popt3[1]
-      ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label="Data: 90:%d 98:%d"%(p90dat,p98dat))
+      ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label="Data")#: 90:%d 98:%d"%(p90dat,p98dat))
 
-      ax.axvline(x=p98sig,color="blue",ls="--")
-      ax.axvline(x=p90sig,color="blue",ls=":")
-      ax.axvline(x=p98bkg,color="red",ls="--")
-      ax.axvline(x=p90bkg,color="red",ls=":")
-      ax.axvline(x=p98dat,color="black",ls="--")
-      ax.axvline(x=p90dat,color="black",ls=":")
+      ax.axvline(x=600,color="grey",ls="--")
+      #ax.axvline(x=p98sig,color="blue",ls="--")
+      #ax.axvline(x=p90sig,color="blue",ls=":")
+      #ax.axvline(x=p98bkg,color="red",ls="--")
+      #ax.axvline(x=p90bkg,color="red",ls=":")
+      #ax.axvline(x=p98dat,color="black",ls="--")
+      #ax.axvline(x=p90dat,color="black",ls=":")
 
-      hxrat = ax1.scatter(d[1][:-1],(b1/b2)/(d1/d2),marker=".")
+      hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(d1/d2),marker=".")
 
+      ax1.axhline(y=1,color="grey",ls="--")
       ax.set_ylim(0,1.1)
+      ax1.set_ylim(0.5,1.5)
+      ax.set_xlabel("")
       ax.legend(loc="lower right")
-      fig.suptitle("HT Trigger Efficiency no reference: %s"%sample)
+      fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Data")
       hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-      fig.savefig("Plots/trigHtnoref_%s"%(sample))
+      fig.savefig("Plots/trig%s_data"%var)
       plt.close()
+  else:
+    hx1 = hist.plotratio(
+        #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
+        qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+        ax=ax,
+        error_opts={'color': 'r', 'marker': '.'},
+        unc='clopper-pearson'
+    )
+    #b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+    b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+    b1 = b[0]
+    #b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+    b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+    points2 = np.nan_to_num(b1/b2)
+    popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
+    p98bkg = 1.65*popt2[2]+popt2[1]
+    p90bkg = 1.163*popt2[2]+popt2[1]
+    ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
+    for sample in samples:
+      with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
+          out = pickle.load(pkl_file)
+          sample = sample.split("_")[0]
+          xsec = xsecs[sample.split("_")[0]]
+          if xsec ==0:
+            scale = 1
+          else:
+            scale= lumi*xsec/out["sumw"][sample]
+          out["trigdist_%s"%var].scale(scale)
+          
+          
+
+          #Trigger plots
+          s = out["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+          s1 = s[0]
+          s2 = out["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+          points = np.nan_to_num(s1/s2)
+          popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
+          hx = hist.plotratio(
+              out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+              ax=ax,
+              clear=False,
+              error_opts={'color': sigcolors[sample], 'marker': '.'},
+              unc='clopper-pearson'
+          )
+          p98sig = 1.65*popt[2]+popt[1]
+          p90sig = 1.163*popt[2]+popt[1]
+          ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=sigcolors[sample],label="%s"%sample)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
+          ax.set_xlabel("")
+
+          
+
+          #ax.axvline(x=600,color="grey",ls="--")
+          #ax.axvline(x=p98sig,color="blue",ls="--")
+          #ax.axvline(x=p90sig,color="blue",ls=":")
+          #ax.axvline(x=p98bkg,color="red",ls="--")
+          #ax.axvline(x=p90bkg,color="red",ls=":")
+
+          hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(s1/s2),marker=".",color=sigcolors[sample])
+
+    ax1.axhline(y=1,color="grey",ls="--")
+    ax.set_ylim(0,1.1)
+    ax1.set_ylim(0.5,1.5)
+    ax.set_label("")
+    ax.legend(loc="lower right")
+    fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Sig")
+    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+    fig.savefig("Plots/trig%s_sig"%var)
+    plt.close()
 
 
 
@@ -1121,15 +1262,19 @@ def make_datacompare(var,cut):
 ############################### HT Trigger
 ####### HT Distributions
 ##print("running trigger studies")
-##make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-##make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
+make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
+make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
 ###### Trigger Efficiency
-##make_trigs("RunA")
-make_trigs("sig400_2")
-make_trigs("sig200_2")
-make_trigs("sig300_2")
-make_trigs("sig1000_2")
-make_trigs("sig750_2")
+make_trigs(["Data"])
+make_trigs(["sig400_2","sig300_2"])
+make_trigs(["Data"],"event_sphericity")
+make_trigs(["sig400_2","sig300_2"],"event_sphericity")
+make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
+make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
+#make_trigs("sig200_2")
+#make_trigs("sig300_2")
+#make_trigs("sig1000_2")
+#make_trigs("sig750_2")
 #
 #
 ############################# Track Selection
