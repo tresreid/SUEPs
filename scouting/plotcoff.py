@@ -14,16 +14,16 @@ from scipy.optimize import curve_fit
 import scipy
 from matplotlib.colors import LinearSegmentedColormap
 
-#parameters = {'axes.labelsize': 25,
-#          'axes.titlesize': 35}
-#plt.rcParams.update(parameters)
+parameters = {'axes.labelsize': 13,
+          'axes.titlesize': 13}
+plt.rcParams.update(parameters)
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
 lumi = 59.74*1000
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
-sigcolors = {"sig1000":"red","sig750":"green","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"brown","QCD":"black"}
+sigcolors = {"sig1000":"green","sig750":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black","QCD":"red"}
 
 directory = "outhists/"
 #directory = "outhists/nPV/"
@@ -59,8 +59,10 @@ with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
         #qcdscaled[name].scale(lumi)
         qcdscaled[name].scale(datalumi/qcdlumi)
 
-def make_overlapdists(samples,var,cut):
+def make_overlapdists(samples,var,cut,xlab=None):
   name1 = "dist_%s"%var
+  if (xlab==None):
+    xlab=name1[5:]
   fig, (ax,ax1) = plt.subplots(
       nrows=2,
       ncols=1,
@@ -76,15 +78,38 @@ def make_overlapdists(samples,var,cut):
     h1_scale = h1.values(sumw2=True)[()]
     #h1.scale(1./sum(h1_scale[0]))
     sdat = h1.to_hist().to_numpy()
-    ax.step(sdat[1][:-1],sdat[0],color=sigcolors["RunA"],label="Data",linestyle="--",where="post")
+    daterr = np.sqrt(h1_scale[1])
+    #ax.scatter(sdat[1][:-1],sdat[0],color=sigcolors["RunA"],label="Data",marker=".")
+    ax.errorbar(sdat[1][:-1],sdat[0],yerr=daterr,color=sigcolors["RunA"],label="Data",marker=".",zorder=0)
     make_ratio=True
+  if "QCD" in samples:
+    h2x = qcdscaled[name1]
+    h2= h2x.integrate("cut",slice(cut,cut+1))
+    h2_scale = h2.values(sumw2=True)[()]
+    print(h2_scale)
+    #h2.scale(1./sum(h2_scale[0]))
+    s = h2.to_hist().to_numpy()
+    s_err = np.sqrt(h2_scale[1])
+    ax.step(s[1][:-1],s[0],color=sigcolors["QCD"],label="QCD",linestyle="-",where="post",zorder=5)
+    ax.errorbar(s[1][:-1],s[0],yerr=s_err,color=sigcolors["QCD"],ls='none',zorder=6)
+    #make_ratio = True
+    if(make_ratio):
+      hist.plotratio(
+      h1,h2,
+      ax=ax1,
+      clear=False,
+   # label="QCD",
+      error_opts={'color': sigcolors["RunA"], 'marker': '+'},
+      unc='num'
+    #unc='clopper-pearson'
+      )
 
   for sample in samples:
     if "sig" in sample:
       fil = directory+"myhistos_%s_2.p"%sample
       with open(fil, "rb") as pkl_file:
           out = pickle.load(pkl_file)
-          print(out)
+          #print(out)
           xsec = xsecs[sample]
           #if xsec ==0:
           #  scale = 1
@@ -102,40 +127,24 @@ def make_overlapdists(samples,var,cut):
               #s.scale(1./sum(s_scale[0]))
               s1= s.to_hist().to_numpy()
               ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
-              if(make_ratio):
-                hist.plotratio(
-                h1,s,
-                ax=ax1,
-                clear=False,
-     #         label="QCD",
-                error_opts={'color': sigcolors[sample], 'marker': '+'},
-                unc='num'
-              #unc='clopper-pearson'
-                )
+              #if(make_ratio):
+              #  hist.plotratio(
+              #  h1,s,
+              #  ax=ax1,
+              #  clear=False,
+     #        # label="QCD",
+              #  error_opts={'color': sigcolors[sample], 'marker': '+'},
+              #  unc='num'
+              ##unc='clopper-pearson'
+              #  )
+            ax.set_xlabel("")
     #elif "Run" in sample:
     #  #fil = directory+"myhistos_%s.p"%sample
-    if "QCD" in sample:
-      h2x = qcdscaled[name1]
-      h2= h2x.integrate("cut",slice(cut,cut+1))
-      h2_scale = h2.values(sumw2=True)[()]
-      #h2.scale(1./sum(h2_scale[0]))
-      s = h2.to_hist().to_numpy()
-      ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
-      if(make_ratio):
-        hist.plotratio(
-        h1,h2,
-        ax=ax1,
-        clear=False,
-     # label="QCD",
-        error_opts={'color': sigcolors[sample], 'marker': '+'},
-        unc='num'
-      #unc='clopper-pearson'
-        )
         
   ax1.set_ylim(0.5,1.5)     
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
-  ax.set_xlabel(name1[5:])
+  ax1.set_xlabel(xlab)
   ax.set_ylabel("Events")
   ax1.set_ylabel("Data/QCD")
   ax.legend()
@@ -204,7 +213,7 @@ def make_dists(sample,runPV=0):
 #      fig, ax1 = plt.subplots()
 def func(x,a,b,c,d):
   return a*scipy.special.erf((x-b)/c)+d 
-def make_trkeff(sample,name):
+def make_trkeff(sample,name,xlab):
   with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       sample = sample.split("_")[0]
@@ -222,12 +231,12 @@ def make_trkeff(sample,name):
       if("IDFK" in name): 
         ###############FAKE
         fig, ax1 = plt.subplots()
-        for cut in range(10):
+        for i,cut in enumerate([1,2,3,6,9]):
           hx1 = hist.plotratio(
               numFK.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
               ax=ax1,
               clear=False,
-              error_opts={'color': colors[cut], 'marker': '+'},
+              error_opts={'color': colors[i], 'marker': '+'},
               unc='clopper-pearson'
           )
 
@@ -237,29 +246,37 @@ def make_trkeff(sample,name):
           ax1.set_xlim([20,200])
           if "PFcand" in name or "gen" in name:
             ax1.set_xlim([0.3,100])
-        ax1.legend(["|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+        ax1.legend(["q != 0","PV =0","pt > 0.5","pt >0.75","pt >1.0",],loc="lower right")
+        ax1.set_xlabel(xlab)
+        #ax1.legend(["|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
         fig.suptitle("Track Fake Rate: %s"%sample)
         hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
         fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
         plt.close()
       else:
         fig, ax1 = plt.subplots()
-        for cut in range(7):
-          hx = hist.plotratio(
-              num.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
-              ax=ax1,
-              clear=False,
-              error_opts={'color': colors[cut], 'marker': '+'},
-              unc='clopper-pearson'
-          )
-
-        #ax1.set_ylim(0,1.1)
+        cuts = [1,4,6]
+        leg = ["pt >0.6","pt >0.8","pt >1.0"]
         if "_pt" in name:
+          cuts=[0]
+          leg = ["pt> 0.5"]
           ax1.set_xscale("log")
           ax1.set_xlim([20,200])
           if "PFcand" in name or "gen" in name:
             ax1.set_xlim([0.3,100])
-        ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+        #ax1.legend(["pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
+        for i,cut in enumerate(cuts):
+          hx = hist.plotratio(
+              num.integrate("cut",slice(1+cut,2+cut)),denom.integrate("cut",slice(1+cut,2+cut)),
+              ax=ax1,
+              clear=False,
+              error_opts={'color': colors[i], 'marker': '+'},
+              unc='clopper-pearson'
+          )
+
+        ax1.legend(leg,loc="lower right")
+        ax1.set_ylim(0.7,1.01)
+        ax1.set_xlabel(xlab)
         fig.suptitle("Track Efficiency: %s"%sample)
         hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
         fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
@@ -1258,38 +1275,32 @@ def make_datacompare(var,cut):
 #######################ORGANIZE BY SECTION #######################################
 
 
-
 ############################### HT Trigger
 ####### HT Distributions
 ##print("running trigger studies")
-make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",0)
-make_overlapdists(["RunA","sig1000","sig750","sig400","sig300","sig200"],"ht",1)
-###### Trigger Efficiency
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]")
+####### Trigger Efficiency
 make_trigs(["Data"])
 make_trigs(["sig400_2","sig300_2"])
 make_trigs(["Data"],"event_sphericity")
 make_trigs(["sig400_2","sig300_2"],"event_sphericity")
 make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
 make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
-#make_trigs("sig200_2")
-#make_trigs("sig300_2")
-#make_trigs("sig1000_2")
-#make_trigs("sig750_2")
-#
-#
+
+
 ############################# Track Selection
 ######## DR distributions
-#print("running track studies")
+print("running track studies")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"gen_dR",2)
 ###make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
 ####### TRK Eff and Fakes 
 #### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt") ## TODO fix fake labels
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi")
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta")
-#make_trkeff("sig400_2","dist_trkID_gen_pt") #TODO check why efficiency is so high?
-#make_trkeff("sig400_2","dist_trkID_gen_phi")
-#make_trkeff("sig400_2","dist_trkID_gen_eta")
+make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]") #TODO check why efficiency is so high?
+make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
+make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
 ##
 #maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
