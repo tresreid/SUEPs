@@ -12,7 +12,7 @@ import pickle
 lumi = 1#59.74*1000
 scaled = {}
 #xsecs = {"HT200":1559000,"HT300":347700,"HT500":32100,"HT700":6831,"HT1000":1207,"HT1500":119.9,"HT2000":25.24}
-with open("outhists/myhistos_RunA_0.p", "rb") as pkl_file:
+with open("outhists/save/myhistos_RunA_0.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     #print(out)
     #xsec = 1#xsecs["HT2000"]
@@ -42,28 +42,19 @@ with open("outhists/myhistos_RunA_0.p", "rb") as pkl_file:
 #]
 #outhists = ["RunA_%s"%x for x in range(1,50)]
 outhists = ["RunA_%s"%x for x in range(1,7)]
-outhists = outhists+ ["RunA_%s"%x for x in range(7,23)]
-outhists = outhists+ ["RunA_%s"%x for x in range(25,27)]
-outhists = outhists+ ["RunA_%s"%x for x in range(28,54)]
-outhists = outhists+ ["RunA_%s"%x for x in range(55,57)]
-outhists = outhists+ ["RunA_%s"%x for x in range(59,62)]
-outhists = outhists+ ["RunA_%s"%x for x in range(63,69)]
-outhists = outhists+ ["RunA_%s"%x for x in range(70,82)]
-outhists = outhists+ ["RunA_%s"%x for x in range(84,97)]
-outhists = outhists+ ["RunA_%s"%x for x in range(98,99)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(58,62)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(65,68)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(69,79)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(82,83)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(84,88)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(89,92)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(93,97)]
+outhists = outhists+ ["RunA_%s"%x for x in range(7,11)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(25,27)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(28,54)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(55,57)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(59,62)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(63,69)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(70,82)]
+#outhists = outhists+ ["RunA_%s"%x for x in range(84,97)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(98,99)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(100,101)]
 #print(outhists)
 
 for ohist in outhists:
-  with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
+  with open("outhists/save/myhistos_%s.p"%(ohist), "rb") as pkl_file:
       print(ohist)
       out = pickle.load(pkl_file)
       #print(out)
