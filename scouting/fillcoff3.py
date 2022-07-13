@@ -614,10 +614,30 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nPFCand50",50,0,300)
             ),
+            "dist_PFcand_ncount60": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","nPFCand60",50,0,300)
+            ),
+            "dist_PFcand_ncount70": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","nPFCand70",50,0,300)
+            ),
             "dist_PFcand_ncount75": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nPFCand75",50,0,300)
+            ),
+            "dist_PFcand_ncount80": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","nPFCand80",50,0,300)
+            ),
+            "dist_PFcand_ncount90": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","nPFCand90",50,0,300)
             ),
             "dist_PFcand_ncount100": hist.Hist(
                       "Events",
@@ -806,27 +826,37 @@ class MyProcessor(processor.ProcessorABC):
             "dist_PFcand_dR": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_mindR",100,0,0.3)
+                      hist.Bin("v1","PFcand_mindR",50,0,0.3)
             ),
-#            "dist_PFcand_alldR": hist.Hist(
-#                      "Events",
-#                      hist.Cat("cut","Cutflow"),
-#                      hist.Bin("v1","PFcand_alldR",100,0,0.03)
-#            ),
+            "dist_PFcand_alldR": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_alldR",50,0,0.3)
+            ),
             "dist_res_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_pt",100,-2,2)
+                      hist.Bin("v1","res_pt",100,-1000,300)
             ),
             "dist_res_mass": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_mass",100,-2,2)
+                      hist.Bin("v1","res_mass",100,-1000,300)
             ),
             "dist_res_dR": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_dR",100,0,10)
+                      hist.Bin("v1","res_dR",100,0,6)
+            ),
+            "dist_res_dEta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","res_dEta",100,-3,3)
+            ),
+            "dist_res_dPhi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","res_dPhi",100,-3,3)
             ),
             "dist_trkID_gen_pt": hist.Hist(
                       "Events",
@@ -849,7 +879,7 @@ class MyProcessor(processor.ProcessorABC):
             "dist_gen_dR": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","gen_dR",100,0,0.3)
+                      hist.Bin("v1","gen_dR",50,0,0.3)
             ),
             "dist_gen_pt": hist.Hist(
                       "Events",
@@ -939,7 +969,11 @@ class MyProcessor(processor.ProcessorABC):
                'triggerMu': trigmu,
                'PFcand_ncount0' :  ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.0 )],axis=-1),
                'PFcand_ncount50' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.50)],axis=-1),
+               'PFcand_ncount60' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.60)],axis=-1),
+               'PFcand_ncount70' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.70)],axis=-1),
                'PFcand_ncount75' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.75)],axis=-1),
+               'PFcand_ncount80' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.80)],axis=-1),
+               'PFcand_ncount90' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.90)],axis=-1),
                'PFcand_ncount100': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>1.0 )],axis=-1),
                'PFcand_ncount150': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>1.5 )],axis=-1),
                'PFcand_ncount200': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>2   )],axis=-1),
@@ -981,7 +1015,7 @@ class MyProcessor(processor.ProcessorABC):
                          'eta': arrays["PFcand_eta"],
                          'phi': arrays["PFcand_phi"],
                          'mass': arrays["PFcand_m"],
-                         'PFcand_dR': arrays["PFcand_dR"],
+                         'PFcand_dR':  np.sqrt(arrays["PFcand_dR"]),
                          'PFcand_fromsuep': arrays["PFcand_fromsuep"],
                          'PFcand_q': arrays["PFcand_q"],
                          'PFcand_vertex': arrays["PFcand_vertex"],
@@ -991,7 +1025,7 @@ class MyProcessor(processor.ProcessorABC):
                          'eta': arrays["gen_eta"],
                          'phi': arrays["gen_phi"],
                          'mass': arrays["gen_mass"],
-                         'gen_dR':  arrays["gen_dR"],
+                         'gen_dR':  np.sqrt(arrays["gen_dR"]),
                          'gen_fromSuep':  arrays["gen_fromSuep"],
                          'gen_PV':  arrays["gen_PV"],
                          'gen_PVdZ':  arrays["gen_PVdZ"],
@@ -1027,8 +1061,8 @@ class MyProcessor(processor.ProcessorABC):
 
 
 
-#        alldRtracks = ak.zip({'PFcand_alldR': arrays["PFcand_alldR"]})
-#        alldRtracks = ak.flatten(alldRtracks)
+        alldRtracks = ak.zip({'PFcand_alldR': np.sqrt(arrays["PFcand_alldR"])})
+        alldRtracks = ak.flatten(alldRtracks)
 #        print(alldRtracks)
 #        print(len(alldRtracks))
 
@@ -1198,14 +1232,18 @@ class MyProcessor(processor.ProcessorABC):
           scalar = scalar0[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
           suepvals = vals0[vals0.FatJet_ncount50 >=2]
           SUEP_cand = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
-          res_pt = (SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy())/scalar["pt"].to_numpy()
-          res_mass = (SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy())/scalar["mass"].to_numpy()
-          res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
+          res_pt = (SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy())#/scalar["pt"].to_numpy()
+          res_mass = (SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy())#/scalar["mass"].to_numpy()
+          res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
+	  #if (res_dPhi > np.pi):
+          res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0 ])
           res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
           res_dR = np.sqrt(res_dPhi*res_dPhi + res_dEta*res_dEta)
           resolutions = ak.zip({
             "res_pt" : res_pt,
             "res_mass" : res_mass,
+            "res_dEta" : res_dPhi,
+            "res_dPhi" : res_dEta,
             "res_dR" : res_dR
         
           })
@@ -1328,10 +1366,12 @@ class MyProcessor(processor.ProcessorABC):
           output = packdistflat(output,vals_gen,"phi","gen_")
           output = packdistflat(output,vals_gen,"gen_PV")
           output = packdistflat(output,vals_gen,"gen_PVdZ")
-#          output = packsingledist(output,alldRtracks,"PFcand_alldR")
+          output = packsingledist(output,alldRtracks,"PFcand_alldR")
           output = packsingledist(output,resolutions,"res_pt")
           output = packsingledist(output,resolutions,"res_mass")
           output = packsingledist(output,resolutions,"res_dR")
+          output = packsingledist(output,resolutions,"res_dPhi")
+          output = packsingledist(output,resolutions,"res_dEta")
           output = packtrig(output,trigs,"ht20")
           output = packtrig(output,trigs,"ht30")
           output = packtrig(output,trigs,"ht40")
@@ -1406,7 +1446,11 @@ class MyProcessor(processor.ProcessorABC):
         output = packdist(output,valsx,"FatJet_nconst")
         output = packdist(output,valsx,"PFcand_ncount0")
         output = packdist(output,valsx,"PFcand_ncount50")
+        output = packdist(output,valsx,"PFcand_ncount60")
+        output = packdist(output,valsx,"PFcand_ncount70")
         output = packdist(output,valsx,"PFcand_ncount75")
+        output = packdist(output,valsx,"PFcand_ncount80")
+        output = packdist(output,valsx,"PFcand_ncount90")
         output = packdist(output,valsx,"PFcand_ncount100")
         output = packdist(output,valsx,"PFcand_ncount150")
         output = packdist(output,valsx,"PFcand_ncount200")
@@ -1473,6 +1517,7 @@ else:
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
   }  
 

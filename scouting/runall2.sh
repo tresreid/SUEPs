@@ -95,10 +95,10 @@
 #python fillcoff3.py HT500 22
 #python fillcoff3.py HT500 23
 #python fillcoff3.py HT500 24
-#python fillcoff3.py HT500 25
-#python fillcoff3.py HT500 26
-#python fillcoff3.py HT500 27
-#
+python fillcoff3.py HT500 25
+python fillcoff3.py HT500 26
+python fillcoff3.py HT500 27
+
 #python fillcoff3.py HT300 0
 #python fillcoff3.py HT300 1
 #python fillcoff3.py HT300 2
@@ -151,14 +151,14 @@
 #python fillcoff3.py HT200 18
 #python fillcoff3.py HT200 19
 #
-python fillcoff3.py HT200 20
-python fillcoff3.py HT200 21
-python fillcoff3.py HT200 22
-python fillcoff3.py HT200 23
-python fillcoff3.py HT200 24
-python fillcoff3.py HT200 25
-python fillcoff3.py HT200 26
-python fillcoff3.py HT200 27
-python fillcoff3.py HT200 28
-python fillcoff3.py HT200 29
+#python fillcoff3.py HT200 20
+#python fillcoff3.py HT200 21
+#python fillcoff3.py HT200 22
+#python fillcoff3.py HT200 23
+#python fillcoff3.py HT200 24
+#python fillcoff3.py HT200 25
+#python fillcoff3.py HT200 26
+#python fillcoff3.py HT200 27
+#python fillcoff3.py HT200 28
+#python fillcoff3.py HT200 29
 
