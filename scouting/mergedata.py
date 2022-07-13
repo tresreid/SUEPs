@@ -28,19 +28,10 @@ outhists = ["RunA_%s"%x for x in range(1,15)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(70,82)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(84,97)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(98,99)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(58,62)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(65,68)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(69,79)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(82,83)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(84,88)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(89,92)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(93,97)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(98,99)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(100,101)]
 #print(outhists)
 
 for ohist in outhists:
-  with open("outhists/myhistos_%s.p"%(ohist), "rb") as pkl_file:
+  with open("outhists/save/myhistos_%s.p"%(ohist), "rb") as pkl_file:
       print(ohist)
       out = pickle.load(pkl_file)
       for name, h in out.items():

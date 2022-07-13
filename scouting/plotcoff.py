@@ -19,7 +19,7 @@ parameters = {'axes.labelsize': 13,
 plt.rcParams.update(parameters)
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
-lumi = 59.74*1000
+lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
@@ -28,6 +28,7 @@ sigcolors = {"sig1000":"green","sig750":"cyan","sig400":"blue","sig300":"orange"
 directory = "outhists/"
 #directory = "outhists/nPV/"
 qcdscaled = {}
+qcddatascaled = {}
 datascaled = {}
 trigscaled = {}
 datalumi = 0
@@ -51,28 +52,31 @@ with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     h1 = out["dist_ht"].integrate("cut",slice(2,3))
     qcdlumi = sum(h1.values(sumw2=True)[()][0])
-    print(qcdlumi)
-    print(datalumi)
+    print("qcd: ",qcdlumi)
+    print("data: ",datalumi)
     for name, h in out.items():
       if isinstance(h, hist.Hist):
         qcdscaled[name] = h.copy()
-        #qcdscaled[name].scale(lumi)
-        qcdscaled[name].scale(datalumi/qcdlumi)
+        qcdscaled[name].scale(lumi)
+        qcddatascaled[name] = h.copy()
+        qcddatascaled[name].scale(datalumi/qcdlumi)
 
-def make_overlapdists(samples,var,cut,xlab=None):
+def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
   name1 = "dist_%s"%var
   if (xlab==None):
     xlab=name1[5:]
-  fig, (ax,ax1) = plt.subplots(
-      nrows=2,
-      ncols=1,
-      figsize=(7,7),
-      gridspec_kw={"height_ratios": (3, 1)},
-      sharex=True
-  )
+  if make_ratio:
+    fig, (ax,ax1) = plt.subplots(
+        nrows=2,
+        ncols=1,
+        figsize=(7,7),
+        gridspec_kw={"height_ratios": (3, 1)},
+        sharex=True
+    )
+  else:
+    fig, ax = plt.subplots()
   fig.subplots_adjust(hspace=.07)
 
-  make_ratio=False
   if "RunA" in samples:
     h1 = datascaled[name1].integrate("cut",slice(cut,cut+1))
     h1_scale = h1.values(sumw2=True)[()]
@@ -80,17 +84,16 @@ def make_overlapdists(samples,var,cut,xlab=None):
     sdat = h1.to_hist().to_numpy()
     daterr = np.sqrt(h1_scale[1])
     #ax.scatter(sdat[1][:-1],sdat[0],color=sigcolors["RunA"],label="Data",marker=".")
-    ax.errorbar(sdat[1][:-1],sdat[0],yerr=daterr,color=sigcolors["RunA"],label="Data",marker=".",zorder=0)
-    make_ratio=True
+    ax.errorbar(sdat[1][:-1],sdat[0],yerr=daterr,color=sigcolors["RunA"],label="Data",marker=".",zorder=0,ls="None")
   if "QCD" in samples:
-    h2x = qcdscaled[name1]
+    h2x = qcddatascaled[name1]
     h2= h2x.integrate("cut",slice(cut,cut+1))
     h2_scale = h2.values(sumw2=True)[()]
     print(h2_scale)
     #h2.scale(1./sum(h2_scale[0]))
     s = h2.to_hist().to_numpy()
     s_err = np.sqrt(h2_scale[1])
-    ax.step(s[1][:-1],s[0],color=sigcolors["QCD"],label="QCD",linestyle="-",where="post",zorder=5)
+    ax.step(s[1][:-1],s[0],color=sigcolors["QCD"],label="QCD",linestyle="-",where="mid",zorder=5)
     ax.errorbar(s[1][:-1],s[0],yerr=s_err,color=sigcolors["QCD"],ls='none',zorder=6)
     #make_ratio = True
     if(make_ratio):
@@ -126,7 +129,7 @@ def make_overlapdists(samples,var,cut,xlab=None):
               s_scale = s.values(sumw2=True)[()]
               #s.scale(1./sum(s_scale[0]))
               s1= s.to_hist().to_numpy()
-              ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+              ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=sample,linestyle="--",where="mid")
               #if(make_ratio):
               #  hist.plotratio(
               #  h1,s,
@@ -141,12 +144,17 @@ def make_overlapdists(samples,var,cut,xlab=None):
     #elif "Run" in sample:
     #  #fil = directory+"myhistos_%s.p"%sample
         
-  ax1.set_ylim(0.5,1.5)     
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
-  ax1.set_xlabel(xlab)
+  if("PFcand_pt" in var):
+    ax.set_xscale("log")
   ax.set_ylabel("Events")
-  ax1.set_ylabel("Data/QCD")
+  if make_ratio:
+    ax1.set_xlabel(xlab)
+    ax1.set_ylim(0.5,1.5)     
+    ax1.set_ylabel("Data/QCD")
+  else:
+    ax.set_xlabel(xlab)
   ax.legend()
   ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/overlap_dist_%s_cut%s"%(var,cut))
@@ -155,6 +163,7 @@ def make_overlapdists(samples,var,cut,xlab=None):
 
 
 def make_dists(sample,runPV=0):
+  skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50"]
   with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       xsec = xsecs[sample.split("_")[0]]
@@ -168,6 +177,8 @@ def make_dists(sample,runPV=0):
       scaled = {}
       for name, h in out.items():
         if "SR" in name or "trkID" in name:
+          continue
+        if name in skip:
           continue
         print(name)
         if isinstance(h, hist.Hist):
@@ -206,7 +217,7 @@ def make_dists(sample,runPV=0):
           if "alldR" in name:
             #ax1.set_xscale("log")
             ax1.set_yscale("log")
-            ax1.set_xlim([0,.03])
+            #ax1.set_xlim([0,.03])
           fig.savefig("Plots/proccess_%s_%s_PV%s"%(sample,name,runPV))
           plt.close()
   
@@ -287,27 +298,8 @@ def make_multitrigs(sig,varsx):
   nrows=1,
   ncols=1,
   figsize=(7,7),
-  #gridspec_kw={"height_ratios": (3, 1)},
-  #sharex=True
   )
   xs = np.linspace(0,1500,100)
-  #hx1 = hist.plotratio(
-  #    #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
-  #    qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
-  #    ax=ax,
-  #    error_opts={'color': 'r', 'marker': '.'},
-  #    unc='clopper-pearson'
-  #)
-  ##b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
-  #b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-  #b1 = b[0]
-  ##b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
-  #b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
-  #points2 = np.nan_to_num(b1/b2)
-  #popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
-  #p98bkg = 1.65*popt2[2]+popt2[1]
-  #p90bkg = 1.163*popt2[2]+popt2[1]
-  #ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
   for i,var in enumerate(varsx):
     with open(directory+"myhistos_%s.p"%sig, "rb") as pkl_file:
         out = pickle.load(pkl_file)
@@ -337,24 +329,11 @@ def make_multitrigs(sig,varsx):
         p98sig = 1.65*popt[2]+popt[1]
         p90sig = 1.163*popt[2]+popt[1]
         ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=colors[i],label="%s"%var)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
-
-        
-
-        #ax.axvline(x=600,color="grey",ls="--")
-        #ax.axvline(x=p98sig,color="blue",ls="--")
-        #ax.axvline(x=p90sig,color="blue",ls=":")
-        #ax.axvline(x=p98bkg,color="red",ls="--")
-        #ax.axvline(x=p90bkg,color="red",ls=":")
-
-        #hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(s1/s2),marker=".",color=colors[i])
-
-  #ax1.axhline(y=1,color="grey",ls="--")
   ax.set_ylim(0,1.1)
-  #ax1.set_ylim(0.5,1.5)
   ax.legend(loc="lower right")
   ax.set_xlabel("Ht [GeV]")
   fig.suptitle("HT Trigger Efficiency CaloJet40 reference: %s"%sig)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   fig.savefig("Plots/trigmulti_%s"%sig)
   plt.close()
 def make_trigs(samples,var="ht"):
@@ -432,7 +411,7 @@ def make_trigs(samples,var="ht"):
       ax.set_xlabel("")
       ax.legend(loc="lower right")
       fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Data")
-      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
       fig.savefig("Plots/trig%s_data"%var)
       plt.close()
   else:
@@ -500,7 +479,7 @@ def make_trigs(samples,var="ht"):
     ax.set_label("")
     ax.legend(loc="lower right")
     fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Sig")
-    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
     fig.savefig("Plots/trig%s_sig"%var)
     plt.close()
 
@@ -516,12 +495,12 @@ def get_sig(s,sb,rangex):
   return(sig,bkg)
 
 def make_signif(sample,xsec):
-  qcdscaled = {}
-  with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
-      out = pickle.load(pkl_file)
-      for name, h in out.items():
-        if isinstance(h, hist.Hist):
-          qcdscaled[name] = h.copy()
+  #qcdscaled = {}
+  #with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
+  #    out = pickle.load(pkl_file)
+  #    for name, h in out.items():
+  #      if isinstance(h, hist.Hist):
+  #        qcdscaled[name] = h.copy()
   with open(directory+"myhistos_%s_0.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       scale= lumi*xsec/out["sumw"][sample]
@@ -554,8 +533,6 @@ def make_threshold(samples,allmaxpoints,xs,xlab):
       nrows=1,
       ncols=1,
       figsize=(7,7),
-      #gridspec_kw={"height_ratios": (3, 1)},
-      #sharex=True
   )
   fig.subplots_adjust(hspace=.07)
   for sample in samples: 
@@ -564,21 +541,15 @@ def make_threshold(samples,allmaxpoints,xs,xlab):
       #ax.errorbar(xs,allmaxpoints["evt_%s"%sample],1,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
 
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax1)
-  #ax.set_yscale("log")
   ax1.set_xlabel(xlab)
   ax1.set_ylabel("s/sqrt(s+b+0.5$b^{2}$)")
-  #ax.set_ylabel("Events")
-  #leg1, leg = ax.get_legend_handles_labels()
-  #leg = [l.replace("None","QCD") for l in leg]
-  #ax.legend(leg)
   ax1.legend()
-  #ax1.set_ylim([0,1e-4])
-  #ax1.set_ylim([0,30])
-  #ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/threshold_%s"%(xlab))
   plt.close()
-def make_n1(samples,var,cut,maxpoints):
+def make_n1(samples,var,cut,maxpoints,xlab=None):
   name1 = "dist_%s"%var
+  if(xlab==None):
+    xlab= name1[5:]
   fig, (ax, ax1) = plt.subplots(
       nrows=2,
       ncols=1,
@@ -593,7 +564,6 @@ def make_n1(samples,var,cut,maxpoints):
   hx = hist.plot1d(
       qcd,
       ax=ax,
-      #overlay="cut",
       stack=False,
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
@@ -614,16 +584,12 @@ def make_n1(samples,var,cut,maxpoints):
             s = scaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
             b = qcdscaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
             sb = np.add(np.add(s,b),0.5*np.square(b))
-            #sb = np.add(qcdscaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy(), scaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy())
-            #sb = (qcdscaled[name].integrate("cut",slice(cut,cut+1)) + scaled[name].integrate("cut",slice(cut,cut+1))).to_hist().to_numpy()
 
             sig, sigbkg = get_sig(s[0],(sb)[0],s[1][:-1])
             signifline = sig/np.sqrt(sigbkg)
             err = (signifline)*np.sqrt(np.add(np.reciprocal(sig),np.reciprocal(np.multiply(4,sigbkg))))
             ax1.errorbar(s[1][:-1],signifline,err,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
 
-            #print(s[1])
-            #print(s[1][:-1])
             ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
             if("fjn1" in name):
               maxpoints["sig_%s"%sample].append(signifline[3])
@@ -635,14 +601,14 @@ def make_n1(samples,var,cut,maxpoints):
               maxpoints["err_%s"%sample].append(err[np.nanargmax(signifline)])
   hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
-  ax1.set_xlabel(name1[5:])
+  ax.set_xlabel("")
+  ax1.set_xlabel(xlab)
   ax1.set_ylabel("s/sqrt(s+b+0.5$b^{2}$)")
   ax.set_ylabel("Events")
   leg1, leg = ax.get_legend_handles_labels()
   leg = [l.replace("None","QCD") for l in leg]
   ax.legend(leg)
   ax1.legend()
-  #ax1.set_ylim([0,1e-4])
   ax1.set_ylim([0,30])
   ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/signif_%s"%(var))
@@ -1273,12 +1239,12 @@ def make_datacompare(var,cut):
 
 
 #######################ORGANIZE BY SECTION #######################################
-
-
-############################### HT Trigger
+#
+#
+################################ HT Trigger
 ####### HT Distributions
 ##print("running trigger studies")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]")
+ake_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]")
 ####### Trigger Efficiency
 make_trigs(["Data"])
 make_trigs(["sig400_2","sig300_2"])
@@ -1291,56 +1257,58 @@ make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
 ############################# Track Selection
 ######## DR distributions
 print("running track studies")
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"gen_dR",2)
-###make_overlapdists(["sig400"],"gen_alldR",2) ## TODO
 ####### TRK Eff and Fakes 
-#### TODO with and without PV and q(neutrals) cut and significange (at preselection level) with and without cuts for nPFcands
 make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]") #TODO check why efficiency is so high?
 make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
 make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
 make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
 make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
 make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
-##
-#maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints)
-#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
-#
-#
-#
+maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
+make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
+
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_pt",2,"PFCand pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_eta",2,"PFCand eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_phi",2,"PFCand phi")
+
+
 ###########################  FatJet Selection
-#
-#print("running Jet studies")
-###TODO SUEP vs scalar resolution for pt, mass, dR, nconstituents
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0)
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0)
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0)
-#
-#maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
-#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
-#
+
+print("running Jet studies")
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+
+maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
+make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
+
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_pt",3,"FatJet pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_eta",3,"FatJet Eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_phi",3,"FatJet Phi")
+make_overlapdists(["QCD","sig1000","sig400","sig200"],"FatJet_ncount50",3,"FatJet(50) Multiplicity",make_ratio=False)
 ########################### BOOSTING and sphericity
 ### TODO ISR removal methods
-#print("running sphericity studies")
-##make_correlation("SR1_suep",0) #TODO revisit correlation plots
-##make_correlation("SR2")
-##make_correlation("SR3")
-#empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
-#
-#
+print("running sphericity studies")
+empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
+make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
+
+
 ########################### ABCD
 #print("running ABCD studies")
 #for sig in ["sig200","sig300","sig400","sig750","sig1000"]:
@@ -1363,33 +1331,34 @@ make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
 #make_closure("qcd","SR1_16",3)
 #make_closure_correction9("qcd","SR1_16",3)
 #make_closure_correction6("qcd","SR1_16",3)
+
+### TODO cutflow table and significance by cut
+#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
 #
-#### TODO cutflow table and significance by cut
-##make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
-##
-##
-################ EXTRA
-##maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_suep",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_isr",6,maxpointssphere) 
-##make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_isr",6,maxpointssphere) 
-##make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1_16","s_16","s1_10","s_10","s1_8","s_8","s1_4","s_4","s1_s","s_s","s1_i","s_i"],"Sphericity_wrt_ISR_RM")
+#
+############### EXTRA
+#maxpointssphere = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_16",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_16",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_10",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_10",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_8",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_8",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1b_4",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphereb_4",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_suep",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_isr",6,maxpointssphere) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere_isr",6,maxpointssphere) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointssphere,["s1_16","s_16","s1_10","s_10","s1_8","s_8","s1_4","s_4","s1_s","s_s","s1_i","s_i"],"Sphericity_wrt_ISR_RM")
 #make_dists("QCD")
-##make_dists("QCD",1)
-##make_dists("RunA")
-#make_dists("sig400_2")
-##make_dists("sig400_2",1)
-###
-#
+#make_dists("QCD",1)
+#make_dists("RunA")
+#make_dists("sig400_2x")
+make_dists("sig400_2")
+#make_dists("sig400_2",1)
+##
+
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_suep",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere1_suep",3)
 #make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"sphere_isr",3)
