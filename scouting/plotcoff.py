@@ -24,6 +24,7 @@ xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"green","sig750":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black","QCD":"red"}
+labels = {"sig1000":r"$m_{\phi}$ = 1000 GeV","sig750":r"$m_{\phi}$ = 750 GeV","sig400":r"$m_{\phi}$ = 400 GeV","sig300":r"$m_{\phi}$ = 300 GeV","sig200":r"$m_{\phi}$ = 200 GeV","RunA":"Data","QCD":"QCD"}
 
 directory = "outhists/"
 #directory = "outhists/nPV/"
@@ -129,7 +130,7 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
               s_scale = s.values(sumw2=True)[()]
               #s.scale(1./sum(s_scale[0]))
               s1= s.to_hist().to_numpy()
-              ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=sample,linestyle="--",where="mid")
+              ax.step(s1[1][:-1],s1[0],color=sigcolors[sample],label=labels[sample],linestyle="--",where="mid")
               #if(make_ratio):
               #  hist.plotratio(
               #  h1,s,
@@ -144,7 +145,7 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
     #elif "Run" in sample:
     #  #fil = directory+"myhistos_%s.p"%sample
         
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   if("PFcand_pt" in var):
     ax.set_xscale("log")
@@ -204,7 +205,7 @@ def make_dists(sample,runPV=0):
               stack=False,
               fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
           )
-          hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+          hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
           if "trkID" not in name:
             ax1.set_yscale("log")
             ax1.autoscale(axis='y', tight=True)
@@ -214,9 +215,10 @@ def make_dists(sample,runPV=0):
             if "PFcand" in name or "gen" in name:
               ax1.set_xlim([0.3,100])
             #ax1.autoscale(axis='x', tight=True)
-          if "alldR" in name:
+          if "dR" in name:
             #ax1.set_xscale("log")
             ax1.set_yscale("log")
+            ax1.axvline(x=0.02,color="grey",ls="--")
             #ax1.set_xlim([0,.03])
           fig.savefig("Plots/proccess_%s_%s_PV%s"%(sample,name,runPV))
           plt.close()
@@ -235,8 +237,8 @@ def make_trkeff(sample,name,xlab):
         scale= lumi*xsec/out["sumw"][sample]
       out[name].scale(scale)
       
-      num = out[name].integrate("v2",slice(0,0.05)).copy()
-      numFK = out[name].integrate("v2",slice(0.05,0.3)).copy()
+      num = out[name].integrate("v2",slice(0,0.02)).copy()
+      numFK = out[name].integrate("v2",slice(0.02,0.3)).copy()
       denom = out[name].integrate("v2").copy()
      
       if("IDFK" in name): 
@@ -261,7 +263,7 @@ def make_trkeff(sample,name,xlab):
         ax1.set_xlabel(xlab)
         #ax1.legend(["|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
         fig.suptitle("Track Fake Rate: %s"%sample)
-        hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+        hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
         fig.savefig("Plots/track_fake_%s_%s"%(sample,name))
         plt.close()
       else:
@@ -289,7 +291,7 @@ def make_trkeff(sample,name,xlab):
         ax1.set_ylim(0.7,1.01)
         ax1.set_xlabel(xlab)
         fig.suptitle("Track Efficiency: %s"%sample)
-        hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+        hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
         fig.savefig("Plots/track_eff_%s_%s"%(sample,name))
         plt.close()
 
@@ -333,7 +335,7 @@ def make_multitrigs(sig,varsx):
   ax.legend(loc="lower right")
   ax.set_xlabel("Ht [GeV]")
   fig.suptitle("HT Trigger Efficiency CaloJet40 reference: %s"%sig)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   fig.savefig("Plots/trigmulti_%s"%sig)
   plt.close()
 def make_trigs(samples,var="ht"):
@@ -411,7 +413,7 @@ def make_trigs(samples,var="ht"):
       ax.set_xlabel("")
       ax.legend(loc="lower right")
       fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Data")
-      hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+      hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
       fig.savefig("Plots/trig%s_data"%var)
       plt.close()
   else:
@@ -460,7 +462,7 @@ def make_trigs(samples,var="ht"):
           )
           p98sig = 1.65*popt[2]+popt[1]
           p90sig = 1.163*popt[2]+popt[1]
-          ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=sigcolors[sample],label="%s"%sample)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
+          ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=sigcolors[sample],label=labels[sample])#: 90:%d 98:%d "%(sample,p90sig,p98sig))
           ax.set_xlabel("")
 
           
@@ -479,7 +481,7 @@ def make_trigs(samples,var="ht"):
     ax.set_label("")
     ax.legend(loc="lower right")
     fig.suptitle("HT Trigger Efficiency CaloJet40 reference: Sig")
-    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+    hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
     fig.savefig("Plots/trig%s_sig"%var)
     plt.close()
 
@@ -522,7 +524,7 @@ def make_signif(sample,xsec):
           ax1.legend()
           ax1.set_xlabel(name[5:])
           ax1.set_ylabel("s/sqrt(s+b+0.5$b^{2}$)")
-          hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+          hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
           fig.savefig("Plots/signif_%s"%(name))
           plt.close()
 
@@ -537,10 +539,10 @@ def make_threshold(samples,allmaxpoints,xs,xlab):
   fig.subplots_adjust(hspace=.07)
   for sample in samples: 
        
-      ax1.errorbar(xs,allmaxpoints["sig_%s"%sample],allmaxpoints["err_%s"%sample],ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
+      ax1.errorbar(xs,allmaxpoints["sig_%s"%sample],allmaxpoints["err_%s"%sample],ecolor=sigcolors[sample],color=sigcolors[sample],label=labels[sample],marker="+")
       #ax.errorbar(xs,allmaxpoints["evt_%s"%sample],1,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
 
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax1)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax1)
   ax1.set_xlabel(xlab)
   ax1.set_ylabel("s/sqrt(s+b+0.5$b^{2}$)")
   ax1.legend()
@@ -588,9 +590,9 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
             sig, sigbkg = get_sig(s[0],(sb)[0],s[1][:-1])
             signifline = sig/np.sqrt(sigbkg)
             err = (signifline)*np.sqrt(np.add(np.reciprocal(sig),np.reciprocal(np.multiply(4,sigbkg))))
-            ax1.errorbar(s[1][:-1],signifline,err,ecolor=sigcolors[sample],color=sigcolors[sample],label=sample,marker="+")
+            ax1.errorbar(s[1][:-1],signifline,err,ecolor=sigcolors[sample],color=sigcolors[sample],label=labels[sample],marker="+")
 
-            ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=sample,linestyle="--",where="post")
+            ax.step(s[1][:-1],s[0],color=sigcolors[sample],label=labels[sample],linestyle="--",where="post")
             if("fjn1" in name):
               maxpoints["sig_%s"%sample].append(signifline[3])
               maxpoints["err_%s"%sample].append(err[3])
@@ -599,7 +601,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
               maxpoints["sig_%s"%sample].append(np.nanmax(signifline))
               maxpoints["evt_%s"%sample].append(sum(s[0][np.nanargmax(signifline):]))
               maxpoints["err_%s"%sample].append(err[np.nanargmax(signifline)])
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.set_xlabel("")
   ax1.set_xlabel(xlab)
@@ -608,7 +610,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
   leg1, leg = ax.get_legend_handles_labels()
   leg = [l.replace("None","QCD") for l in leg]
   ax.legend(leg)
-  ax1.legend()
+  #ax1.legend()
   ax1.set_ylim([0,30])
   ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/signif_%s"%(var))
@@ -704,7 +706,7 @@ def makeSR(sample,var,cut):
           #ax.autoscale(axis='x', tight=True)
           ax.set_aspect("auto")
           fig.suptitle("Significance: %s"%sample)
-          hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+          hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
           fig.savefig("Plots/signif2d_%s_%s_%s"%(sample,var,cut))
           plt.close()
           fig, ax1 = plt.subplots()
@@ -718,7 +720,7 @@ def makeSR(sample,var,cut):
               #stack=False,
               #fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
           )
-          hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+          hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
           fig.suptitle("SR: %s"%sample)
           fig.savefig("Plots/%s_sig_%s_%s"%(var,sample,cut))
           plt.close()
@@ -775,7 +777,7 @@ def makeSR(sample,var,cut):
               patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":150}
           )
           fig.suptitle("SR: QCD + %s"%sample)
-          hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+          hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
           fig.savefig("Plots/SR_%s_%s_bkg_%s"%(sample,var,cut))
           plt.close()
           
@@ -835,7 +837,7 @@ def make_correlation(SR,cut):
     h2 = h1.integrate("eventBoostedSphericity",slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
     norm = np.linalg.norm(h2[0])
     ax1.step(h2[1][:-(high1+1)],h2[0][:-high1]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
   ax1.legend(title="Boosted\n Sphericity\n Bins")
   ax1.set_xlabel(var)
   ax1.set_ylabel("AU")
@@ -843,39 +845,26 @@ def make_correlation(SR,cut):
   ax1.set_xscale("log")
   ax1.autoscale(axis='y', tight=True)
   ax1.autoscale(axis='x', tight=True)
-  fig.savefig("Plots/correlation_sphere_%s"%var)
+  fig.savefig("Plots/correlation_sphere_%s"%SR)
   plt.close()
  
-  #fig, ax1 = plt.subplots()
-  #sphere = [0,20,40,60,80,100]
-  #for i in range(len(sphere)-1): 
-  # 
-  #  h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
-  #  norm = np.linalg.norm(h2[0])
-  #  ax1.step(h2[1][:-1],h2[0]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
-  #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
-  #ax1.legend()
-  #ax1.set_yscale("log")
-  #ax1.autoscale(axis='y', tight=True)
-  #fig.savefig("Plots/correlation_npfcand_%s"%var)
-  #plt.close()
 
-  for cut in [0,15,20,25,30,35]:
+  sphere = [0,20,40,60,80,100]
+  for cut in [0,15,20,25,30,35,40,45]:
     fig, ax1 = plt.subplots()
-    sphere = [0,20,40,60,80,100]
     for i in range(len(sphere)-1): 
 
       h2 = h1.integrate(var,slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
       norm = np.linalg.norm(h2[0][cut:])
       ax1.step(h2[1][cut:-1],h2[0][cut:]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="post")
     
-    hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+    hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
     ax1.legend(title="%s Bins"%var)
     ax1.set_xlabel("Boosted Sphericity")
     ax1.set_ylabel("AU")
     ax1.set_yscale("log")
     ax1.autoscale(axis='y', tight=True)
-    fig.savefig("Plots/correlation_%s_cut_%s"%(var,cut))
+    fig.savefig("Plots/correlation_PFcand_%s_cut%s"%(SR,cut))
     plt.close()
 
 
@@ -950,7 +939,7 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0):
   )
   leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -1048,7 +1037,7 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0):
   #leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
   leg = ["Observed %.2f"%(SRbinx),"Expected: %.2f"%(ratx*cbinx)]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -1158,7 +1147,7 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0):
 #  leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Expected: %.2f +/- %.2f"%(ratx*cbinx,err)]
   leg = ["Observed %.2f"%(SRbinx),"Expected: %.2f"%(ratx*fbinx)]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -1220,7 +1209,7 @@ def make_datacompare(var,cut):
   #leg = ["QCD","Data"]
   #ax.legend(leg)
   ax.legend()
-  hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -1231,94 +1220,111 @@ def make_datacompare(var,cut):
       unc='num'
       #unc='clopper-pearson'
   )
-  #hep.cms.label('',data=False,lumi=59.74,year=2018,loc=2)
+  #hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
   #ax1.set_xlim(high1,175)
   ax1.set_ylim(0.5,1.5)
   fig.savefig("Plots/compare_%s_%s"%(var,cut))
   plt.close()
 
 
-#######################ORGANIZE BY SECTION #######################################
+########################ORGANIZE BY SECTION #######################################
+##
+##
+################################# HT Trigger
+######## HT Distributions
+###print("running trigger studies")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0,"Ht [GeV]")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",2,"Ht [GeV]")
+######## Trigger Efficiency
+#make_trigs(["Data"])
+#make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
+#make_trigs(["Data"],"event_sphericity")
+#make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
+#make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
+#make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
 #
 #
-################################ HT Trigger
-####### HT Distributions
-##print("running trigger studies")
-ake_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]")
-####### Trigger Efficiency
-make_trigs(["Data"])
-make_trigs(["sig400_2","sig300_2"])
-make_trigs(["Data"],"event_sphericity")
-make_trigs(["sig400_2","sig300_2"],"event_sphericity")
-make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
-make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
-
-
-############################# Track Selection
-######## DR distributions
-print("running track studies")
-####### TRK Eff and Fakes 
-make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]") #TODO check why efficiency is so high?
-make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
-make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
-make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
-maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
-make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.50,.75,1.0,1.5,2,3],"track_pt_cut")
-
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_pt",2,"PFCand pT [GeV]")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_eta",2,"PFCand eta")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_phi",2,"PFCand phi")
-
-
-###########################  FatJet Selection
-
+############################## Track Selection
+######### DR distributions
+#print("running track studies")
+######## TRK Eff and Fakes 
+#make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]") #TODO check why efficiency is so high?
+#make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
+#make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
+#make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
+#maxpoints = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount70",4,maxpoints,"PFCand(70) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount80",4,maxpoints,"PFCand(80) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount90",4,maxpoints,"PFCand(90) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"track_pt_cut")
+#
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_pt",2,"PFCand pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_eta",2,"PFCand eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"PFcand_phi",2,"PFCand phi")
+#
+#
+############################  FatJet Selection
+#
 print("running Jet studies")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
-make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+#make_overlapdists(["sig400"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
+#make_overlapdists(["sig400"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
+#make_overlapdists(["sig400"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+#make_overlapdists(["sig400"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+#make_overlapdists(["sig400"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
 
-maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
-make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
+#maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount150",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount200",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount250",4,maxpointsfj)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
+#make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
+#
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_pt",3,"FatJet pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_eta",3,"FatJet Eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_phi",3,"FatJet Phi")
+#make_overlapdists(["QCD","sig1000","sig400","sig200"],"FatJet_ncount50",3,"FatJet(50) Multiplicity",make_ratio=False)
+############################ BOOSTING and sphericity
+#### TODO ISR removal methods
+#print("running sphericity studies")
+#empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
 
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_pt",3,"FatJet pT [GeV]")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_eta",3,"FatJet Eta")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_phi",3,"FatJet Phi")
-make_overlapdists(["QCD","sig1000","sig400","sig200"],"FatJet_ncount50",3,"FatJet(50) Multiplicity",make_ratio=False)
-########################### BOOSTING and sphericity
-### TODO ISR removal methods
-print("running sphericity studies")
-empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
-make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
 
-
-########################### ABCD
-#print("running ABCD studies")
-#for sig in ["sig200","sig300","sig400","sig750","sig1000"]:
-#  for i in [0,1,2,3]:
-#    makeSR(sig,"SR1_suep",i)
-#    makeSR(sig,"SR1_isr",i)
-#    makeSR(sig,"SR1_16",i)
-#    makeSR(sig,"SR1_10",i)
-#    makeSR(sig,"SR1_8",i)
-#    makeSR(sig,"SR1_4",i)
+############################# ABCD
+#make_correlation("SR1_suep",3)
+#make_correlation("SR1_suep",1)
+##print("running ABCD studies")
+##for sig in ["sig200","sig300","sig400","sig750","sig1000"]:
+##  for i in [0,1,2,3]:
+##    makeSR(sig,"SR1_suep",i)
+##    makeSR(sig,"SR1_isr",i)
+##    makeSR(sig,"SR1_16",i)
+##    makeSR(sig,"SR1_10",i)
+##    makeSR(sig,"SR1_8",i)
+##    makeSR(sig,"SR1_4",i)
+makeSR("sig200","SR1_suep",3)
+makeSR("sig300","SR1_suep",3)
+makeSR("sig400","SR1_suep",3)
+makeSR("sig750","SR1_suep",3)
+makeSR("sig1000","SR1_suep",3)
 #make_closure("qcd","SR1_suep",1)
 #make_closure_correction9("qcd","SR1_suep",1)
 #make_closure_correction6("qcd","SR1_suep",1)
@@ -1355,7 +1361,7 @@ make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity
 #make_dists("QCD",1)
 #make_dists("RunA")
 #make_dists("sig400_2x")
-make_dists("sig400_2")
+#make_dists("sig400_2")
 #make_dists("sig400_2",1)
 ##
 
