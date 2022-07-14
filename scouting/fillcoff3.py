@@ -856,7 +856,7 @@ class MyProcessor(processor.ProcessorABC):
             "dist_res_dPhi": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_dPhi",100,-3,3)
+                      hist.Bin("v1","res_dPhi",100,-7,7)
             ),
             "dist_trkID_gen_pt": hist.Hist(
                       "Events",
@@ -1100,6 +1100,7 @@ class MyProcessor(processor.ProcessorABC):
         #ISR_cand  = ak.where(recluster_fatjet1.FatJet_nconst[:,1]> recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
 
         rerecluster_fatjet1  = vals_refatjet0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
+        scalar1  = scalar0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
         rerecluster_fatjet1x  = ak_inclusive_cluster[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
         print(len(rerecluster_fatjet1))
         reSUEP_cand = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]<=rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1x[:,0],rerecluster_fatjet1x[:,1])
@@ -1229,21 +1230,35 @@ class MyProcessor(processor.ProcessorABC):
        ## resolution studies
         if(signal):
           print("calc res")
-          scalar = scalar0[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
+          #scalar = scalar0[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
+          #scalar = scalar1[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
           suepvals = vals0[vals0.FatJet_ncount50 >=2]
           SUEP_cand = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
-          res_pt = (SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy())#/scalar["pt"].to_numpy()
-          res_mass = (SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy())#/scalar["mass"].to_numpy()
-          res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
-	  #if (res_dPhi > np.pi):
-          res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0 ])
+          scalar = scalar1[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
+          print(len(scalar), len(SUEP_cand))
+          res_pt = SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy()#/scalar["pt"].to_numpy()
+          res_mass = SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
+          #res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
+	  ##if (res_dPhi > np.pi):
+          #res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0
+          phi3 = np.array([x+np.pi for x in SUEP_cand.phi.to_numpy()])
+          phi1 = np.array([x-2*np.pi if x > np.pi else x for x in phi3])
+          phi2 = scalar["phi"].to_numpy()
+          #phi2 = np.array([x+2*np.pi if x < 0 else x for x in scalar["phi"].to_numpy()])
+          print(phi1)
+          print(phi2)
+          res_dPhi0 = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
+          res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0])
+          #res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
-          res_dR = np.sqrt(res_dPhi*res_dPhi + res_dEta*res_dEta)
+          #print(SUEP_cand.phi.to_numpy())
+          #print(scalar["phi"].to_numpy())
+          res_dR = np.sqrt(np.square(res_dPhi) + np.square(res_dEta))
           resolutions = ak.zip({
             "res_pt" : res_pt,
             "res_mass" : res_mass,
-            "res_dEta" : res_dPhi,
-            "res_dPhi" : res_dEta,
+            "res_dEta" : res_dEta,
+            "res_dPhi" : res_dPhi,
             "res_dR" : res_dR
         
           })
