@@ -925,14 +925,14 @@ class MyProcessor(processor.ProcessorABC):
                'PFcand_ncount150': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>1.5 )],axis=-1),
                'PFcand_ncount200': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>2   )],axis=-1),
                'PFcand_ncount300': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>3   )],axis=-1),
-               'FatJet_ncount30': ak.count(arrays["FatJet_pt"],axis=-1),
-               'FatJet_ncount50': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>50],axis=-1),
-               'FatJet_ncount100': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>100],axis=-1),
-               'FatJet_ncount150': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>150],axis=-1),
-               'FatJet_ncount200': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>200],axis=-1),
-               'FatJet_ncount250': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>250],axis=-1),
-               'FatJet_ncount300': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>300],axis=-1),
-               'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
+               #'FatJet_ncount30': ak.count(arrays["FatJet_pt"],axis=-1),
+               #'FatJet_ncount50': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>50],axis=-1),
+               #'FatJet_ncount100': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>100],axis=-1),
+               #'FatJet_ncount150': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>150],axis=-1),
+               #'FatJet_ncount200': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>200],axis=-1),
+               #'FatJet_ncount250': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>250],axis=-1),
+               #'FatJet_ncount300': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>300],axis=-1),
+               #'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
 
         vals_vertex0 = ak.zip({
@@ -1036,11 +1036,21 @@ class MyProcessor(processor.ProcessorABC):
             "mass": ak_inclusive_jets.m,
             "FatJet_nconst": ak.num(ak_inclusive_cluster,axis=-1),
         }, with_name="Momentum4D")
+        vals0["FatJet_ncount30"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1)
+        vals0["FatJet_ncount50"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>50],axis=-1)
+        vals0["FatJet_ncount100"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>100],axis=-1)
+        vals0["FatJet_ncount150"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>150],axis=-1)
+        vals0["FatJet_ncount200"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>200],axis=-1)
+        vals0["FatJet_ncount250"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>250],axis=-1)
+        vals0["FatJet_ncount300"] = ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>300],axis=-1)
 
 
-        rerecluster_fatjet1  = vals_refatjet0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
-        scalar1  = scalar0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
-        rerecluster_fatjet1x  = ak_inclusive_cluster[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
+        #rerecluster_fatjet1  = vals_refatjet0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
+        rerecluster_fatjet1  = vals_refatjet0[ vals0["FatJet_ncount30"] >=2]
+        #scalar1  = scalar0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
+        scalar1  = scalar0[ vals0["FatJet_ncount30"] >= 2] 
+        rerecluster_fatjet1x  = ak_inclusive_cluster[ vals0["FatJet_ncount30"] >= 2] 
+        #rerecluster_fatjet1x  = ak_inclusive_cluster[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
         print(len(rerecluster_fatjet1))
         reSUEP_cand = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]<=rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1x[:,0],rerecluster_fatjet1x[:,1])
         reISR_cand  = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]> rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1x[:,0],rerecluster_fatjet1x[:,1])
@@ -1068,12 +1078,9 @@ class MyProcessor(processor.ProcessorABC):
           tracks_cuts2x = (reSUEP_cand.p !=0)
           reSUEP_cand = reSUEP_cand[tracks_cuts2x]
           reonetrackcut = (ak.num(reSUEP_cand) >=2) 
-          #reSUEP_cand = ak.mask(reSUEP_cand,reonetrackcut)
           reSUEP_cand = reSUEP_cand[reonetrackcut]
           spherey0 = spherex0[reonetrackcut]
           if(len(reSUEP_cand)!=0):
-            #print(ak.min(ak.count(reSUEP_cand,axis=-1)))
-            #print(reSUEP_cand)
             reeigs2 = sphericity(self,reSUEP_cand,2.0) # normal sphericity
             reeigs1 = sphericity(self,reSUEP_cand,1.0) # sphere 1
             spherey0["sphere1_suep"] = 1.5 * (reeigs1[:,1]+reeigs1[:,0])
@@ -1366,7 +1373,7 @@ class MyProcessor(processor.ProcessorABC):
         output = packdist(output,vals,"FatJet_ncount200")
         output = packdist(output,vals,"FatJet_ncount250")
         output = packdist(output,vals,"FatJet_ncount300")
-        output = packdist(output,valsx,"FatJet_nconst")
+        #output = packdist(output,valsx,"FatJet_nconst")
         output = packdist(output,valsx,"PFcand_ncount0")
         output = packdist(output,valsx,"PFcand_ncount50")
         output = packdist(output,valsx,"PFcand_ncount60")
@@ -1439,8 +1446,8 @@ else:
   runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
   }  
 
 
@@ -1503,5 +1510,5 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/myhistos_%s_%sx.p"%(fin,batch), "wb") as pkl_file:
+    with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
