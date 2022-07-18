@@ -38,7 +38,6 @@ def plot_display(ievt,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbt
     ax.set_xlabel(r'$\phi$', fontsize=18)
     ax.set_ylabel(r'$\eta$', fontsize=18)
     ax.tick_params(axis='both', which='major', labelsize=12)
-#    print(particles)
 
     ax.scatter(particles.phi, particles.eta, s=particles.pt, c='xkcd:blue', marker='o',label="ID tracks: %d"%len(particles))
 
@@ -97,9 +96,6 @@ def plot_display(ievt,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbt
 
 def sphericity(self, particles, r):
     norm = ak.sum(particles.p ** r, axis=1, keepdims=True)
-    #if norm ==0:
-    #  return [-1,-1,-1]
-    #s1 = [[
     s = np.array([[
                    ak.sum(particles.px * particles.px * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,
                    ak.sum(particles.px * particles.py * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,
@@ -114,35 +110,8 @@ def sphericity(self, particles, r):
                    ak.sum(particles.pz * particles.px * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,
                    ak.sum(particles.pz * particles.py * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,
                    ak.sum(particles.pz * particles.pz * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm
-                   #ak.to_numpy(ak.sum(particles.px * particles.px * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.px * particles.py * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.px * particles.pz * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True)
-                  #]#,
-                  #[#
-                   #ak.to_numpy(ak.sum(particles.py * particles.px * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.py * particles.py * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.py * particles.pz * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True)
-                  #]#,
-                  #[#
-                   #ak.to_numpy(ak.sum(particles.pz * particles.px * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.pz * particles.py * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True),
-                   #ak.to_numpy(ak.sum(particles.pz * particles.pz * particles.p ** (r-2.0), axis=1 ,keepdims=True)/norm,allow_missing=True)
                   ]])
-    #s = np.array(s1)
-    #s = ak.to_numpy(s1,allow_missing=True)
     s = np.squeeze(np.moveaxis(s, 2, 0),axis=3)
-    #np.nan_to_num(s)
-    #for p1,n1,s1 in zip(particles,norm,s):
-    #  print(n1)
-    #  print(len(p1))
-    #  print(p1[0])
-    #  print(p1[1])
-    #  print(p1[0].p)
-    #  print(p1[1].p)
-    #  print(p1[0].p**(-1))
-    #  print(p1[1].p**(-1))
-    #  print(s1)
-    #  evals = np.sort(np.linalg.eigvalsh(s1))
     evals = np.sort(np.linalg.eigvalsh(s))
     return evals
 
@@ -202,14 +171,12 @@ def packdistflat(output,vals,var,prefix=""):
         if(len(vals)>=6):
           output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:Pre + nPVs < 30", v1=ak.flatten(vals[5][var])) 
           output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:Pre + nPVs >=30", v1=ak.flatten(vals[6][var]))
-        #output["dist_%s"%(var)].fill(cut="cut 4:FJ nPFCand>=80", v1=ak.flatten(vals[4][var])) 
         return output
 def packdist_fjn1(output,vals,var):
         output["dist_fjn1_%s"%(var)].fill(cut="cut 0:No cut",       v1=vals[0][var])
         output["dist_fjn1_%s"%(var)].fill(cut="cut 1:HT Trig",      v1=vals[1][var]) 
         output["dist_fjn1_%s"%(var)].fill(cut="cut 2:Ht>=600",      v1=vals[2][var])
         output["dist_fjn1_%s"%(var)].fill(cut="cut 3:nPFCand75>=140", v1=vals[3][var]) 
-        #output["dist_fjn1_%s"%(var)].fill(cut="cut 3:FJ nPFCand>=80", v1=vals[3][var]) 
         output["dist_fjn1_%s"%(var)].fill(cut="cut 4:BSphericity >=0.6",        v1=vals[4][var])
         return output
 def packSR(output,vals,var):
@@ -376,18 +343,6 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Bin("nPFCand","nPFCand",300,0,300),
                       hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             ),
-            #"SR2" : hist.Hist(
-            #          "Events",
-            #          hist.Cat("axis","Axis"),
-            #          hist.Bin("FatJet_nconst","FatJet_nconst",300,0,300),
-            #          hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
-            #),
-            #"SR3" : hist.Hist(
-            #          "Events",
-            #          hist.Cat("axis","Axis"),
-            #          hist.Bin("nPFCand","nPFCand",300,0,300),
-            #          hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
-            #),
             "trigdist_event_sphericity": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -396,27 +351,27 @@ class MyProcessor(processor.ProcessorABC):
             "trigdist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+                      hist.Bin("v1","ht",1500,0,1500)
             ),
             "trigdist_ht20": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+                      hist.Bin("v1","ht",1500,0,1500)
             ),
             "trigdist_ht30": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+                      hist.Bin("v1","ht",1500,0,1500)
             ),
             "trigdist_ht40": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+                      hist.Bin("v1","ht",1500,0,1500)
             ),
             "trigdist_ht50": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500])
+                      hist.Bin("v1","ht",1500,0,1500)
             ),
             "trigdist_n_pfMu": hist.Hist(
                       "Events",
@@ -426,13 +381,8 @@ class MyProcessor(processor.ProcessorABC):
             "dist_ht": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Ht",350,0,3500)
+                      hist.Bin("v1","Ht",3500,0,3500)
             ),
-            #"dist_sphere1": hist.Hist(
-            #          "Events",
-            #          hist.Cat("cut","Cutflow"),
-            #          hist.Bin("v1","Sphere1",50,0,1)
-            #),
             "dist_sphere_16": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -925,9 +875,7 @@ class MyProcessor(processor.ProcessorABC):
     def process(self, arrays):
         vector.register_awkward()
         output = self.accumulator.identity()
-        #print(events)
         dataset = arrays.metadata['dataset']
-        #arrays = {k: v for k,v in events.arrays(how=dict).items()}
         output["sumw"][dataset] += len(arrays) # get number of events
         tright = [item[7] for item in arrays["hltResult"]]
         trigmu = [item[5] for item in arrays["hltResult"]] #actually calojet40 reference trigger
@@ -964,7 +912,6 @@ class MyProcessor(processor.ProcessorABC):
                'nPVs_good8': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >15],axis=-1),
                'nPVs_good9': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >25],axis=-1),
                'Vertex_minZ' : ak.min(abs(np.subtract(ak.firsts(arrays["Vertex_z"]),arrays["Vertex_z"][:,1:])),axis=-1,mask_identity=False),
-               #'bCandmask': [True if len(x) > 1 else False for x in arrays["bPFcand_pt"]],
                'triggerHt': tright,
                'triggerMu': trigmu,
                'PFcand_ncount0' :  ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.0 )],axis=-1),
@@ -1063,15 +1010,12 @@ class MyProcessor(processor.ProcessorABC):
 
         alldRtracks = ak.zip({'PFcand_alldR': np.sqrt(arrays["PFcand_alldR"])})
         alldRtracks = ak.flatten(alldRtracks)
-#        print(alldRtracks)
-#        print(len(alldRtracks))
 
         track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
         tracks_cut0 = vals_tracks0[track_cuts]
         tracks_cuts1 = ((tracks_cut0.x !=0)&(tracks_cut0.y !=0 )&(tracks_cut0.z !=0) &(tracks_cut0.p !=0))
         tracks_cut0 = tracks_cut0[tracks_cuts1]
 
-        #tracks_cut1x = tracks_cut0[(vals0.triggerHt==1) & (vals0.ht >=600)]
         minPt = 30
         jetdef = fastjet.JetDefinition(fastjet.antikt_algorithm,1.5)
         cluster = fastjet.ClusterSequence(tracks_cut0,jetdef)
@@ -1093,11 +1037,6 @@ class MyProcessor(processor.ProcessorABC):
             "FatJet_nconst": ak.num(ak_inclusive_cluster,axis=-1),
         }, with_name="Momentum4D")
 
-
-        #recluster_fatjet1  = vals_fatjet0[ vals0.FatJet_ncount30 >= 2] 
-        #print(len(recluster_fatjet1))
-        #SUEP_cand = ak.where(recluster_fatjet1.FatJet_nconst[:,1]<=recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
-        #ISR_cand  = ak.where(recluster_fatjet1.FatJet_nconst[:,1]> recluster_fatjet1.FatJet_nconst[:,0],recluster_fatjet1[:,0],recluster_fatjet1[:,1])
 
         rerecluster_fatjet1  = vals_refatjet0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
         scalar1  = scalar0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
@@ -1241,14 +1180,17 @@ class MyProcessor(processor.ProcessorABC):
           #res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
 	  ##if (res_dPhi > np.pi):
           #res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0
-          phi3 = np.array([x+np.pi for x in SUEP_cand.phi.to_numpy()])
-          phi1 = np.array([x-2*np.pi if x > np.pi else x for x in phi3])
+          #phi3 = np.array([x+np.pi for x in SUEP_cand.phi.to_numpy()])
+          #phi1 = np.array([x-2*np.pi if x > np.pi else x for x in phi3])
+          phi1 = SUEP_cand.phi.to_numpy()
           phi2 = scalar["phi"].to_numpy()
           #phi2 = np.array([x+2*np.pi if x < 0 else x for x in scalar["phi"].to_numpy()])
           print(phi1)
           print(phi2)
           res_dPhi0 = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
-          res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0])
+          #res_dPhi = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
+          res_dPhi00 = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0])
+          res_dPhi = np.array([x+2*np.pi if x < -np.pi else x for x in res_dPhi00])
           #res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
           #print(SUEP_cand.phi.to_numpy())
@@ -1267,66 +1209,46 @@ class MyProcessor(processor.ProcessorABC):
         vals1 = vals0[vals0.triggerHt >= 1]
         vals2 = vals1[vals1.ht >= 600]
         vals3 = vals2[vals2.FatJet_ncount50 >= 2]
-        #vals3 = vals2[vals2.n_fatjet >= 2]
-        #vals4 = vals3[vals3.FatJet_nconst >= 80]
         vals4 = vals3[vals3.PFcand_ncount75 >= 140]
         vals4x = vals3[vals3.eventBoosted_sphericity >= 0.6]
-        #vals5 = vals2[vals2.n_pvs < 30]
-        #vals6 = vals2[vals2.n_pvs >= 30]
 
         vals_jet1 = vals_jet0[vals0.triggerHt >= 1]
         vals_jet2 = vals_jet1[vals1.ht >= 600]
         vals_jet3 = vals_jet2[vals2.FatJet_ncount50 >= 2]
-        #vals_jet3 = vals_jet2[vals2.n_fatjet >= 2]
-        #vals_jet4 = vals_jet3[vals3.FatJet_nconst >= 80]
         vals_jet4 = vals_jet3[vals3.PFcand_ncount75 >= 140]
-        #vals_jet5 = vals_jet2[vals2.n_pvs < 30]
-        #vals_jet6 = vals_jet2[vals2.n_pvs >= 30]
         
         print("filling cutflows fj") 
         vals_fatjet1 = vals_fatjet0[vals0.triggerHt >= 1]
         vals_fatjet2 = vals_fatjet1[vals1.ht >= 600]
         vals_fatjet3 = vals_fatjet2[vals2.FatJet_ncount50 >= 2]
-        #vals_fatjet3 = vals_fatjet2[vals2.n_fatjet >= 2]
-        #vals_fatjet4 = vals_fatjet3[vals3.FatJet_nconst >= 80]
         vals_fatjet4 = vals_fatjet3[vals3.PFcand_ncount75 >= 140]
-        #vals_fatjet5 = vals_fatjet2[vals2.n_pvs < 30]
-        #vals_fatjet6 = vals_fatjet2[vals2.n_pvs >= 30]
         
         vals_refatjet1 = vals_refatjet0[vals0.triggerHt >=1]
         vals_refatjet2 = vals_refatjet1[vals1.ht >= 600]
         vals_refatjet3 = vals_refatjet2[vals2.FatJet_ncount50 >= 2]
         vals_refatjet4 = vals_refatjet3[vals3.PFcand_ncount75 >= 140]
-        #vals_refatjet5 = vals_refatjet2[vals2.n_pvs < 30]
-        #vals_refatjet6 = vals_refatjet2[vals2.n_pvs >= 30]
         
      
         print("filling cutflows trk") 
         vals_tracks1 = tracks_cut0[vals0.triggerHt >= 1]
         vals_tracks2 = vals_tracks1[vals1.ht >= 600]
         vals_tracks3 = vals_tracks2[vals2.FatJet_ncount50 >= 2]
-        #vals_tracks3 = vals_tracks2[vals2.n_fatjet >= 2]
-        #vals_tracks4 = vals_tracks3[vals3.FatJet_nconst >= 80]
         vals_tracks4 = vals_tracks3[vals3.PFcand_ncount75 >= 140]
         print("filling cutflows vertex") 
         vals_vertex1 = vals_vertex0[vals0.triggerHt >= 1]
         vals_vertex2 = vals_vertex1[vals1.ht >= 600]
         vals_vertex3 = vals_vertex2[vals2.FatJet_ncount50 >= 2]
         vals_vertex4 = vals_vertex3[vals3.PFcand_ncount75 >=140]
-        #vals_vertex5 = vals_vertex3[vals3.n_pvs < 30]
-        #vals_vertex6 = vals_vertex3[vals3.n_pvs >= 30]
-        #vals_vertex4 = vals_vertex3[vals3.PFcand_ncount75 >= 140]
 
-        vals = [vals0,vals1,vals2,vals3,vals4]#,vals5,vals6]
-        valsx = [vals0,vals1,vals2,vals3,vals4x]#,vals5,vals6]
-        vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4]#,vals_jet5,vals_jet6]
-        vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]#,vals_fatjet5,vals_fatjet6]
-        vals_refatjet = [vals_refatjet0,vals_refatjet1,vals_refatjet2,vals_refatjet3,vals_refatjet4]#,vals_refatjet5,vals_refatjet6]
+        vals = [vals0,vals1,vals2,vals3,vals4]
+        valsx = [vals0,vals1,vals2,vals3,vals4x]
+        vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4]
+        vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]
+        vals_refatjet = [vals_refatjet0,vals_refatjet1,vals_refatjet2,vals_refatjet3,vals_refatjet4]
         vals_tracks = [vals_tracks0,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
-        vals_vertex = [vals_vertex0,vals_vertex1,vals_vertex2,vals_vertex3,vals_vertex4]#,vals_vertex5,vals_vertex6]
+        vals_vertex = [vals_vertex0,vals_vertex1,vals_vertex2,vals_vertex3,vals_vertex4]
 
         #fatjet n-1 cutflow
-        #fj3 = vals2[vals2.FatJet_nconst >=80]
         fj3 = vals2[vals2.PFcand_ncount75 >=140]
         fj4 = fj3[fj3.eventBoosted_sphericity >= 0.6]
         vals_fj = [vals0,vals1,vals2,fj3,fj4]
@@ -1361,7 +1283,6 @@ class MyProcessor(processor.ProcessorABC):
           vals_gen2 = vals_gen1[vals1.ht >= 600]
           vals_gen3 = vals_gen2[vals2.FatJet_ncount50 >= 2]
           vals_gen4 = vals_gen3[vals3.n_pfcand >= 140]
-          #vals_gen4 = vals_gen3[vals3.FatJet_nconst >= 80]
           vals_gen = [vals_gen0,vals_gen1,vals_gen2,vals_gen3,vals_gen4]
           trkID5x = vals_gen3[vals_gen3.pt > 0.5]
           trkID6x = trkID5x[trkID5x.pt > 0.6]
@@ -1391,16 +1312,6 @@ class MyProcessor(processor.ProcessorABC):
           output = packtrig(output,trigs,"ht30")
           output = packtrig(output,trigs,"ht40")
           output = packtrig(output,trigs,"ht50")
-          #print(sphere1)
-          #output = packdist(output,sphere1,"sphere1")
-        #output = packdist(output,sphere1,"sphere1b_16")
-        #output = packdist(output,sphere1,"sphereb_16")
-        #output = packdist(output,sphere1,"sphere1b_10")
-        #output = packdist(output,sphere1,"sphereb_10")
-        #output = packdist(output,sphere1,"sphere1b_8")
-        #output = packdist(output,sphere1,"sphereb_8")
-        #output = packdist(output,sphere1,"sphere1b_4")
-        #output = packdist(output,sphere1,"sphereb_4")
 
         output = packtrig(output,trigs,"ht")
      
@@ -1408,9 +1319,6 @@ class MyProcessor(processor.ProcessorABC):
         output = packtrig(output,trigs,"event_sphericity")
         #fill hists
         print("filling hists") 
-        #output = packSR(output,sphere1y)
-        #output = packSR2(output,sphere1y)
-        #output = packSR3(output,sphere1y)
         output = packdist(output,vals,"ht")
         output = packdist(output,vals,"n_pfcand")
         output = packdist(output,vals,"event_sphericity")
@@ -1531,9 +1439,8 @@ else:
   runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_dR.root"%(fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
   }  
 
 
@@ -1596,5 +1503,5 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
+    with open("outhists/myhistos_%s_%sx.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
