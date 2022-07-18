@@ -14,8 +14,10 @@ from scipy.optimize import curve_fit
 import scipy
 from matplotlib.colors import LinearSegmentedColormap
 
-parameters = {'axes.labelsize': 13,
-          'axes.titlesize': 13}
+#parameters = {'axes.labelsize': 13,
+#          'axes.titlesize': 13}
+parameters = {'axes.labelsize': 15,
+          'axes.titlesize': 15}
 plt.rcParams.update(parameters)
 
 #with open("myhistos_sig400_0.p", "rb") as pkl_file:
@@ -24,7 +26,7 @@ xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey"]
 cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"green","sig750":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black","QCD":"red"}
-labels = {"sig1000":r"$m_{\phi}$ = 1000 GeV","sig750":r"$m_{\phi}$ = 750 GeV","sig400":r"$m_{\phi}$ = 400 GeV","sig300":r"$m_{\phi}$ = 300 GeV","sig200":r"$m_{\phi}$ = 200 GeV","RunA":"Data","QCD":"QCD"}
+labels = {"sig1000":r"$m_{\phi}$ = 1000 GeV","sig750":r"$m_{\phi}$ = 750 GeV","sig400":r"$m_{\phi}$ = 400 GeV","sig300":r"$m_{\phi}$ = 300 GeV","sig200":r"$m_{\phi}$ = 200 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(1%)"}
 
 directory = "outhists/"
 #directory = "outhists/nPV/"
@@ -62,7 +64,7 @@ with open(directory+"myhistos_QCD.p", "rb") as pkl_file:
         qcddatascaled[name] = h.copy()
         qcddatascaled[name].scale(datalumi/qcdlumi)
 
-def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
+def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None):
   name1 = "dist_%s"%var
   if (xlab==None):
     xlab=name1[5:]
@@ -80,15 +82,19 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
 
   if "RunA" in samples:
     h1 = datascaled[name1].integrate("cut",slice(cut,cut+1))
+    if("ht" in name1):
+      h1 = h1.rebin("v1",hist.Bin("v1","ht",50,0,3500))
     h1_scale = h1.values(sumw2=True)[()]
     #h1.scale(1./sum(h1_scale[0]))
     sdat = h1.to_hist().to_numpy()
     daterr = np.sqrt(h1_scale[1])
     #ax.scatter(sdat[1][:-1],sdat[0],color=sigcolors["RunA"],label="Data",marker=".")
-    ax.errorbar(sdat[1][:-1],sdat[0],yerr=daterr,color=sigcolors["RunA"],label="Data",marker=".",zorder=0,ls="None")
+    ax.errorbar(sdat[1][:-1],sdat[0],yerr=daterr,color=sigcolors["RunA"],label=labels["Data"],marker=".",zorder=0,ls="None")
   if "QCD" in samples:
     h2x = qcddatascaled[name1]
     h2= h2x.integrate("cut",slice(cut,cut+1))
+    if("ht" in name1):
+      h2 = h2.rebin("v1",hist.Bin("v1","ht",50,0,3500))
     h2_scale = h2.values(sumw2=True)[()]
     print(h2_scale)
     #h2.scale(1./sum(h2_scale[0]))
@@ -127,6 +133,8 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
               scaled[name] = h.copy()
               scaled[name].scale(scale)
               s = scaled[name].integrate("cut",slice(cut,cut+1))#.to_hist().to_numpy()
+              if("ht" in name):
+                s = s.rebin("v1",hist.Bin("v1","ht",50,0,3500))
               s_scale = s.values(sumw2=True)[()]
               #s.scale(1./sum(s_scale[0]))
               s1= s.to_hist().to_numpy()
@@ -144,6 +152,8 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True):
             ax.set_xlabel("")
     #elif "Run" in sample:
     #  #fil = directory+"myhistos_%s.p"%sample
+  if(vline):
+    ax.axvline(x=vline,color="grey",ls="--")
         
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
@@ -302,6 +312,7 @@ def make_multitrigs(sig,varsx):
   figsize=(7,7),
   )
   xs = np.linspace(0,1500,100)
+  nevts = {"ht20":[],"ht30":[],"ht40":[],"ht50":[]}
   for i,var in enumerate(varsx):
     with open(directory+"myhistos_%s.p"%sig, "rb") as pkl_file:
         out = pickle.load(pkl_file)
@@ -316,13 +327,21 @@ def make_multitrigs(sig,varsx):
         
 
         #Trigger plots
-        s = out["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-        s1 = s[0]
-        s2 = out["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+        #s = out["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+        #s1 = s[0]
+        #s2 = out["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+        s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+        s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+        if("ht" in var):
+          s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+          s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+        s1 = s.to_hist().to_numpy()[0]
+        s2 = s0.to_hist().to_numpy()[0]
         points = np.nan_to_num(s1/s2)
-        popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
+        popt, pcov = curve_fit(func,s.to_hist().to_numpy()[1][:-1],points,p0=[0.5,500,100,0.5])
         hx = hist.plotratio(
-            out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+            #out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+            s,s0,
             ax=ax,
             clear=False,
             error_opts={'color': colors[i], 'marker': '.'},
@@ -331,6 +350,12 @@ def make_multitrigs(sig,varsx):
         p98sig = 1.65*popt[2]+popt[1]
         p90sig = 1.163*popt[2]+popt[1]
         ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=colors[i],label="%s"%var)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
+        #nevt=[]
+        for thres in [500,550,600,650,700]:
+          thres_index = list(map(lambda i: i >= thres, s.to_hist().to_numpy()[1])).index(True)
+          nevts[var].append(np.sum(s1[thres_index:]))
+        #print(var, nevt) 
+  print(sig,pd.DataFrame(nevts,index=[500,550,600,650,700]))
   ax.set_ylim(0,1.1)
   ax.legend(loc="lower right")
   ax.set_xlabel("Ht [GeV]")
@@ -355,47 +380,63 @@ def make_trigs(samples,var="ht"):
   if("Data" in samples):
       fig.subplots_adjust(hspace=.07)
 
+      
+      #p98sig = 1.65*popt[2]+popt[1]
+      #p90sig = 1.163*popt[2]+popt[1]
+      #ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color="blue",label="Sig: 90:%d 98:%d "%(p90sig,p98sig))
+
+      ##b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+      #b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+      #b1 = b[0]
+      ##b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+      #b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+      b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+      b0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+      if("ht" in var):
+        b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+        b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+      b1 = b.to_hist().to_numpy()[0]
+      b2 = b0.to_hist().to_numpy()[0]
+      points2 = np.nan_to_num(b1/b2)
+      popt2, pcov2 = curve_fit(func,b.to_hist().to_numpy()[1][:-1],points2,p0=[0.5,500,100,0.5])
+      p98bkg = 1.65*popt2[2]+popt2[1]
+      p90bkg = 1.163*popt2[2]+popt2[1]
+      
+      ##d = trigscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+      #d = trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+      #d1 = d[0]
+      ##d2 = trigscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+      #d2 = trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+      d = trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+      d0 = trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+      if("ht" in var):
+        d = d.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+        d0 = d0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+      d1 = d.to_hist().to_numpy()[0]
+      d2 = d0.to_hist().to_numpy()[0]
       hx1 = hist.plotratio(
           #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
-          qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+          #qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+          b,b0,
           ax=ax,
           error_opts={'color': 'r', 'marker': '.'},
           unc='clopper-pearson'
       )
       hx2 = hist.plotratio(
           #trigscaled["trigdist_ht"].integrate("cut",slice(1,2)),trigscaled["trigdist_ht"].integrate("cut",slice(3,4)),
-          trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+          #trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+          d,d0,
           ax=ax,
           clear=False,
           error_opts={'color': 'k', 'marker': '.'},
           unc='clopper-pearson'
       )
-      
-      #p98sig = 1.65*popt[2]+popt[1]
-      #p90sig = 1.163*popt[2]+popt[1]
-      #ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color="blue",label="Sig: 90:%d 98:%d "%(p90sig,p98sig))
-
-      #b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
-      b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-      b1 = b[0]
-      #b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
-      b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
-      points2 = np.nan_to_num(b1/b2)
-      popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
-      p98bkg = 1.65*popt2[2]+popt2[1]
-      p90bkg = 1.163*popt2[2]+popt2[1]
-      ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
-      
-      #d = trigscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
-      d = trigscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-      d1 = d[0]
-      #d2 = trigscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
-      d2 = trigscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
       points3 = np.nan_to_num(d1/d2)
-      popt3, pcov3 = curve_fit(func,d[1][:-1],points3,p0=[0.5,500,100,0.5])
+      popt3, pcov3 = curve_fit(func,d.to_hist().to_numpy()[1][:-1],points3,p0=[0.5,500,100,0.5])
       p98dat = 1.65*popt3[2]+popt3[1]
       p90dat = 1.163*popt3[2]+popt3[1]
-      ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label="Data")#: 90:%d 98:%d"%(p90dat,p98dat))
+      ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label=labels["Data"])#: 90:%d 98:%d"%(p90dat,p98dat))
+      ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
 
       ax.axvline(x=600,color="grey",ls="--")
       #ax.axvline(x=p98sig,color="blue",ls="--")
@@ -405,7 +446,7 @@ def make_trigs(samples,var="ht"):
       #ax.axvline(x=p98dat,color="black",ls="--")
       #ax.axvline(x=p90dat,color="black",ls=":")
 
-      hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(d1/d2),marker=".")
+      hxrat = ax1.scatter(b.to_hist().to_numpy()[1][:-1],(b1/b2)/(d1/d2),marker=".")
 
       ax1.axhline(y=1,color="grey",ls="--")
       ax.set_ylim(0,1.1)
@@ -417,20 +458,28 @@ def make_trigs(samples,var="ht"):
       fig.savefig("Plots/trig%s_data"%var)
       plt.close()
   else:
+    ##b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
+    #b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
+    #b1 = b[0]
+    ##b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
+    #b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+    b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+    b0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+    if("ht" in var):
+      b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+      b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+    b1 = b.to_hist().to_numpy()[0]
+    b2 = b0.to_hist().to_numpy()[0]
     hx1 = hist.plotratio(
         #qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)),qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)),
-        qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+        #qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)),qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)),
+        b,b0,
         ax=ax,
         error_opts={'color': 'r', 'marker': '.'},
         unc='clopper-pearson'
     )
-    #b = qcdscaled["trigdist_ht"].integrate("cut",slice(1,2)).to_hist().to_numpy()
-    b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-    b1 = b[0]
-    #b2 = qcdscaled["trigdist_ht"].integrate("cut",slice(3,4)).to_hist().to_numpy()[0]
-    b2 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
     points2 = np.nan_to_num(b1/b2)
-    popt2, pcov2 = curve_fit(func,b[1][:-1],points2,p0=[0.5,500,100,0.5])
+    popt2, pcov2 = curve_fit(func,b.to_hist().to_numpy()[1][:-1],points2,p0=[0.5,500,100,0.5])
     p98bkg = 1.65*popt2[2]+popt2[1]
     p90bkg = 1.163*popt2[2]+popt2[1]
     ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
@@ -448,13 +497,18 @@ def make_trigs(samples,var="ht"):
           
 
           #Trigger plots
-          s = out["trigdist_%s"%var].integrate("cut",slice(3,4)).to_hist().to_numpy()
-          s1 = s[0]
-          s2 = out["trigdist_%s"%var].integrate("cut",slice(1,2)).to_hist().to_numpy()[0]
+          s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+          s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+          if("ht" in var):
+            s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+            s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
+          s1 = s.to_hist().to_numpy()[0]
+          s2 = s0.to_hist().to_numpy()[0]
           points = np.nan_to_num(s1/s2)
-          popt, pcov = curve_fit(func,s[1][:-1],points,p0=[0.5,500,100,0.5])
+          popt, pcov = curve_fit(func,s.to_hist().to_numpy()[1][:-1],points,p0=[0.5,500,100,0.5])
           hx = hist.plotratio(
-              out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+              s,s0,
+              #out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
               ax=ax,
               clear=False,
               error_opts={'color': sigcolors[sample], 'marker': '.'},
@@ -473,7 +527,7 @@ def make_trigs(samples,var="ht"):
           #ax.axvline(x=p98bkg,color="red",ls="--")
           #ax.axvline(x=p90bkg,color="red",ls=":")
 
-          hxrat = ax1.scatter(b[1][:-1],(b1/b2)/(s1/s2),marker=".",color=sigcolors[sample])
+          hxrat = ax1.scatter(b.to_hist().to_numpy()[1][:-1],(b1/b2)/(s1/s2),marker=".",color=sigcolors[sample])
 
     ax1.axhline(y=1,color="grey",ls="--")
     ax.set_ylim(0,1.1)
@@ -569,6 +623,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
       stack=False,
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
+  large_max = False 
   for sample in samples:
     with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
@@ -601,6 +656,8 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
               maxpoints["sig_%s"%sample].append(np.nanmax(signifline))
               maxpoints["evt_%s"%sample].append(sum(s[0][np.nanargmax(signifline):]))
               maxpoints["err_%s"%sample].append(err[np.nanargmax(signifline)])
+            if(np.nanmax(signifline) > 1):
+              large_max = True
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.set_xlabel("")
@@ -611,9 +668,12 @@ def make_n1(samples,var,cut,maxpoints,xlab=None):
   leg = [l.replace("None","QCD") for l in leg]
   ax.legend(leg)
   #ax1.legend()
-  ax1.set_ylim([0,30])
+  if large_max:
+    ax1.set_ylim([0,35])
+  else:
+    ax1.set_ylim([0,1])
   ax.autoscale(axis='y', tight=True)
-  fig.savefig("Plots/signif_%s"%(var))
+  fig.savefig("Plots/signif_%s_%s"%(var,cut))
   plt.close()
 
   return maxpoints
@@ -784,7 +844,11 @@ def makeSR(sample,var,cut):
 
 def make_cutflow(samples,var):
   name1 = "dist_%s"%var
+  final_cut = 35 # 50 bins -> 35= 0.7 cut
+  #cutflow = {"QCD":[],"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[],"sig200_signif":[],"sig300_signif":[],"sig400_signif":[],"sig750_signif":[],"sig1000_signif":[]}
   cutflow = {"QCD":[],"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[]}
+  cutflow_sig = {"sig200_signif":[],"sig300_signif":[],"sig400_signif":[],"sig750_signif":[],"sig1000_signif":[]}
+  #cutflow = {"QCD":[],"sig200":[],"sig200_yield":[],"sig300":[],"sig300_yield":[],"sig400":[],"sig400_yield":[],"sig750":[],"sig750_yield":[],"sig1000":[],"sig1000_yield":[]}
   for cut in [0,1,2,3,4]: 
     b1 = qcdscaled[name1].integrate("cut",slice(cut,cut+1)).values()
     for (k,b) in b1.items():
@@ -792,8 +856,8 @@ def make_cutflow(samples,var):
       cutflow["QCD"].append(b.sum())
   b1 = qcdscaled[name1].integrate("cut",slice(4,5)).values()
   for (k,b) in b1.items():
-    print("QCD %d %s %.2f"%(cut,name1,b[30:].sum()))
-    cutflow["QCD"].append(b[30:].sum())
+    print("QCD %d %s %.2f"%(cut,name1,b[final_cut:].sum()))
+    cutflow["QCD"].append(b[final_cut:].sum())
   for sample in samples:
     with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
         out = pickle.load(pkl_file)
@@ -812,13 +876,17 @@ def make_cutflow(samples,var):
               for (k,s) in s1.items():
                 print("%s %d %s %.2f"%(sample,cut,name,s.sum()))
                 cutflow[sample].append(s.sum())
+                cutflow_sig[sample+"_signif"].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][cut]))
             s1 = scaled[name].integrate("cut",slice(4,5)).values()
             #print(s1)
             for (k,s) in s1.items():
-              print("%s %d %s %.2f"%(sample,cut,name,s[30:].sum()))
-              cutflow[sample].append(s[30:].sum())
+              sval = s[final_cut:].sum()
+              print("%s %d %s %.2f"%(sample,cut,name,sval))
+              cutflow[sample].append(sval)
+              cutflow_sig[sample+"_signif"].append(sval/np.sqrt(sval+cutflow["QCD"][5]))
             
   print(pd.DataFrame(cutflow))
+  print(pd.DataFrame(cutflow_sig))
 
 
 def make_correlation(SR,cut):
@@ -1227,25 +1295,24 @@ def make_datacompare(var,cut):
   plt.close()
 
 
-########################ORGANIZE BY SECTION #######################################
-##
-##
-################################# HT Trigger
+#########################ORGANIZE BY SECTION #######################################
+###
+###
+################################## HT Trigger
 ######## HT Distributions
-###print("running trigger studies")
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0,"Ht [GeV]")
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",2,"Ht [GeV]")
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0,"Ht [GeV]",make_ratio=False)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]",vline=600)
 ######## Trigger Efficiency
+#print("running trigger studies")
 #make_trigs(["Data"])
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
 #make_trigs(["Data"],"event_sphericity")
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
 #make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
-#make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"])
+#make_multitrigs("sig1000_2",["ht20","ht30","ht40","ht50"])
 #
 #
 ############################## Track Selection
-######### DR distributions
 #print("running track studies")
 ######## TRK Eff and Fakes 
 #make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]") #TODO check why efficiency is so high?
@@ -1275,18 +1342,18 @@ def make_datacompare(var,cut):
 #
 ############################  FatJet Selection
 #
-print("running Jet studies")
+#print("running Jet studies")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
-#make_overlapdists(["sig400"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
-#make_overlapdists(["sig400"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
-#make_overlapdists(["sig400"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
-#make_overlapdists(["sig400"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
-#make_overlapdists(["sig400"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
-
+##make_overlapdists(["sig400"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT")
+##make_overlapdists(["sig400"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass")
+##make_overlapdists(["sig400"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+##make_overlapdists(["sig400"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+##make_overlapdists(["sig400"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+#
 #maxpointsfj = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount50",4,maxpointsfj)
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount100",4,maxpointsfj)
@@ -1296,16 +1363,20 @@ print("running Jet studies")
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"fjn1_FatJet_ncount300",4,maxpointsfj) 
 #make_threshold(["sig1000","sig750","sig400","sig300","sig200"],maxpointsfj,[50,100,150,200,250,300],"fatjet_pt_cut")
 #
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_pt",3,"FatJet pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_eta",3,"FatJet Eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"reFatJet_phi",3,"FatJet Phi")
-#make_overlapdists(["QCD","sig1000","sig400","sig200"],"FatJet_ncount50",3,"FatJet(50) Multiplicity",make_ratio=False)
-############################ BOOSTING and sphericity
-#### TODO ISR removal methods
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_pt",3,"FatJet pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_eta",3,"FatJet Eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_phi",3,"FatJet Phi")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200"],"FatJet_ncount50",3,"FatJet(50) Multiplicity")
+########################### BOOSTING and sphericity
+### TODO ISR removal methods
 #print("running sphericity studies")
 #empty = {"err_sig1000":[],"err_sig750":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"sig_sig1000":[],"sig_sig750":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"evt_sig1000":[],"evt_sig750":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[]}
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",3,empty) 
 #make_n1(["sig1000","sig750","sig400","sig300","sig200"],"FatJet_nconst",4,empty) 
-#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity",4,empty)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",3,empty)
+#make_n1(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",4,empty)
+#### TODO cutflow table and significance by cut
+#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
 
 
 ############################# ABCD
@@ -1320,11 +1391,11 @@ print("running Jet studies")
 ##    makeSR(sig,"SR1_10",i)
 ##    makeSR(sig,"SR1_8",i)
 ##    makeSR(sig,"SR1_4",i)
-makeSR("sig200","SR1_suep",3)
-makeSR("sig300","SR1_suep",3)
-makeSR("sig400","SR1_suep",3)
-makeSR("sig750","SR1_suep",3)
-makeSR("sig1000","SR1_suep",3)
+#makeSR("sig200","SR1_suep",3)
+#makeSR("sig300","SR1_suep",3)
+#makeSR("sig400","SR1_suep",3)
+#makeSR("sig750","SR1_suep",3)
+#makeSR("sig1000","SR1_suep",3)
 #make_closure("qcd","SR1_suep",1)
 #make_closure_correction9("qcd","SR1_suep",1)
 #make_closure_correction6("qcd","SR1_suep",1)
@@ -1338,8 +1409,6 @@ makeSR("sig1000","SR1_suep",3)
 #make_closure_correction9("qcd","SR1_16",3)
 #make_closure_correction6("qcd","SR1_16",3)
 
-### TODO cutflow table and significance by cut
-#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"eventBoosted_sphericity")
 #
 #
 ############### EXTRA
