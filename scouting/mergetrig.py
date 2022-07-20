@@ -13,7 +13,7 @@ scaled = {}
 with open("outhists/myhistos_Trigger_0.p", "rb") as pkl_file:
     out = pickle.load(pkl_file)
     for name, h in out.items():
-      if "PFcand_dR" in name or "res" in name or "gen" in name:
+      if "PFcand_dR" in name or "res" in name or "gen" in name or "alldR" in name:
         continue
       if isinstance(h, hist.Hist):
         scaled[name] = h.copy()
@@ -67,7 +67,7 @@ for ohist in outhists:
       print(ohist)
       out = pickle.load(pkl_file)
       for name, h in out.items():
-        if "PFcand_dR" in name or "res" in name or "gen" in name:
+        if "PFcand_dR" in name or "res" in name or "gen" in name or "alldR" in name:
           continue
         if isinstance(h, hist.Hist):
           temphist = h.copy()
