@@ -147,7 +147,7 @@ outhists = [
 ,"HT200_14"
 ,"HT200_15"
 ,"HT200_16"
-,"HT200_17"
+#,"HT200_17"
 ,"HT200_18"
 ,"HT200_19"
 ,"HT200_20"
@@ -188,7 +188,7 @@ with open("outhists/myhistos_HT2000_0.p", "rb") as pkl_file:
     print("nevents ",nevents)
     #fout = uproot.recreate("output.root")
     for name, h in out.items():
-      if "PFcand_dR" in name or "res" in name or "gen" in name:
+      if "PFcand_dR" in name or "res" in name or "gen" in name or "alldR" in name:
         continue
       if isinstance(h, hist.Hist):
         #print(name)
@@ -209,7 +209,7 @@ for ohist in outhists:
       print("nevents ",nevents)
       #fout = uproot.recreate("output.root")
       for name, h in out.items():
-        if "PFcand_dR" in name or "res" in name or "gen" in name:
+        if "PFcand_dR" in name or "res" in name or "gen" in name or "alldR" in name:
           continue
         if isinstance(h, hist.Hist):
           print(name)
