@@ -125,17 +125,17 @@ def packtrig(output,vals,var):
 def packsingledist(output,vals,var):
         output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
         return output
-def packdist(output,vals,var):
-        output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[0][var])
-        output["dist_%s"%(var)].fill(cut="cut 1:HT Trig", v1=vals[1][var]) 
-        output["dist_%s"%(var)].fill(cut="cut 2:Ht>=600", v1=vals[2][var])
-        output["dist_%s"%(var)].fill(cut="cut 3:fj>=2", v1=vals[3][var])
+def packdist(output,vals,var,prefix=""):
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig", v1=vals[1][var]) 
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=600", v1=vals[2][var])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2", v1=vals[3][var])
         if("PFcand_n" in var):
-          output["dist_%s"%(var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var])
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var])
         else:
-          output["dist_%s"%(var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var]) 
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var]) 
         if(len(vals)>=6):
-          output["dist_%s"%(var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var]) 
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var]) 
           #output["dist_%s"%(var)].fill(cut="cut 3:Pre + nPVs < 30", v1=vals[5][var]) 
           #output["dist_%s"%(var)].fill(cut="cut 4:Pre + nPVs >=30", v1=vals[6][var]) 
       
@@ -797,20 +797,80 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","PFcand_alldR",50,0,0.3)
             ),
+            "dist_SUEP_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","SUEP_pt",50,0,500)
+            ),
+            "dist_SUEP_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","SUEP_eta",eta_bins)
+            ),
+            "dist_SUEP_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","SUEP_phi",phi_bins)
+            ),
+            "dist_SUEP_mass": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","SUEP_mass",100,0,1000)
+            ),
+            "dist_ISR_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ISR_pt",50,0,500)
+            ),
+            "dist_ISR_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ISR_eta",eta_bins)
+            ),
+            "dist_ISR_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ISR_phi",phi_bins)
+            ),
+            "dist_ISR_mass": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ISR_mass",100,0,1000)
+            ),
+            "dist_scalar_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","scalar_pt",100,0,500)
+            ),
+            "dist_scalar_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","scalar_eta",eta_bins)
+            ),
+            "dist_scalar_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","scalar_phi",phi_bins)
+            ),
+            "dist_scalar_mass": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","scalar_mass",100,0,1000)
+            ),
             "dist_res_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_pt",100,-1000,300)
+                      hist.Bin("v1","res_pt",50,-1000,300)
             ),
             "dist_res_mass": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_mass",100,-1000,300)
+                      hist.Bin("v1","res_mass",50,-1000,300)
             ),
             "dist_res_dR": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","res_dR",100,0,6)
+                      hist.Bin("v1","res_dR",50,0,6)
             ),
             "dist_res_dEta": hist.Hist(
                       "Events",
@@ -1027,8 +1087,9 @@ class MyProcessor(processor.ProcessorABC):
 
         track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
         tracks_cut0 = vals_tracks0[track_cuts]
-        tracks_cuts1 = ((tracks_cut0.x !=0)&(tracks_cut0.y !=0 )&(tracks_cut0.z !=0) &(tracks_cut0.p !=0))
-        tracks_cut0 = tracks_cut0[tracks_cuts1]
+	#did I need these lines? commenting out for now
+        #tracks_cuts1 = ((tracks_cut0.x !=0)&(tracks_cut0.y !=0 )&(tracks_cut0.z !=0) &(tracks_cut0.p !=0))
+        #tracks_cut0 = tracks_cut0[tracks_cuts1]
 
         minPt = 30
         jetdef = fastjet.JetDefinition(fastjet.antikt_algorithm,1.5)
@@ -1039,16 +1100,15 @@ class MyProcessor(processor.ProcessorABC):
         ak_inclusive_jets = ak_inclusive_jets[minPtCut]
         ak_inclusive_cluster = ak_inclusive_cluster[minPtCut]
         highpt_jet = ak.argsort(ak_inclusive_jets.pt, axis=1, ascending=False, stable=True)
-        ak_inclusive_jets = ak_inclusive_jets[highpt_jet]
-        ak_inclusive_cluster = ak_inclusive_cluster[highpt_jet]
+        jets_sorted = ak_inclusive_jets[highpt_jet]
+        cluster_sorted = ak_inclusive_cluster[highpt_jet]
         
-        ak_pt = ak_inclusive_jets.pt
         vals_fatjet0 =ak.zip({
-            "pt": ak_inclusive_jets.pt,
-            "eta": ak_inclusive_jets.eta,
-            "phi": ak_inclusive_jets.phi,
-            "mass": ak_inclusive_jets.m,
-            "FatJet_nconst": ak.num(ak_inclusive_cluster,axis=-1),
+            "pt": jets_sorted.pt,
+            "eta": jets_sorted.eta,
+            "phi": jets_sorted.phi,
+            "mass": jets_sorted.m,
+            "FatJet_nconst": ak.num(cluster_sorted,axis=-1),
         }, with_name="Momentum4D")
         vals0["FatJet_ncount30"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>30],axis=-1)
         vals0["FatJet_ncount50"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>50],axis=-1)
@@ -1059,16 +1119,30 @@ class MyProcessor(processor.ProcessorABC):
         vals0["FatJet_ncount300"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>300],axis=-1)
 
 
-        #rerecluster_fatjet1  = vals_refatjet0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
-        rerecluster_fatjet1  = vals_fatjet0[ vals0["FatJet_ncount30"] >=2]
-        #scalar1  = scalar0[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
-        rerecluster_fatjet1x  = ak_inclusive_cluster[ vals0["FatJet_ncount30"] >= 2] 
-        #rerecluster_fatjet1x  = ak_inclusive_cluster[ ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] 
-        print(len(rerecluster_fatjet1))
-        reSUEP_cand = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]<=rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1x[:,0],rerecluster_fatjet1x[:,1])
-        reISR_cand  = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]> rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1x[:,0],rerecluster_fatjet1x[:,1])
-        SUEP_cand = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]<=rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1[:,0],rerecluster_fatjet1[:,1])
-        ISR_cand  = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]> rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1[:,0],rerecluster_fatjet1[:,1])
+        jets_pTsorted  = vals_fatjet0[ vals0["FatJet_ncount30"] >=2]
+        clusters_pTsorted  = cluster_sorted[ vals0["FatJet_ncount30"] >= 2] 
+        #print("jets_sorted: ", jets_pTsorted[0]["pt"])
+        #print("jets_sorted: ", jets_pTsorted[1]["pt"])
+        #print("jets_sorted: ", jets_pTsorted[2]["pt"])
+        #print("jets_sorted: ", jets_pTsorted[3]["pt"])
+        #print("jets_sorted: ", jets_pTsorted[4]["pt"])
+        #print("jets_sorted: ", jets_pTsorted[0]["mass"])
+        #print("jets_sorted: ", jets_pTsorted[1]["mass"])
+        #print("jets_sorted: ", jets_pTsorted[2]["mass"])
+        #print("jets_sorted: ", jets_pTsorted[3]["mass"])
+        #print("jets_sorted: ", jets_pTsorted[4]["mass"])
+        #print("jets_sorted: ", jets_pTsorted[0]["FatJet_nconst"])
+        #print("jets_sorted: ", jets_pTsorted[1]["FatJet_nconst"])
+        #print("jets_sorted: ", jets_pTsorted[2]["FatJet_nconst"])
+        #print("jets_sorted: ", jets_pTsorted[3]["FatJet_nconst"])
+        #print("jets_sorted: ", jets_pTsorted[4]["FatJet_nconst"])
+        reSUEP_cand = ak.where(jets_pTsorted.FatJet_nconst[:,1] <=jets_pTsorted.FatJet_nconst[:,0],clusters_pTsorted[:,0],clusters_pTsorted[:,1])
+        reISR_cand  = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],clusters_pTsorted[:,0],clusters_pTsorted[:,1])
+        SUEP_cand   = ak.where(jets_pTsorted.FatJet_nconst[:,1] <=jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
+        ISR_cand    = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
+	#flipping
+        #ISR_cand = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]<=rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1[:,0],rerecluster_fatjet1[:,1])
+        #SUEP_cand  = ak.where(rerecluster_fatjet1.FatJet_nconst[:,1]> rerecluster_fatjet1.FatJet_nconst[:,0],rerecluster_fatjet1[:,0],rerecluster_fatjet1[:,1])
 
         if (redoISRRM):
           print("calc sphericity")
@@ -1088,6 +1162,14 @@ class MyProcessor(processor.ProcessorABC):
           spherex0 = vals0[vals0["FatJet_ncount30"] >= 2]
           #spherex0 = vals0[ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2]
           spherex0["FatJet_nconst"] = SUEP_cand["FatJet_nconst"]
+          spherex0["SUEP_pt"] = SUEP_cand["pt"]
+          spherex0["SUEP_eta"] = SUEP_cand["eta"]
+          spherex0["SUEP_phi"] = SUEP_cand["phi"]
+          spherex0["SUEP_mass"] = SUEP_cand["mass"]
+          spherex0["ISR_pt"]   = ISR_cand["pt"]
+          spherex0["ISR_eta"]  = ISR_cand["eta"]
+          spherex0["ISR_phi"]  = ISR_cand["phi"]
+          spherex0["ISR_mass"] = ISR_cand["mass"]
         
           reSUEP_cand = reSUEP_cand.boost_p4(boost_IRM)
           tracks_cuts2x = (reSUEP_cand.p !=0)
@@ -1115,6 +1197,14 @@ class MyProcessor(processor.ProcessorABC):
           output = packdist(output,sphere1y,"sphere1_suep")
           output = packdist(output,sphere1y,"sphere_suep")
           output = packSR(output,sphere1y,"suep")
+          output = packdist(output,sphere1y,"SUEP_pt")
+          output = packdist(output,sphere1y,"SUEP_eta")
+          output = packdist(output,sphere1y,"SUEP_phi")
+          output = packdist(output,sphere1y,"SUEP_mass")
+          output = packdist(output,sphere1y,"ISR_pt")
+          output = packdist(output,sphere1y,"ISR_eta")
+          output = packdist(output,sphere1y,"ISR_phi")
+          output = packdist(output,sphere1y,"ISR_mass")
           if(eventDisplay_knob):
             for evt in range(20):
             #for evt in range(len(bCands)):
@@ -1196,15 +1286,16 @@ class MyProcessor(processor.ProcessorABC):
        ## resolution studies
         if(signal):
           print("calc res")
-          #scalar = scalar0[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
-          #scalar = scalar1[(vals0.FatJet_ncount50 >=2) & (vals0.triggerHt >=1) & (vals0.ht>=600)]
           scalar1  = scalar0[ vals0["FatJet_ncount30"] >= 2] 
           suepvals = vals0[vals0.FatJet_ncount50 >=2]
           SUEP_cand = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
           scalar = scalar1[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
-          print(len(scalar), len(SUEP_cand))
+          #print(len(scalar), len(SUEP_cand))
           res_pt = SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy()#/scalar["pt"].to_numpy()
           res_mass = SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
+          #print( SUEP_cand.mass)
+          #print( scalar["mass"].to_numpy())
+          #print(res_mass)
           #res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
 	  ##if (res_dPhi > np.pi):
           #res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0
@@ -1213,17 +1304,19 @@ class MyProcessor(processor.ProcessorABC):
           phi1 = SUEP_cand.phi.to_numpy()
           phi2 = scalar["phi"].to_numpy()
           #phi2 = np.array([x+2*np.pi if x < 0 else x for x in scalar["phi"].to_numpy()])
-          print(phi1)
-          print(phi2)
+          #print(phi1)
+          #print(phi2)
           res_dPhi0 = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           #res_dPhi = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
-          res_dPhi00 = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0])
-          res_dPhi = np.array([x+2*np.pi if x < -np.pi else x for x in res_dPhi00])
+          res_dPhi00 = np.array([2*np.pi-x if x > np.pi else x for x in res_dPhi0])
+          res_dPhi = np.array([2*np.pi+x if x < -np.pi else x for x in res_dPhi00])
           #res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
           #print(SUEP_cand.phi.to_numpy())
           #print(scalar["phi"].to_numpy())
           res_dR = np.sqrt(np.square(res_dPhi) + np.square(res_dEta))
+          #print(res_dPhi)
+          #print(res_dR)
           resolutions = ak.zip({
             "res_pt" : res_pt,
             "res_mass" : res_mass,
@@ -1255,6 +1348,11 @@ class MyProcessor(processor.ProcessorABC):
         vals_fatjet3 = vals_fatjet2[vals2.FatJet_ncount50 >= 2]
         vals_fatjet4 = vals_fatjet3[vals3.FatJet_nconst >= 70]
         #vals_fatjet4 = vals_fatjet3[vals3.PFcand_ncount75 >= 140]
+        print("filling ") 
+        vals_ = vals_fatjet0[vals0.triggerHt >= 1]
+        vals_ = vals_fatjet1[vals1.ht >= 600]
+        vals_ = vals_fatjet2[vals2.FatJet_ncount50 >= 2]
+        vals_ = vals_fatjet3[vals3.FatJet_nconst >= 70]
         
         #vals_refatjet1 = vals_refatjet0[vals0.triggerHt >=1]
         #vals_refatjet2 = vals_refatjet1[vals1.ht >= 600]
@@ -1323,6 +1421,12 @@ class MyProcessor(processor.ProcessorABC):
           vals_gen4 = vals_gen3[vals3.FatJet_nconst >= 70]
           #vals_gen4 = vals_gen3[vals3.n_pfcand >= 140]
           vals_gen = [vals_gen0,vals_gen1,vals_gen2,vals_gen3,vals_gen4]
+          vals_scalar1 = scalar0[vals0.triggerHt >= 1]
+          vals_scalar2 = vals_scalar1[vals1.ht >= 600]
+          vals_scalar3 = vals_scalar2[vals2.FatJet_ncount50 >= 2]
+          vals_scalar4 = vals_scalar3[vals3.FatJet_nconst >= 70]
+          #valsscalarn4 = valsscalarn3[vals3.n_pfcand >= 140]
+          vals_scalar = [scalar0,vals_scalar1,vals_scalar2,vals_scalar3,vals_scalar4]
 
           trkID5x = vals_gen3[vals_gen3.pt > 0.5]
           trkID6x = trkID5x[trkID5x.pt > 0.6]
@@ -1336,6 +1440,10 @@ class MyProcessor(processor.ProcessorABC):
           output = packtrkID(output,trkIDx,"pt" ,"gen_dR","gen_")
           output = packtrkID(output,trkIDx,"eta","gen_dR","gen_")
           output = packtrkID(output,trkIDx,"phi","gen_dR","gen_")
+          output = packdist(output,vals_scalar,"pt","scalar_")
+          output = packdist(output,vals_scalar,"eta","scalar_")
+          output = packdist(output,vals_scalar,"phi","scalar_")
+          output = packdist(output,vals_scalar,"mass","scalar_")
           output = packdistflat(output,vals_tracks,"PFcand_dR")
           output = packdistflat(output,vals_gen,"pt","gen_")
           output = packdistflat(output,vals_gen,"gen_dR")
