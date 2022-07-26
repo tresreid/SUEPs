@@ -1333,36 +1333,33 @@ class MyProcessor(processor.ProcessorABC):
         if(signal):
           print("calc res")
           scalar1  = scalar0[ vals0["FatJet_ncount30"] >= 2] 
-          suepvals = vals0[vals0.FatJet_ncount50 >=2]
-          SUEP_cand = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
-          scalar = scalar1[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
-          #print(len(scalar), len(SUEP_cand))
-          res_pt = SUEP_cand.pt.to_numpy()-scalar["pt"].to_numpy()#/scalar["pt"].to_numpy()
-          res_mass = SUEP_cand.mass.to_numpy()-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
-          #print( SUEP_cand.mass)
-          #print( scalar["mass"].to_numpy())
-          #print(res_mass)
-          #res_dPhi0 = abs(SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy())
-	  ##if (res_dPhi > np.pi):
-          #res_dPhi = np.array([x-2*np.pi if x > np.pi else x for x in res_dPhi0
-          #phi3 = np.array([x+np.pi for x in SUEP_cand.phi.to_numpy()])
-          #phi1 = np.array([x-2*np.pi if x > np.pi else x for x in phi3])
-          phi1 = SUEP_cand.phi.to_numpy()
+          suepvals = vals0[vals0.FatJet_ncount30 >=2]
+          suepvalsx = suepvals[suepvals.triggerHt >=1]
+          #suepvalsxx = suepvalsx[suepvals.triggerHt >=1]
+          #SUEP_candq = SUEP_cand[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
+          #SUEP_candqqq = SUEP_cand # FJ > 2 cut is already applied from the suep array
+          #SUEP_candqq = SUEP_candqqq[suepvals.triggerHt >=1] # FJ > 2 cut is already applied from the suep array
+          #SUEP_candq = SUEP_candqq[suepvalsx.ht>=600] # FJ > 2 cut is already applied from the suep array
+          scalar2 = scalar1[suepvals.triggerHt >=1] # FJ > 2 cut is already applied from the suep array
+          scalar = scalar2[suepvalsx.ht>=600] # FJ > 2 cut is already applied from the suep array
+          #scalar = scalar1[(suepvals.triggerHt >=1) & (suepvals.ht>=600)] # FJ > 2 cut is already applied from the suep array
+          #print(len(scalar), len(SUEP_candq),len(SUEP_candqq),len(SUEP_candqqq))
+          #res_pt = SUEP_candq.pt.to_numpy()#-scalar["pt"].to_numpy()#/scalar["pt"].to_numpy()
+          #res_pt = SUEP_candqq.mass.to_numpy()#-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
+          #res_dR = SUEP_candqqq.mass.to_numpy()#-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
+          #res_mass = SUEP_candq.mass.to_numpy()#-scalar["mass"].to_numpy()#/scalar["mass"].to_numpy()
+          res_pt = spherey2["SUEP_pt"]-scalar["pt"].to_numpy()
+          res_mass = spherey2["SUEP_mass"]-scalar["mass"].to_numpy()
+          print("res mass: ",len(res_mass))
+          phi1 = spherey2["SUEP_phi"].to_numpy()
           phi2 = scalar["phi"].to_numpy()
-          #phi2 = np.array([x+2*np.pi if x < 0 else x for x in scalar["phi"].to_numpy()])
-          #print(phi1)
-          #print(phi2)
           res_dPhi0 = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           #res_dPhi = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
           res_dPhi00 = np.array([2*np.pi-x if x > np.pi else x for x in res_dPhi0])
           res_dPhi = np.array([2*np.pi+x if x < -np.pi else x for x in res_dPhi00])
           #res_dPhi = SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
-          res_dEta = SUEP_cand.eta.to_numpy()-scalar["eta"].to_numpy()
-          #print(SUEP_cand.phi.to_numpy())
-          #print(scalar["phi"].to_numpy())
+          res_dEta = spherey2["SUEP_eta"].to_numpy()-scalar["eta"].to_numpy()
           res_dR = np.sqrt(np.square(res_dPhi) + np.square(res_dEta))
-          #print(res_dPhi)
-          #print(res_dR)
           resolutions = ak.zip({
             "res_pt" : res_pt,
             "res_mass" : res_mass,
@@ -1376,6 +1373,7 @@ class MyProcessor(processor.ProcessorABC):
         vals1 = vals0[vals0.triggerHt >= 1]
         vals2 = vals1[vals1.ht >= 600]
         vals3 = spherey3 #vals2[vals2.FatJet_ncount50 >= 2]
+        print("spherey3",len(vals3))
         #vals4 = vals3[vals3.PFcand_ncount75 >= 140]
         vals4 = vals3[vals3.FatJet_nconst >= 70]
         vals5 = vals4[vals4.sphere1_suep >= 0.7]
