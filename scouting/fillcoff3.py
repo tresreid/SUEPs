@@ -446,6 +446,16 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","Sphere1_suep",50,0,1)
             ),
+            "dist_sphere_isrsuep": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere_isr",50,0,1)
+            ),
+            "dist_sphere1_isrsuep": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","Sphere1_isr",50,0,1)
+            ),
             "dist_sphere_isr": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -1166,12 +1176,11 @@ class MyProcessor(processor.ProcessorABC):
           ISR_cand_b = ISR_cand.boost_p4(boost_IRM) # boosted ISR jet
 
           recotracks_IRM = tracks_cut0[vals0["FatJet_ncount30"] >= 2] # tracks
-          #recotracks_IRM = tracks_cut0[ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2] # tracks
           tracks_IRM = recotracks_IRM.boost_p4(boost_IRM) # boosted tracks
           tracks_cuts1x = (tracks_IRM.p !=0)
           tracks_IRM = tracks_IRM[tracks_cuts1x]
+
           spherex0 = vals0[vals0["FatJet_ncount30"] >= 2]
-          #spherex0 = vals0[ak.count(vals_refatjet0["pt"][vals_refatjet0["pt"]>30],axis=-1) >= 2]
           spherex0["FatJet_nconst"] = SUEP_cand["FatJet_nconst"]
           spherex0["SUEP_pt"] = SUEP_cand["pt"]
           spherex0["SUEP_eta"] = SUEP_cand["eta"]
@@ -1201,10 +1210,8 @@ class MyProcessor(processor.ProcessorABC):
           spherey2 = spherey1[spherey1.ht >= 600]
           spherey3 = spherey2[spherey2.FatJet_ncount50 >= 2]
           spherey4 = spherey3[spherey3.FatJet_nconst >= 70]
-          #spherey4 = spherey3[spherey3.PFcand_ncount75 >= 140]
-          #spherey5 = spherey2[spherey2.n_pvs < 30]
-          #spherey6 = spherey2[spherey2.n_pvs <= 30]
           sphere1y = [spherey0,spherey1,spherey2,spherey3,spherey4]#,spherey5,spherey6]
+
           output = packdist(output,sphere1y,"sphere1_suep")
           output = packdist(output,sphere1y,"sphere_suep")
           output = packSR(output,sphere1y,"suep")
@@ -1216,17 +1223,49 @@ class MyProcessor(processor.ProcessorABC):
           output = packdist(output,sphere1y,"ISR_eta")
           output = packdist(output,sphere1y,"ISR_phi")
           output = packdist(output,sphere1y,"ISR_mass")
+          #################################ISR################################
+          boost_IRMxx = ak.zip({
+              "px": ISR_cand.px*-1,
+              "py": ISR_cand.py*-1,
+              "pz": ISR_cand.pz*-1,
+              "mass": ISR_cand.mass
+          }, with_name="Momentum4D")
+          #ISR_cand_bxx = ISR_cand.boost_p4(boost_IRMxx) # boosted ISR jet
+
+          recotracks_IRMxx = tracks_cut0[vals0["FatJet_ncount30"] >= 2] # tracks
+          tracks_IRMxx = recotracks_IRMxx.boost_p4(boost_IRMxx) # boosted tracks
+          tracks_cuts1xxx = (tracks_IRMxx.p !=0)
+          tracks_IRMxx = tracks_IRMxx[tracks_cuts1xxx]
+
+          reISR_cand = reISR_cand.boost_p4(boost_IRMxx)
+          tracks_cuts2xxx = (reISR_cand.p !=0)
+          reISR_cand = reISR_cand[tracks_cuts2xxx]
+          reonetrackcutxx = (ak.num(reISR_cand) >=2) 
+          reISR_cand = reISR_cand[reonetrackcutxx]
+          spherey0xx = spherex0[reonetrackcutxx]
+          if(len(reSUEP_cand)!=0):
+            reeigs2xx = sphericity(self,reISR_cand,2.0) # normal sphericity
+            reeigs1xx = sphericity(self,reISR_cand,1.0) # sphere 1
+            spherey0xx["sphere1_isrsuep"] = 1.5 * (reeigs1xx[:,1]+reeigs1xx[:,0])
+            spherey0xx["sphere_isrsuep"] = 1.5 * (reeigs2xx[:,1]+reeigs2xx[:,0])
+          else:
+            spherey0xx["sphere1_isrsuep"] = -1 
+            spherey0xx["sphere_isrsuep"] = -1
+          
+          spherey1xx = spherey0xx[spherey0xx.triggerHt >= 1]
+          spherey2xx = spherey1xx[spherey1xx.ht >= 600]
+          spherey3xx = spherey2xx[spherey2xx.FatJet_ncount50 >= 2]
+          spherey4xx = spherey3xx[spherey3xx.FatJet_nconst >= 70]
+          sphere1yxx = [spherey0xx,spherey1xx,spherey2xx,spherey3xx,spherey4xx]#,spherey5,spherey6]
+          output = packdist(output,sphere1yxx,"sphere1_isrsuep")
+          output = packdist(output,sphere1yxx,"sphere_isrsuep")
+          #################################ISR################################
           if(eventDisplay_knob):
             for evt in range(20):
-            #for evt in range(len(bCands)):
               print(evt)
               plot_display(evt,recotracks_IRM[evt],tracks_IRM[evt],SUEP_cand[evt],ISR_cand[evt],ISR_cand_b[evt],spherey0["sphere1_suep"][evt],reSUEP_cand[evt])
-              #plot_display(evt,recotracks_IRM[evt],tracks_IRM[evt],SUEP_cand[evt],ISR_cand[evt],ISR_cand_b[evt],spherey0["sphere1_suep"][evt],len(IRM_cands[evt]))
           IRM_candsvx2 = tracks_IRM[abs(recotracks_IRM[tracks_cuts1x].deltaR(ISR_cand)) >= 1.5] # remove all tracks that would be in the ISR jet unboosted
-          #IRM_candsvx2 = recotracks_IRM[abs(recotracks_IRM.deltaR(ISR_cand)) >= 1.5] # remove all tracks that would be in the ISR jet unboosted
-          #IRM_candvx2 = IRM_candsvx2.boost_p4(boost_IRM)
           reonetrackcutx = (ak.num(IRM_candsvx2) >=2)
-          #IRM_candvx2 = ak.mask(IRM_candvx2,reonetrackcutx)
           IRM_candsvx2 = IRM_candsvx2[reonetrackcutx]
           spherez0 = spherex0[reonetrackcutx]
           if(len(IRM_candsvx2)!=0):
@@ -1241,10 +1280,6 @@ class MyProcessor(processor.ProcessorABC):
           spherez2 = spherez1[spherez1.ht >= 600]
           spherez3 = spherez2[spherez2.FatJet_ncount50 >= 2]
           spherez4 = spherez3[spherez3.FatJet_nconst >= 70]
-          #spherez4 = spherez3[spherez3.PFcand_ncount75 >= 140]
-          #spherez5 = spherez2[spherez2.n_pvs < 30]
-          #spherez6 = spherez2[spherez2.n_pvs <= 30]
-          
           sphere1z = [spherez0,spherez1,spherez2,spherez3,spherez4]#,spherez5,spherez6]
           output = packdist(output,sphere1z,"sphere1_isr")
           output = packdist(output,sphere1z,"sphere_isr")
