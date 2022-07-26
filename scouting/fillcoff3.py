@@ -351,6 +351,11 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Bin("nPFCand","nPFCand",300,0,300),
                       hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
             ),
+            "trigdist_FatJet_nconst": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","SUEP Jet multiplicity",100,0,300)
+            ),
             "trigdist_event_sphericity": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -515,6 +520,12 @@ class MyProcessor(processor.ProcessorABC):
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nPVs",40,0,40)
+            ),
+            "trig2d_ht_FatJet_nconst" : hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","ht",150,0,1500),
+                      hist.Bin("v2","Suep jet Track Multiplicity",50,0,300)
             ),
             "trig2d_ht_event_sphericity" : hist.Hist(
                       "Events",
@@ -1466,7 +1477,9 @@ class MyProcessor(processor.ProcessorABC):
      
         output = packtrig(output,trigs,"n_pfMu")
         output = packtrig(output,trigs,"event_sphericity")
+        output = packtrig(output,trigs,"FatJet_nconst")
         output = packtrig2D(output,trigs,"ht","event_sphericity")
+        output = packtrig2D(output,trigs,"ht","FatJet_nconst")
         #fill hists
         print("filling hists") 
         output = packdist(output,vals,"ht")
