@@ -57,7 +57,7 @@ def plot_display(ievt,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbt
     plt.legend(title='Event (after selection): %d'%(ievt))
     hep.cms.label('',data=False,lumi=59.69,year=2018,loc=2)
 
-    fig.savefig("Displays/nonboosted_%s"%ievt)
+    fig.savefig("Displays/nonboosted_%s.pdf"%ievt)
     plt.close()
 
 
@@ -90,7 +90,7 @@ def plot_display(ievt,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbt
     plt.legend(title='Event: %d\n boosted Sphericity: %.2f'%(ievt,sphericity))
     hep.cms.label('',data=False,lumi=59.69,year=2018,loc=2)
 
-    fig.savefig("Displays/boosted_%s"%ievt)
+    fig.savefig("Displays/boosted_%s.pdf"%ievt)
     plt.close()
     
 
@@ -207,6 +207,30 @@ class MyProcessor(processor.ProcessorABC):
     def __init__(self):
         self._accumulator = processor.dict_accumulator({
             "sumw": processor.defaultdict_accumulator(float),
+            "SR1_isrsuep_0" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isrsuep_1" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isrsuep_2" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
+            "SR1_isrsuep_3" : hist.Hist(
+                      "Events",
+                      hist.Cat("axis","Axis"),
+                      hist.Bin("nPFCand","nPFCand",300,0,300),
+                      hist.Bin("eventBoostedSphericity","eventBoostedSphericity",100,0,1)
+            ),
             "SR1_isr_0" : hist.Hist(
                       "Events",
                       hist.Cat("axis","Axis"),
@@ -1259,6 +1283,7 @@ class MyProcessor(processor.ProcessorABC):
           sphere1yxx = [spherey0xx,spherey1xx,spherey2xx,spherey3xx,spherey4xx]#,spherey5,spherey6]
           output = packdist(output,sphere1yxx,"sphere1_isrsuep")
           output = packdist(output,sphere1yxx,"sphere_isrsuep")
+          output = packSR(output,sphere1yxx,"isrsuep")
           #################################ISR################################
           if(eventDisplay_knob):
             for evt in range(20):

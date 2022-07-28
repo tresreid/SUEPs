@@ -19,13 +19,12 @@ with open("outhists/myhistos_RunA_0.p", "rb") as pkl_file:
         #print(name)
         scaled[name] = h.copy()
 outhists = ["RunA_%s"%x for x in range(1,6)]
-outhists = outhists + ["RunA_%s"%x for x in range(7,15)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(7,23)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(25,27)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(28,54)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(55,57)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(59,62)]
-#outhists = outhists+ ["RunA_%s"%x for x in range(63,69)]
+outhists = outhists + ["RunA_%s"%x for x in range(7,20)]
+outhists = outhists+ ["RunA_%s"%x for x in range(21,22)]
+outhists = outhists+ ["RunA_%s"%x for x in range(24,47)]
+outhists = outhists+ ["RunA_%s"%x for x in range(48,49)]
+outhists = outhists+ ["RunA_%s"%x for x in range(50,90)]
+outhists = outhists+ ["RunA_%s"%x for x in range(91,99)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(70,82)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(84,97)]
 #outhists = outhists+ ["RunA_%s"%x for x in range(98,99)]
@@ -41,5 +40,5 @@ for ohist in outhists:
         if isinstance(h, hist.Hist):
           temphist = h.copy()
           scaled[name] = scaled[name]+temphist
-with open("outhists/myhistos_RunA.p", "wb") as pkl_file:
+with open("outhists/myhistos_Data.p", "wb") as pkl_file:
         pickle.dump(scaled, pkl_file)

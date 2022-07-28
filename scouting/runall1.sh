@@ -18,21 +18,21 @@
 #python fillcoff3.py HT200 0
 #python fillcoff3.py HT200 1
 #python fillcoff3.py HT200 2
-#
-python fillcoff3.py HT2000 0
+
+#python fillcoff3.py HT2000 0
 python fillcoff3.py HT2000 1
 python fillcoff3.py HT2000 2
 
-python fillcoff3.py HT1500 0
-python fillcoff3.py HT1500 1
+#python fillcoff3.py HT1500 0
+#python fillcoff3.py HT1500 1
 python fillcoff3.py HT1500 2
 python fillcoff3.py HT1500 3
 python fillcoff3.py HT1500 4
 python fillcoff3.py HT1500 5
 python fillcoff3.py HT1500 6
 
-python fillcoff3.py HT1000 0
-python fillcoff3.py HT1000 1
+#python fillcoff3.py HT1000 0
+#python fillcoff3.py HT1000 1
 python fillcoff3.py HT1000 2
 python fillcoff3.py HT1000 3
 python fillcoff3.py HT1000 4
@@ -41,9 +41,9 @@ python fillcoff3.py HT1000 6
 python fillcoff3.py HT1000 7
 python fillcoff3.py HT1000 8
 
-python fillcoff3.py HT700 0
-python fillcoff3.py HT700 1
-python fillcoff3.py HT700 2
+#python fillcoff3.py HT700 0
+#python fillcoff3.py HT700 1
+#python fillcoff3.py HT700 2
 python fillcoff3.py HT700 3
 python fillcoff3.py HT700 4
 python fillcoff3.py HT700 5
@@ -69,16 +69,16 @@ python fillcoff3.py HT700 24
 python fillcoff3.py HT700 25
 python fillcoff3.py HT700 26
 
-python fillcoff3.py HT500 0
-python fillcoff3.py HT500 1
-python fillcoff3.py HT500 2
-python fillcoff3.py HT500 3
-python fillcoff3.py HT500 4
-python fillcoff3.py HT500 5
-python fillcoff3.py HT500 6
-python fillcoff3.py HT500 7
-python fillcoff3.py HT500 8
-python fillcoff3.py HT500 9
+#python fillcoff3.py HT500 0
+#python fillcoff3.py HT500 1
+#python fillcoff3.py HT500 2
+#python fillcoff3.py HT500 3
+#python fillcoff3.py HT500 4
+#python fillcoff3.py HT500 5
+#python fillcoff3.py HT500 6
+#python fillcoff3.py HT500 7
+#python fillcoff3.py HT500 8
+#python fillcoff3.py HT500 9
 #python fillcoff3.py HT500 10
 #python fillcoff3.py HT500 11
 #python fillcoff3.py HT500 12
