@@ -8,9 +8,8 @@ do
   echo $d
   python3 $dir/../make_html_listing.py $d
 done
-#outdir=/publicweb/m/mreid/SUEPs/trackStudy_ptErr
-outdir=/publicweb/m/mreid/SUEPs/fulltest3
-#outdir=/publicweb/m/mreid/SUEPs/ProductionTestNewV1
+outdir=/publicweb/m/mreid/SUEPs/closurevaltest
+#outdir=/publicweb/m/mreid/SUEPs/suepJet_darkPho
 rm -r $outdir
 mkdir $outdir
 cp -r $dir/* $outdir
