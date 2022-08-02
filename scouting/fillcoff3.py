@@ -154,15 +154,15 @@ def packtrkFKID(output,vals,var,var2,prefix=""):
         output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 9: PFcand_pt > 0.9",      v1=ak.flatten(vals[9][var]), v2=ak.flatten(vals[9][var2]))
         output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 10: PFcand_pt > 1.0",     v1=ak.flatten(vals[10][var]), v2=ak.flatten(vals[10][var2]))
         return output
-def packtrkID(output,vals,var,var2,prefix=""):
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]))
+def packtrkID(output,vals,var,var2,var3,prefix=""):
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]), v3=ak.flatten(vals[0][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]), v3=ak.flatten(vals[1][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]), v3=ak.flatten(vals[2][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]), v3=ak.flatten(vals[3][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]), v3=ak.flatten(vals[4][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]), v3=ak.flatten(vals[5][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]), v3=ak.flatten(vals[6][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]), v3=ak.flatten(vals[7][var3]))
         return output
 def packdistflat(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var]))
@@ -927,23 +927,44 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","res_dPhi",100,-7,7)
             ),
+#            "dist_trkID_genPV_pt": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","gen_pt",pt_bins),
+#                      hist.Bin("v2","gen_dR",100,0,0.3)
+#            ),
+#            "dist_trkID_genPV_eta": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","gen_eta",eta_bins),
+#                      hist.Bin("v2","gen_dR",100,0,0.3)
+#            ),
+#            "dist_trkID_genPV_phi": hist.Hist(
+#                      "Events",
+#                      hist.Cat("cut","Cutflow"),
+#                      hist.Bin("v1","gen_phi",phi_bins),
+#                      hist.Bin("v2","gen_dR",100,0,0.3)
+#            ),
             "dist_trkID_gen_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","gen_pt",pt_bins),
-                      hist.Bin("v2","gen_dR",100,0,0.3)
+                      hist.Bin("v2","gen_dR",100,0,0.3),
+                      hist.Bin("v3","gen_PV",4,0,4)
             ),
             "dist_trkID_gen_eta": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","gen_eta",eta_bins),
-                      hist.Bin("v2","gen_dR",100,0,0.3)
+                      hist.Bin("v2","gen_dR",100,0,0.3),
+                      hist.Bin("v3","gen_PV",4,0,4)
             ),
             "dist_trkID_gen_phi": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","gen_phi",phi_bins),
-                      hist.Bin("v2","gen_dR",100,0,0.3)
+                      hist.Bin("v2","gen_dR",100,0,0.3),
+                      hist.Bin("v3","gen_PV",4,0,4)
             ),
             "dist_gen_dR": hist.Hist(
                       "Events",
@@ -1506,9 +1527,22 @@ class MyProcessor(processor.ProcessorABC):
           trkID11x = trkID10x[trkID10x.pt > 1.0]
           trkIDx = [vals_gen3,trkID5x,trkID6x,trkID7x,trkID8x,trkID9x,trkID10x,trkID11x]
 
-          output = packtrkID(output,trkIDx,"pt" ,"gen_dR","gen_")
-          output = packtrkID(output,trkIDx,"eta","gen_dR","gen_")
-          output = packtrkID(output,trkIDx,"phi","gen_dR","gen_")
+          #vals_genpv = vals_gen3[vals_gen3.gen_PV == 0]
+          #trkID5xx = vals_genpv[vals_genpv.pt > 0.5]
+          #trkID6xx = trkID5xx[trkID5xx.pt > 0.6]
+          #trkID7xx = trkID6xx[trkID6xx.pt > 0.7]
+          #trkID8xx = trkID7xx[trkID7xx.pt > 0.75]
+          #trkID9xx = trkID8xx[trkID8xx.pt > 0.8]
+          #trkID10xx = trkID9xx[trkID9xx.pt > 0.9]
+          #trkID11xx = trkID10xx[trkID10xx.pt > 1.0]
+          #trkIDxPV = [vals_genPV,trkID5xx,trkID6xx,trkID7xx,trkID8xx,trkID9xx,trkID10xx,trkID11xx]
+
+          #output = packtrkID(output,trkIDxPV,"pt" ,"gen_dR","genPV_")
+          #output = packtrkID(output,trkIDxPV,"eta","gen_dR","genPV_")
+          #output = packtrkID(output,trkIDxPV,"phi","gen_dR","genPV_")
+          output = packtrkID(output,trkIDx,"pt" ,"gen_dR","gen_PV","gen_")
+          output = packtrkID(output,trkIDx,"eta","gen_dR","gen_PV","gen_")
+          output = packtrkID(output,trkIDx,"phi","gen_dR","gen_PV","gen_")
           output = packdist(output,vals_scalar,"pt","scalar_")
           output = packdist(output,vals_scalar,"eta","scalar_")
           output = packdist(output,vals_scalar,"phi","scalar_")
@@ -1661,7 +1695,7 @@ else:
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht_x.root"%(fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_vertexgen.root"%(fin,decays[batch])]
   }  
 
 
