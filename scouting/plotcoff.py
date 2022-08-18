@@ -17,8 +17,8 @@ import seaborn as sns
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.colors import LogNorm
 
-#ext="png"
-ext="pdf"
+ext="png"
+#ext="pdf"
 pd.set_option("precision",2)
 
 #parameters = {'axes.labelsize': 13,
@@ -256,7 +256,7 @@ def make_dists(sample,runPV=0):
           if "trkID" not in name:
             ax1.set_yscale("log")
             ax1.autoscale(axis='y', tight=True)
-          if "_pt" in name and "res" not in name:
+          if "_pt" in name and "res" not in name and "Dispersion" not in name:
             ax1.set_xscale("log")
             ax1.set_xlim([20,200])
             if "PFcand" in name or "gen" in name:
@@ -1783,7 +1783,6 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   fig.savefig("Plots/closure9_%s_%s.%s"%(sample,SR,ext))
   plt.close()
 def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
-  fig.subplots_adjust(hspace=.07)
   #if cut == 2 or cut == 3:
   highx1 = 22
   highy1 = 42
@@ -1909,7 +1908,7 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
   for sample in ["qcd","sig200","sig300","sig400","sig750","sig1000"]:
     print("(100,0.7) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2]))
 
-def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0):
+def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0,zoom=0):
   #if cut == 2 or cut == 3:
   highx1 = 22
   highy1 = 42
@@ -2035,12 +2034,17 @@ def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0):
   ax.set_yscale("log")
   y1, y2 = ax.get_ylim()
   ax.set_ylim(y1,y2*10)
-  ax1.autoscale(axis='y', tight=True)
+  if zoom:
+    ax1.set_ylim(0,10)
+    ax.set_ylim(10,2000)
+  else:
+    ax1.set_ylim(0,50)
+  #ax1.autoscale(axis='y', tight=True)
   ax.set_ylabel("Events")
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Expected")
   fig.suptitle("9 Bin Expected vs Observed by Bin")
-  fig.savefig("Plots/closureBinnedFull_%s_%s_%s.%s"%(sample,SR,gap,ext))
+  fig.savefig("Plots/closureBinnedFull_%s_%s_%s.%s"%(SR,gap,zoom,ext))
   plt.close()
 def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0):
   #if cut == 2 or cut == 3:
@@ -2388,7 +2392,7 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_overlapdists(["QCD","RunA","sig1000","sig750","sig400","sig300","sig200"],"ISR_eta",3,"ISR eta",make_ratio=True)
 #make_overlapdists(["QCD","RunA","sig1000","sig750","sig400","sig300","sig200"],"ISR_phi",3,"ISR phi",make_ratio=True)
 
-############################## ABCD
+############################# ABCD
 #make_correlation("SR1_suep",3)
 #make_correlation("SR1_suep",1)
 #print("running ABCD studies")
@@ -2407,34 +2411,38 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #makeSRSignif("sig750","SR1_suep",3,xline=100,yline=70)
 #makeSRSignif("sig1000","SR1_suep",3,xline=100,yline=70)
 ######closure
-make_closure("qcd","SR1_suep",3,yrange=0)
-make_closure_correction9("qcd","SR1_suep",3)
-make_closure_correction6("qcd","SR1_suep",3)
-makeSRSignig9("qcd","SR1_suep",3) # error plot
-#####signal contamination
-make_closure_correction9("sig200","SR1_suep",3, point=1)
-make_closure_correction9("sig300","SR1_suep",3, point=2)
-make_closure_correction9("sig400","SR1_suep",3, point=2)
-make_closure_correction9("sig750","SR1_suep",3, point=3)
-make_closure_correction9("sig1000","SR1_suep",3,point=3)
-
-##data validation
-make_closure("RunA","SR1_suep",3)
-make_closure_correction6("RunA","SR1_suep",3)
-make_closure_correction9("RunA","SR1_suep",3)
-make_closure("Data","SR1_isrsuep",3)
-make_closure_correction9("Data","SR1_isrsuep",3)
-make_closure_correction6("Data","SR1_isrsuep",3)
+#make_closure("qcd","SR1_suep",3,yrange=0)
+#make_closure_correction9("qcd","SR1_suep",3)
+#make_closure_correction6("qcd","SR1_suep",3)
+#makeSRSignig9("qcd","SR1_suep",3) # error plot
+######signal contamination
+#make_closure_correction9("sig200","SR1_suep",3, point=1)
+#make_closure_correction9("sig300","SR1_suep",3, point=2)
+#make_closure_correction9("sig400","SR1_suep",3, point=2)
+#make_closure_correction9("sig750","SR1_suep",3, point=3)
+#make_closure_correction9("sig1000","SR1_suep",3,point=3)
+#
+###data validation
+#make_closure("RunA","SR1_suep",3)
+#make_closure_correction6("RunA","SR1_suep",3)
+#make_closure_correction9("RunA","SR1_suep",3)
+#make_closure("Data","SR1_isrsuep",3)
+#make_closure_correction9("Data","SR1_isrsuep",3)
+#make_closure_correction6("Data","SR1_isrsuep",3)
 #
 
-for g in [0,1,2]:
-  make_closure_correction_binned("qcd","SR1_suep",3,gap=g)
-  make_closure_correction_binned("sig200","SR1_suep",3,gap=g)
-  make_closure_correction_binned("sig300","SR1_suep",3,gap=g)
-  make_closure_correction_binned("sig400","SR1_suep",3,gap=g)
-  make_closure_correction_binned("sig750","SR1_suep",3,gap=g)
-  make_closure_correction_binned("sig1000","SR1_suep",3,gap=g)
-make_closure_correction_binnedFull("SR1_suep",3,gap=2)
+#for g in [0,1,2]:
+#  make_closure_correction_binned("qcd","SR1_suep",3,gap=g)
+#  make_closure_correction_binned("sig200","SR1_suep",3,gap=g)
+#  make_closure_correction_binned("sig300","SR1_suep",3,gap=g)
+#  make_closure_correction_binned("sig400","SR1_suep",3,gap=g)
+#  make_closure_correction_binned("sig750","SR1_suep",3,gap=g)
+#  make_closure_correction_binned("sig1000","SR1_suep",3,gap=g)
+#make_closure_correction_binnedFull("SR1_suep",3,gap=2,zoom=0)
+#make_closure_correction_binnedFull("SR1_suep",3,gap=2,zoom=1)
+#cutflow_correction_binned()
+#cutflow_correction_binned(gap=1)
+#cutflow_correction_binned(gap=2)
 
 
 
@@ -2483,6 +2491,4 @@ make_closure_correction_binnedFull("SR1_suep",3,gap=2)
 
 
 #make_dists("QCD")
-#make_dists("sig400_2")
-#cutflow_correction_binned()
-#cutflow_correction_binned(gap=1)
+make_dists("sig400_2")
