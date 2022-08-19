@@ -64,6 +64,7 @@ name_map['massRaw'] = 'mass_raw'
 name_map['Rho'] = 'rho'
 
 events_cache = events.caches[0]
+print("cache:,",events_cache)
 corrector = FactorizedJetCorrector(
     Fall17_17Nov2017_V32_MC_L2Relative_AK4PFPuppi=evaluator['Fall17_17Nov2017_V32_MC_L2Relative_AK4PFPuppi'],
 )

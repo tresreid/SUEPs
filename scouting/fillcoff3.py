@@ -16,6 +16,11 @@ from math import pi
 import dask
 import fastjet
 
+from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty
+from coffea.jetmet_tools import JECStack, CorrectedJetsFactory
+from coffea.lookup_tools import extractor
+
+
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
@@ -1132,6 +1137,29 @@ class MyProcessor(processor.ProcessorABC):
         #HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15
         #HLT Trigger DST_HT250_CaloScouting_v10
 	#HLT Trigger DST_HT410_PFScouting_v16
+        ext = extractor()
+        ext.add_weight_sets([ #change to correct files
+           # "* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi.txt" #looks to be 0,
+            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK4PFPuppi.jec.txt",
+            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi.txt", #looks to be 1, no change
+            "* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi.junc.txt",
+        ])
+        ext.finalize()
+        
+        jec_stack_names = [
+            #"Fall17_17Nov2017_V32_MC_L2Relative_AK4PFPuppi",
+            #"Fall17_17Nov2017_V32_MC_Uncertainty_AK4PFPuppi"
+            #"Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi",
+            "Summer19UL18_V5_MC_L2Relative_AK4PFPuppi",
+            "Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi",
+            "Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi",
+        ]
+        
+        evaluator = ext.make_evaluator()
+        
+        jec_inputs = {name: evaluator[name] for name in jec_stack_names}
+        jec_stack = JECStack(jec_inputs)
+        print(dir(evaluator))
 
 
         vals0 = ak.zip({
@@ -1187,11 +1215,40 @@ class MyProcessor(processor.ProcessorABC):
                       'Vertex_z': arrays["Vertex_z"],
         })
         vals_jet0 = ak.zip({
-                       'Jet_pt' : arrays["Jet_pt"],
-                       'Jet_eta': arrays["Jet_eta"],
-                       'Jet_phi': arrays["Jet_phi"],
-        })
+                       'pt' : arrays["Jet_pt"],
+                       'eta': arrays["Jet_eta"],
+                       'phi': arrays["Jet_phi"],
+                       'mass': arrays["Jet_m"],
+                       'mass_raw': arrays["Jet_m"], # I think there should be another factor here?
+                       'pt_raw': arrays["Jet_pt"],
+        },with_name="Momentum4D")
         print("loaded jet")
+        name_map = jec_stack.blank_name_map
+        name_map['JetPt'] = 'pt'
+        name_map['JetMass'] = 'mass'
+        name_map['JetEta'] = 'eta'
+        name_map['JetA'] = 'area'
+        name_map['massRaw'] = 'mass_raw'
+        name_map['ptRaw'] = 'pt_raw'
+        ##not sure these lines even do anything...
+        #corrector = FactorizedJetCorrector(
+        #Summer19UL18_V5_MC_L2Relative_AK4PFPuppi=evaluator['Summer19UL18_V5_MC_L2Relative_AK4PFPuppi'],
+        #Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi=evaluator['Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi'],)
+        #uncertainties = JetCorrectionUncertainty(
+        # Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi=evaluator['Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi'])
+
+        jet_factory = CorrectedJetsFactory(name_map, jec_stack)
+        corrected_jets = jet_factory.build(vals_jet0, lazy_cache=arrays.caches[0])
+
+        print("corrected jet")
+        print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
+        print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
+        
+        print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
+        print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
+        
+        print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
+        print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
         #vals_fatjet0 = ak.zip({
         #               'pt' : arrays["FatJet_pt"],
         #               'eta': arrays["FatJet_eta"],
@@ -1769,9 +1826,9 @@ class MyProcessor(processor.ProcessorABC):
         output = packdistflat(output,vals_vertex,"Vertex_z","")
 #        output = pack2D(output,vals_vertex,"Vertex_tracksSize","n_pvs")
         
-        output = packdistflat(output,vals_jet,"Jet_pt")
-        output = packdistflat(output,vals_jet,"Jet_eta")
-        output = packdistflat(output,vals_jet,"Jet_phi")
+        output = packdistflat(output,vals_jet,"pt","Jet_")
+        output = packdistflat(output,vals_jet,"eta","Jet_")
+        output = packdistflat(output,vals_jet,"phi","Jet_")
         output = packdistflat(output,vals_nsub,"tau21","")
         output = packdistflat(output,vals_nsub,"tau32","")
         output = packdistflat(output,vals_fatjet,"pt","FatJet_")
