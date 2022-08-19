@@ -1188,7 +1188,92 @@ def make2dTrig(sample,cut,var2,ylab="Sphericity (Unboosted)",xlab="Ht [GeV]",yfa
           fig.savefig("Plots/trigeff2d_%s_%s.%s"%(sample,var2,ext))
           plt.close()
 
-def make_cutflow(samples,var):
+def make_systematics(samples,var,systematics=""):
+  name1 = "dist_%s"%var
+  final_cut = 35 # 50 bins -> 35= 0.7 cut
+  cutflow = {"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[],"sig200%s"%(systematics):[],"sig300%s"%(systematics):[],"sig400%s"%(systematics):[],"sig750%s"%(systematics):[],"sig1000%s"%(systematics):[]}
+  for sample in samples:
+    for systematic in ["",systematics]:#with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+      scaled = {}
+      with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
+          out = pickle.load(pkl_file)
+          #print(out)
+          scale= lumi*xsecs[sample]/out["sumw"][sample]
+          for name, h in out.items():
+            #if name1 not in name or "mu" in name or "trig" in name:
+            #  continue
+            if isinstance(h, hist.Hist):
+              scaled[name] = h.copy()
+              scaled[name].scale(scale)
+          
+      for cut in [0,1,2]:#,3,4]: 
+        s1 = scaled[name].integrate("cut",slice(cut,cut+1)).values()
+        for (k,s) in s1.items():
+          print("%s %d %s %.2f"%(sample,cut,name,s.sum()))
+          cutflow[sample+systematic].append(s.sum())
+      s2 = scaled["SR1_suep_3"].integrate("nPFCand",slice(0,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+      for (k,s) in s2.items():
+        cutflow[sample+systematic].append(s.sum())
+####  ######SR 1
+      x1 =70
+      y1 = 0.9
+      s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+      for (k,s) in s3.items():
+        cutflow[sample+systematic].append(s.sum())
+
+      s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+      for (k,s) in s4.items():
+        cutflow[sample+systematic].append(s.sum())
+####  ######SR 2
+      x1 =80
+      y1 = 0.8
+      s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+      for (k,s) in s3.items():
+        cutflow[sample+systematic].append(s.sum())
+      s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+      for (k,s) in s4.items():
+        cutflow[sample+systematic].append(s.sum())
+####  ######SR 3
+      x1 =100
+      y1 = 0.7
+      s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+      for (k,s) in s3.items():
+        cutflow[sample+systematic].append(s.sum())
+      s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+      for (k,s) in s4.items():
+        cutflow[sample+systematic].append(s.sum())
+            
+  print(pd.DataFrame(cutflow))
+  #print(pd.DataFrame(cutflow_sig))
+  pd.set_option('display.float_format', lambda x: '%.2f' % x)
+  #print(pd.DataFrame(cutflow_releff))
+  #releff = pd.DataFrame(cutflow_releff)
+  yields = pd.DataFrame(cutflow)
+  #sigs = pd.DataFrame(cutflow_sig)
+  print("##################  Yields  ################")
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 600 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\boostedSphericity $>70$","Cut 5a: \\nSUEPConstituents $>0.9$","Cut 4b: \\boostedSphericity $>80$","Cut 5b: \\nSUEPConstituents $>0.8$","Cut 4c: \\boostedSphericity $>100$","Cut 5c: \\nSUEPConstituents $>0.7$"] 
+  for i in yields.index:
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
+  print("##################  New Yields  ################")
+  for i in yields.index:
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200%s"%(systematics)][i],yields["sig300%s"%(systematics)][i],yields["sig400%s"%(systematics)][i],yields["sig750%s"%(systematics)][i],yields["sig1000%s"%(systematics)][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
+  print("##################  Uncertainty  ################")
+  for i in yields.index:
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig200"][i]-yields["sig200%s"%(systematics)][i])/yields["sig200"][i],(yields["sig300"][i]-yields["sig300%s"%(systematics)][i])/yields["sig300"][i],(yields["sig400"][i]-yields["sig400%s"%(systematics)][i])/yields["sig400"][i],(yields["sig750"][i]-yields["sig750%s"%(systematics)][i])/yields["sig750"][i],(yields["sig1000"][i]-yields["sig1000%s"%(systematics)][i])/yields["sig1000"][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
+  #print("##################  RelEff  ################")
+  #for i in releff.index:
+  #  print("%.2e & %.2f & %.2f & %.2f & %.2f & %.2f\n"%(releff["QCD"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig750"][i],releff["sig1000"][i]))
+  #print("##################  SIGS  ################")
+  #for i in sigs.index:
+  #  print("%.2e & %.2e & %.2e & %.2e & %.2e\n"%(sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig750"][i],sigs["sig1000"][i]))
+  ##pd.reset_option('display.float_format')
+def make_cutflow(samples,var,trkkill=""):
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   cutflow = {"QCD":[],"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[]}
@@ -1251,7 +1336,8 @@ def make_cutflow(samples,var):
     cutflow["QCD"].append(b.sum())
     cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][8])
   for sample in samples:
-    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    #with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    with open(directory+"myhistos_%s_2%s.p"%(sample,trkkill), "rb") as pkl_file:
         out = pickle.load(pkl_file)
         #print(out)
         scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -1341,15 +1427,22 @@ def make_cutflow(samples,var):
   releff = pd.DataFrame(cutflow_releff)
   yields = pd.DataFrame(cutflow)
   sigs = pd.DataFrame(cutflow_sig)
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 600 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\boostedSphericity $>70$","Cut 5a: \\nSUEPConstituents $>0.9$","Cut 4b: \\boostedSphericity $>80$","Cut 5b: \\nSUEPConstituents $>0.8$","Cut 4c: \\boostedSphericity $>100$","Cut 5c: \\nSUEPConstituents $>0.7$"] 
   print("##################  Yields  ################")
   for i in yields.index:
-    print("%.2e & %.2e & %.2f & %.2f & %.2f & %.2f\n"%(yields["QCD"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
+    print("%s & %.2e & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
   print("##################  RelEff  ################")
   for i in releff.index:
-    print("%.2e & %.2f & %.2f & %.2f & %.2f & %.2f\n"%(releff["QCD"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig750"][i],releff["sig1000"][i]))
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],releff["QCD"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig750"][i],releff["sig1000"][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
   print("##################  SIGS  ################")
   for i in sigs.index:
-    print("%.2e & %.2f & %.2f & %.2f & %.2f\n"%(sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig750"][i],sigs["sig1000"][i]))
+    print("%s & %.2e & %.2e & %.2e & %.2e & %.2e \\\\"%(cuts[i],sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig750"][i],sigs["sig1000"][i]))
+    if i == 3 or i==5 or i==7 or i==9:
+      print("\\hline")
   #pd.reset_option('display.float_format')
 
 
@@ -2491,4 +2584,6 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 
 
 #make_dists("QCD")
-make_dists("sig400_2")
+#make_dists("sig400_2killtrk2")
+make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
+#make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics="killtrk")
