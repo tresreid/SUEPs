@@ -530,7 +530,7 @@ def make_trigs(samples,var="ht",systematics =False):
       hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err)
       if systematics:
 #        np.savetxt("systematics/trigger_systematics_%s.txt"%systematics,xbin, delimiter=",")
-        np.savetxt("systematics/trigger_systematics.txt",(xbin,np.nan_to_num(ratio),ratio_err), delimiter=",")
+        np.savetxt("systematics/trigger_systematics.txt",(b.to_hist().to_numpy()[1][1:],np.nan_to_num(ratio),ratio_err), delimiter=",")
         #with open("systematics/trigger_systematics_%s.txt"%systematics, "w+") as f:
         #  f.write("\n".join(xbin))
         #  f.write("\n".join((b1/b2)/(d1/d2)))
