@@ -429,7 +429,7 @@ def make_multitrigs(sig,varsx):
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   fig.savefig("Plots/trigmulti_%s.%s"%(sig,ext))
   plt.close()
-def make_trigs(samples,var="ht"):
+def make_trigs(samples,var="ht",systematics =0):
   fig, (ax,ax1) = plt.subplots(
   nrows=2,
   ncols=1,
@@ -455,8 +455,23 @@ def make_trigs(samples,var="ht"):
       if("ht" in var):
         b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
         b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
-      b1 = b.to_hist().to_numpy()[0]
-      b2 = b0.to_hist().to_numpy()[0]
+      #b1 = b.to_hist().to_numpy()[0]
+      #b2 = b0.to_hist().to_numpy()[0]
+      b1 = b.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+      b2 = b0.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+      b1_err = np.sqrt(b.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+      b2_err = np.sqrt(b0.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+      #print(b1)
+      #print(b1_err)
+      #print(b2)
+      #print(b2_err)
+      if systematics ==1:
+        b1 = b1+b1_err
+        b2 = b2+b2_err
+      if systematics ==2:
+        b1 = b1-b1_err
+        b2 = b2-b2_err
+      
       points2 = np.nan_to_num(b1/b2)
       popt2, pcov2 = curve_fit(func,xbins(b.to_hist().to_numpy()[1]),points2,p0=[0.5,500,100,0.5])
       p98bkg = 1.65*popt2[2]+popt2[1]
@@ -467,8 +482,20 @@ def make_trigs(samples,var="ht"):
       if("ht" in var):
         d = d.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
         d0 = d0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,10)]+[700,800,1000,1200,1500]))
-      d1 = d.to_hist().to_numpy()[0]
-      d2 = d0.to_hist().to_numpy()[0]
+      d1 = d.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+      d2 = d0.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+      d1_err = np.sqrt(d.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+      d2_err = np.sqrt(d0.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+      #print(d1)
+      #print(d1_err)
+      #print(d2)
+      #print(d2_err)
+      if systematics ==3:
+        d1 = d1+d1_err
+        d2 = d2+d2_err
+      if systematics ==4:
+        d1 = d1-d1_err
+        d2 = d2-d2_err
       hx1 = hist.plotratio(
           b,b0,
           ax=ax,
@@ -499,6 +526,15 @@ def make_trigs(samples,var="ht"):
 
       xbin = xbins(b.to_hist().to_numpy()[1])
       hxrat = ax1.scatter(xbin,(b1/b2)/(d1/d2),marker=".")
+      if systematics !=0:
+#        np.savetxt("systematics/trigger_systematics_%s.txt"%systematics,xbin, delimiter=",")
+        np.savetxt("systematics/trigger_systematics_%s.txt"%systematics,(xbin,np.nan_to_num((b1/b2)/(d1/d2),posinf=1)), delimiter=",")
+        #with open("systematics/trigger_systematics_%s.txt"%systematics, "w+") as f:
+        #  f.write("\n".join(xbin))
+        #  f.write("\n".join((b1/b2)/(d1/d2)))
+      #print("hxrat: ")
+      #print(xbin)
+      #print((b1/b2)/(d1/d2))
       #hxrat = ax1.scatter(b.to_hist().to_numpy()[1][:-1],(b1/b2)/(d1/d2),marker=".")
 
       ax1.axhline(y=1,color="grey",ls="--")
@@ -2400,7 +2436,11 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]",vline=600)
 ######### Trigger Efficiency
 #print("running trigger studies")
-#make_trigs(["Data"])
+make_trigs(["Data"])
+make_trigs(["Data"],systematics=1)
+make_trigs(["Data"],systematics=2)
+make_trigs(["Data"],systematics=3)
+make_trigs(["Data"],systematics=4)
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
 #make_trigs(["Data"],"event_sphericity")
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
@@ -2585,5 +2625,5 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 
 #make_dists("QCD")
 #make_dists("sig400_2killtrk2")
-make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
+#make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
 #make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics="killtrk")
