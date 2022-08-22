@@ -20,14 +20,41 @@ from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty
 from coffea.jetmet_tools import JECStack, CorrectedJetsFactory
 from coffea.lookup_tools import extractor
 
+#from coffea.analysis_tools import Weights
+
 
 # register our candidate behaviors
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
 
+trigSystematics = 0 #0: nominal, 1: up err, 2: down err
+AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 eventDisplay_knob= False
 redoISRRM = True
 killTrks = True
+
+def gettrigweights(htarray,systematics=0):
+    #flats = ak.flatten(htarray).to_numpy()
+    bins, trigwgts, wgterr = np.loadtxt("systematics/trigger_systematics.txt", delimiter=",")
+    #bins =np.insert(bins,0,0)
+    htbin = np.digitize(htarray,bins)
+    trigwgts =np.insert(trigwgts,0,0)
+    wgterr =np.insert(wgterr,0,0)
+    scaleFactorNom = np.take(trigwgts,htbin)
+    scaleFactorErr = np.take(wgterr,htbin)
+    if systematics==1:
+       scaleFactor = scaleFactorNom + scaleFactorErr
+    elif systematics==2:
+       scaleFactor = scaleFactorNom - scaleFactorErr
+    else:
+       scaleFactor = scaleFactorNom
+    #print("ht: ",htarray)
+    #print("bins: ",bins)
+    #print("digi: ",htbin)
+    #print("trigs: ",trigwgts)
+    #print("trigwgt: ",np.take(trigwgts,htbin))
+    return scaleFactor
+
 def jetAngularities(jet, candidates,R0=1.5):
         dR = candidates.deltaR(jet)
         inv = 1/jet.pt
@@ -146,25 +173,28 @@ def sphericity(self, particles, r):
     return evals
 
 def packtrig(output,vals,var):
-        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var])
-        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var]) 
-        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var]) 
-        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var],weight=vals[0]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var],weight=vals[1]["wgt"]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var],weight=vals[2]["wgt"]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var],weight=vals[3]["wgt"]) 
         return output
-def packsingledist(output,vals,var):
-        output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
+def packsingledist(output,vals,var,wgt=True):
+        if wgt:
+          output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var],weight=vals["wgt"])
+        else:
+          output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
         return output
 def packdist(output,vals,var,prefix=""):
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var])
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig", v1=vals[1][var]) 
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=600", v1=vals[2][var])
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2", v1=vals[3][var])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var],weight=vals[0]["wgt"])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig", v1=vals[1][var],weight=vals[1]["wgt"]) 
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=600", v1=vals[2][var],weight=vals[2]["wgt"])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2", v1=vals[3][var],weight=vals[3]["wgt"])
         if("PFcand_n" in var):
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var])
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var],weight=vals[4]["wgt"])
         else:
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var]) 
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var],weight=vals[4]["wgt"]) 
         if(len(vals)>=6):
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var]) 
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var],weight=vals[5]["wgt"]) 
           #output["dist_%s"%(var)].fill(cut="cut 3:Pre + nPVs < 30", v1=vals[5][var]) 
           #output["dist_%s"%(var)].fill(cut="cut 4:Pre + nPVs >=30", v1=vals[6][var]) 
       
@@ -204,30 +234,30 @@ def packdistflat(output,vals,var,prefix=""):
         #  output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:Pre + nPVs >=30", v1=ak.flatten(vals[6][var]))
         return output
 def packdist_fjn1(output,vals,var):
-        output["dist_fjn1_%s"%(var)].fill(cut="cut 0:No cut",       v1=vals[0][var])
-        output["dist_fjn1_%s"%(var)].fill(cut="cut 1:HT Trig",      v1=vals[1][var]) 
-        output["dist_fjn1_%s"%(var)].fill(cut="cut 2:Ht>=600",      v1=vals[2][var])
-        output["dist_fjn1_%s"%(var)].fill(cut="cut 3:nPFCand(SUEP)>=70", v1=vals[3][var]) 
-        output["dist_fjn1_%s"%(var)].fill(cut="cut 4:BSphericity >=0.7",        v1=vals[4][var])
+        output["dist_fjn1_%s"%(var)].fill(cut="cut 0:No cut",       v1=vals[0][var],weight=vals[0]["wgt"])
+        output["dist_fjn1_%s"%(var)].fill(cut="cut 1:HT Trig",      v1=vals[1][var],weight=vals[1]["wgt"]) 
+        output["dist_fjn1_%s"%(var)].fill(cut="cut 2:Ht>=600",      v1=vals[2][var],weight=vals[2]["wgt"])
+        output["dist_fjn1_%s"%(var)].fill(cut="cut 3:nPFCand(SUEP)>=70", v1=vals[3][var],weight=vals[3]["wgt"]) 
+        output["dist_fjn1_%s"%(var)].fill(cut="cut 4:BSphericity >=0.7",        v1=vals[4][var],weight=vals[4]["wgt"])
         return output
 def packSR(output,vals,var):
-        output["SR1_%s_0"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere_%s"%var])
-        output["SR1_%s_1"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1_%s"%var])
-        output["SR1_%s_2"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphere_%s"%var])
-        output["SR1_%s_3"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphere1_%s"%var])
+        output["SR1_%s_0"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere_%s"%var],weight=vals[3]["wgt"])
+        output["SR1_%s_1"%var].fill(axis="axis",       nPFCand=vals[3]["PFcand_ncount75"],eventBoostedSphericity=vals[3]["sphere1_%s"%var],weight=vals[3]["wgt"])
+        output["SR1_%s_2"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphere_%s"%var],weight=vals[3]["wgt"])
+        output["SR1_%s_3"%var].fill(axis="axis",       nPFCand=vals[3]["FatJet_nconst"],eventBoostedSphericity=vals[3]["sphere1_%s"%var],weight=vals[3]["wgt"])
         return output
 def pack2D(output,vals,var1,var2):
-        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2])
-        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 1: No cut",       v1=vals[1][var1],v2=vals[1][var2])
-        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 2: No cut",       v1=vals[2][var1],v2=vals[2][var2])
-        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 3: No cut",       v1=vals[3][var1],v2=vals[3][var2])
-        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 4: No cut",       v1=vals[4][var1],v2=vals[4][var2])
+        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2],weight=vals[0]["wgt"])
+        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 1: No cut",       v1=vals[1][var1],v2=vals[1][var2],weight=vals[1]["wgt"])
+        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 2: No cut",       v1=vals[2][var1],v2=vals[2][var2],weight=vals[2]["wgt"])
+        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 3: No cut",       v1=vals[3][var1],v2=vals[3][var2],weight=vals[3]["wgt"])
+        output["2d_%s_%s"%(var1,var2)].fill(cut="cut 4: No cut",       v1=vals[4][var1],v2=vals[4][var2],weight=vals[4]["wgt"])
         return output
 def packtrig2D(output,vals,var1,var2):
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: Ref Trig",     v1=vals[1][var1],v2=vals[1][var2])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: HT Trig noRef",v1=vals[2][var1],v2=vals[2][var2])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: HT Trig Ref",  v1=vals[3][var1],v2=vals[3][var2])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2],weight=vals[0]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: Ref Trig",     v1=vals[1][var1],v2=vals[1][var2],weight=vals[1]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: HT Trig noRef",v1=vals[2][var1],v2=vals[2][var2],weight=vals[2]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: HT Trig Ref",  v1=vals[3][var1],v2=vals[3][var2],weight=vals[3]["wgt"])
         return output
 pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
@@ -1159,7 +1189,7 @@ class MyProcessor(processor.ProcessorABC):
         
         jec_inputs = {name: evaluator[name] for name in jec_stack_names}
         jec_stack = JECStack(jec_inputs)
-        print(dir(evaluator))
+        #print(dir(evaluator))
 
 
         vals0 = ak.zip({
@@ -1206,6 +1236,7 @@ class MyProcessor(processor.ProcessorABC):
                #'FatJet_ncount300': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>300],axis=-1),
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
+        vals0["wgt"] = gettrigweights(vals0["ht"],trigSystematics)
 
         vals_vertex0 = ak.zip({
                       'Vertex_valid': arrays["Vertex_isValidVtx"],
@@ -1221,6 +1252,7 @@ class MyProcessor(processor.ProcessorABC):
                        'mass': arrays["Jet_m"],
                        'mass_raw': arrays["Jet_m"], # I think there should be another factor here?
                        'pt_raw': arrays["Jet_pt"],
+                       'passId': arrays["Jet_passId"],
         },with_name="Momentum4D")
         print("loaded jet")
         name_map = jec_stack.blank_name_map
@@ -1240,15 +1272,15 @@ class MyProcessor(processor.ProcessorABC):
         jet_factory = CorrectedJetsFactory(name_map, jec_stack)
         corrected_jets = jet_factory.build(vals_jet0, lazy_cache=arrays.caches[0])
 
-        print("corrected jet")
-        print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
-        print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
-        
-        print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
-        print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
-        
-        print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
-        print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
+        #print("corrected jet")
+        #print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
+        #print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
+        #
+        #print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
+        #print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
+        #
+        #print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
+        #print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
         #vals_fatjet0 = ak.zip({
         #               'pt' : arrays["FatJet_pt"],
         #               'eta': arrays["FatJet_eta"],
@@ -1284,6 +1316,7 @@ class MyProcessor(processor.ProcessorABC):
                          'gen_PV':  arrays["gen_PV"],
                          'gen_PVdZ':  arrays["gen_PVdZ"],
           },with_name="Momentum4D")
+          vals_gen0["wgt"] = vals0["wgt"]
           scalar0  = ak.zip({
                          'pt' : arrays["scalar_pt"],
                          'eta': arrays["scalar_eta"],
@@ -1291,6 +1324,7 @@ class MyProcessor(processor.ProcessorABC):
                          'mass': arrays["scalar_m"],
                          'beta': arrays["scalar_m"]/arrays["scalar_pt"],
           },with_name="Momentum4D")
+          scalar0["wgt"] = vals0["wgt"]
           #print(vals0['ht20'])
           
         else:
@@ -1309,10 +1343,25 @@ class MyProcessor(processor.ProcessorABC):
             "phi": [x for x in arrays["bPFcand_phi"] if len(x) > 1],
             "mass":[x for x in arrays["bPFcand_m"]   if len(x) > 1] 
         }, with_name="Momentum4D") 
-        vals0['ht20'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 20)],axis=-1)
-        vals0['ht30'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 30)],axis=-1)
-        vals0['ht40'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 40)],axis=-1)
-        vals0['ht50'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 50)],axis=-1)
+        if AK4sys ==1 :
+        	vals0['ht20'] = ak.sum(corrected_jets.JES_jes.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.up["pt"] > 20)],axis=-1)
+        	vals0['ht30'] = ak.sum(corrected_jets.JES_jes.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.up["pt"] > 30)],axis=-1)
+        	vals0['ht40'] = ak.sum(corrected_jets.JES_jes.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.up["pt"] > 40)],axis=-1)
+        	vals0['ht50'] = ak.sum(corrected_jets.JES_jes.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.up["pt"] > 50)],axis=-1)
+        elif AK4sys ==2 :
+        	vals0['ht20'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 20)],axis=-1)
+        	vals0['ht30'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 30)],axis=-1)
+        	vals0['ht40'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 40)],axis=-1)
+        	vals0['ht50'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 50)],axis=-1)
+        else:
+        	vals0['ht20'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 20)],axis=-1)
+        	vals0['ht30'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 30)],axis=-1)
+        	vals0['ht40'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 40)],axis=-1)
+        	vals0['ht50'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 50)],axis=-1)
+        #vals0['ht20'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 20)],axis=-1)
+        #vals0['ht30'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 30)],axis=-1)
+        #vals0['ht40'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 40)],axis=-1)
+        #vals0['ht50'] = ak.sum(arrays["Jet_pt"][(arrays["Jet_passId"] ==1) & (arrays["Jet_pt"] > 50)],axis=-1)
 
 
 
@@ -1453,6 +1502,7 @@ class MyProcessor(processor.ProcessorABC):
           spherey4 = spherey3[spherey3.FatJet_nconst >= 70]
           sphere1y = [spherey0,spherey1,spherey2,spherey3,spherey4]#,spherey5,spherey6]
 
+          #wgts = trigwgts
           output = packdist(output,sphere1y,"cparam1_suep")
           output = packdist(output,sphere1y,"cparam_suep")
           output = packdist(output,sphere1y,"dparam1_suep")
@@ -1627,6 +1677,7 @@ class MyProcessor(processor.ProcessorABC):
             "res_beta" : res_beta
         
           })
+          resolutions["wgt"] = spherey2["wgt"]
        ############################################################################## 
         #cutflow Ht
         vals1 = vals0[vals0.triggerHt >= 1]
@@ -1639,7 +1690,7 @@ class MyProcessor(processor.ProcessorABC):
         vals4x = vals3[vals3.sphere1_suep >= 0.7]
         #vals4x = vals3[vals3.eventBoosted_sphericity >= 0.6]
 
-        vals_jet1 = vals_jet0[vals0.triggerHt >= 1]
+        vals_jet1 = corrected_jets[vals0.triggerHt >= 1]
         vals_jet2 = vals_jet1[vals1.ht >= 600]
         vals_jet3 = vals_jet2[vals2.FatJet_ncount50 >= 2]
         vals_jet4 = vals_jet3[vals3.FatJet_nconst >= 70]
@@ -1684,7 +1735,7 @@ class MyProcessor(processor.ProcessorABC):
 
         vals = [vals0,vals1,vals2,vals3,vals4,vals5]
         valsx = [vals0,vals1,vals2,vals3,vals4x]
-        vals_jet = [vals_jet0,vals_jet1,vals_jet2,vals_jet3,vals_jet4]
+        vals_jet = [corrected_jets,vals_jet1,vals_jet2,vals_jet3,vals_jet4]
         vals_fatjet = [vals_fatjet0,vals_fatjet1,vals_fatjet2,vals_fatjet3,vals_fatjet4]
         vals_nsub = [vals_nsub0,vals_nsub1,vals_nsub2,vals_nsub3,vals_nsub4]
         #vals_refatjet = [vals_refatjet0,vals_refatjet1,vals_refatjet2,vals_refatjet3,vals_refatjet4]
@@ -1777,7 +1828,7 @@ class MyProcessor(processor.ProcessorABC):
           output = packdistflat(output,vals_gen,"phi","gen_")
           output = packdistflat(output,vals_gen,"gen_PV")
           output = packdistflat(output,vals_gen,"gen_PVdZ")
-          output = packsingledist(output,alldRtracks,"PFcand_alldR")
+          output = packsingledist(output,alldRtracks,"PFcand_alldR",wgt=False)
           output = packsingledist(output,resolutions,"res_beta")
           output = packsingledist(output,resolutions,"res_pt")
           output = packsingledist(output,resolutions,"res_mass")
