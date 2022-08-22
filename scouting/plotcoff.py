@@ -429,7 +429,7 @@ def make_multitrigs(sig,varsx):
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   fig.savefig("Plots/trigmulti_%s.%s"%(sig,ext))
   plt.close()
-def make_trigs(samples,var="ht",systematics =0):
+def make_trigs(samples,var="ht",systematics =False):
   fig, (ax,ax1) = plt.subplots(
   nrows=2,
   ncols=1,
@@ -465,12 +465,12 @@ def make_trigs(samples,var="ht",systematics =0):
       #print(b1_err)
       #print(b2)
       #print(b2_err)
-      if systematics ==1:
-        b1 = b1+b1_err
-        b2 = b2+b2_err
-      if systematics ==2:
-        b1 = b1-b1_err
-        b2 = b2-b2_err
+      #if systematics ==1:
+      #  b1 = b1+b1_err
+      #  b2 = b2+b2_err
+      #if systematics ==2:
+      #  b1 = b1-b1_err
+      #  b2 = b2-b2_err
       
       points2 = np.nan_to_num(b1/b2)
       popt2, pcov2 = curve_fit(func,xbins(b.to_hist().to_numpy()[1]),points2,p0=[0.5,500,100,0.5])
@@ -490,12 +490,12 @@ def make_trigs(samples,var="ht",systematics =0):
       #print(d1_err)
       #print(d2)
       #print(d2_err)
-      if systematics ==3:
-        d1 = d1+d1_err
-        d2 = d2+d2_err
-      if systematics ==4:
-        d1 = d1-d1_err
-        d2 = d2-d2_err
+      #if systematics ==3:
+      #  d1 = d1+d1_err
+      #  d2 = d2+d2_err
+      #if systematics ==4:
+      #  d1 = d1-d1_err
+      #  d2 = d2-d2_err
       hx1 = hist.plotratio(
           b,b0,
           ax=ax,
@@ -525,10 +525,12 @@ def make_trigs(samples,var="ht",systematics =0):
       #ax.axvline(x=p90dat,color="black",ls=":")
 
       xbin = xbins(b.to_hist().to_numpy()[1])
-      hxrat = ax1.scatter(xbin,(b1/b2)/(d1/d2),marker=".")
-      if systematics !=0:
+      ratio = (b1/b2)/(d1/d2)
+      ratio_err = ratio*np.sqrt( (b1_err/b1)**2 +(b2_err/b2)**2+(d1_err/d1)**2+(d2_err/d2)**2)
+      hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err)
+      if systematics:
 #        np.savetxt("systematics/trigger_systematics_%s.txt"%systematics,xbin, delimiter=",")
-        np.savetxt("systematics/trigger_systematics_%s.txt"%systematics,(xbin,np.nan_to_num((b1/b2)/(d1/d2),posinf=1)), delimiter=",")
+        np.savetxt("systematics/trigger_systematics.txt",(xbin,np.nan_to_num(ratio),ratio_err), delimiter=",")
         #with open("systematics/trigger_systematics_%s.txt"%systematics, "w+") as f:
         #  f.write("\n".join(xbin))
         #  f.write("\n".join((b1/b2)/(d1/d2)))
@@ -2436,11 +2438,8 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]",vline=600)
 ######### Trigger Efficiency
 #print("running trigger studies")
-make_trigs(["Data"])
-make_trigs(["Data"],systematics=1)
-make_trigs(["Data"],systematics=2)
-make_trigs(["Data"],systematics=3)
-make_trigs(["Data"],systematics=4)
+#make_trigs(["Data"])
+make_trigs(["Data"],systematics=True)
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
 #make_trigs(["Data"],"event_sphericity")
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
