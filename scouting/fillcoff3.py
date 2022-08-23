@@ -30,7 +30,8 @@ ak.behavior.update(candidate.behavior)
 
 ########SYSTEMATICS
 trigSystematics = 0 #0: nominal, 1: up err, 2: down err
-AK4sys = 2 #o: nominal, 1: err up, 2 err dowm
+AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
+AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 killTrks = False
 
 ########################
@@ -1171,28 +1172,55 @@ class MyProcessor(processor.ProcessorABC):
         #HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15
         #HLT Trigger DST_HT250_CaloScouting_v10
 	#HLT Trigger DST_HT410_PFScouting_v16
-        ext = extractor()
-        ext.add_weight_sets([ #change to correct files
-           # "* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi.txt" #looks to be 0,
-            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK4PFPuppi.jec.txt",
-            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi.txt", #looks to be 1, no change
-            "* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi.junc.txt",
+        ext_ak4 = extractor()
+        ext_ak4.add_weight_sets([ #change to correct files
+            #"* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt", #looks to be 0,
+            #"* * jet_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt", #needs area
+            #"* * jet_corrections/Summer19UL18_V5_MC_L2L3Residual_AK4PFchs.txt",
+            "* * jet_corrections/Summer19UL18_V5_MC_L2Residual_AK4PFchs.txt",
+            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK4PFchs.jec.txt",
+            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK4PFchs.txt", #looks to be 1, no change
+            "* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK4PFchs.junc.txt",
         ])
-        ext.finalize()
+        ext_ak4.finalize()
         
-        jec_stack_names = [
+        jec_stack_names_ak4 = [
+            #"Summer19UL18_V5_MC_L1FastJet_AK4PFchs",
+            #"Summer19UL18_V5_MC_L1RC_AK4PFchs",
+	    #"Summer19UL18_V5_MC_L2L3Residual_AK4PFchs",
+	    "Summer19UL18_V5_MC_L2Residual_AK4PFchs",
+            "Summer19UL18_V5_MC_L2Relative_AK4PFchs",
+            "Summer19UL18_V5_MC_L3Absolute_AK4PFchs",
+            "Summer19UL18_V5_MC_Uncertainty_AK4PFchs",
+        ]
+        
+        evaluator_ak4 = ext_ak4.make_evaluator()
+        
+        jec_inputs_ak4 = {name: evaluator_ak4[name] for name in jec_stack_names_ak4}
+        jec_stack_ak4 = JECStack(jec_inputs_ak4)
+        ext_ak15 = extractor()
+        ext_ak15.add_weight_sets([ #change to correct files
+           # "* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi.txt" #looks to be 0,
+            #"* * jet_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt" #looks to be 0,
+            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK8PFchs.txt",
+            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK8PFchs.txt", #looks to be 1, no change
+            #"* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK8PFchs.txt",
+        ])
+        ext_ak15.finalize()
+        
+        jec_stack_names_ak15 = [
             #"Fall17_17Nov2017_V32_MC_L2Relative_AK4PFPuppi",
             #"Fall17_17Nov2017_V32_MC_Uncertainty_AK4PFPuppi"
             #"Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi",
-            "Summer19UL18_V5_MC_L2Relative_AK4PFPuppi",
-            "Summer19UL18_V5_MC_L3Absolute_AK4PFPuppi",
-            "Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi",
+            "Summer19UL18_V5_MC_L2Relative_AK8PFchs",
+            "Summer19UL18_V5_MC_L3Absolute_AK8PFchs",
+          #  "Summer19UL18_V5_MC_Uncertainty_AK8PFchs",
         ]
         
-        evaluator = ext.make_evaluator()
+        evaluator_ak15 = ext_ak15.make_evaluator()
         
-        jec_inputs = {name: evaluator[name] for name in jec_stack_names}
-        jec_stack = JECStack(jec_inputs)
+        jec_inputs_ak15 = {name: evaluator_ak15[name] for name in jec_stack_names_ak15}
+        jec_stack_ak15 = JECStack(jec_inputs_ak15)
         #print(dir(evaluator))
 
 
@@ -1259,7 +1287,7 @@ class MyProcessor(processor.ProcessorABC):
                        'passId': arrays["Jet_passId"],
         },with_name="Momentum4D")
         print("loaded jet")
-        name_map = jec_stack.blank_name_map
+        name_map = jec_stack_ak4.blank_name_map
         name_map['JetPt'] = 'pt'
         name_map['JetMass'] = 'mass'
         name_map['JetEta'] = 'eta'
@@ -1273,7 +1301,7 @@ class MyProcessor(processor.ProcessorABC):
         #uncertainties = JetCorrectionUncertainty(
         # Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi=evaluator['Summer19UL18_V5_MC_Uncertainty_AK4PFPuppi'])
 
-        jet_factory = CorrectedJetsFactory(name_map, jec_stack)
+        jet_factory = CorrectedJetsFactory(name_map, jec_stack_ak4)
         corrected_jets = jet_factory.build(vals_jet0, lazy_cache=arrays.caches[0])
 
         #print("corrected jet")
@@ -1388,8 +1416,20 @@ class MyProcessor(processor.ProcessorABC):
         minPt = 30
         jetdef = fastjet.JetDefinition(fastjet.antikt_algorithm,1.5)
         cluster = fastjet.ClusterSequence(tracks_cut0,jetdef)
-        ak_inclusive_jets = ak.with_name(cluster.inclusive_jets(),"Momentum4D")
+        ak_inclusive_jets0 = ak.with_name(cluster.inclusive_jets(),"Momentum4D")
         ak_inclusive_cluster = ak.with_name(cluster.constituents(),"Momentum4D")
+        ak_inclusive_jets0["pt"] = ak_inclusive_jets0.pt
+        ak_inclusive_jets0["eta"] = ak_inclusive_jets0.eta
+        ak_inclusive_jets0["phi"] = ak_inclusive_jets0.phi
+        ak_inclusive_jets0["mass"] = ak_inclusive_jets0.m
+        ak_inclusive_jets0["pt_raw"] = ak_inclusive_jets0.pt
+        ak_inclusive_jets0["mass_raw"] = ak_inclusive_jets0.m
+
+
+        jet_factory_ak15 = CorrectedJetsFactory(name_map, jec_stack_ak15)
+        ak_inclusive_jets = jet_factory_ak15.build(ak_inclusive_jets0, lazy_cache=arrays.caches[0])
+        #ak_inclusive_jets = ak_inclusive_jets.JES_jes.up
+
         minPtCut = ak_inclusive_jets.pt > minPt
         ak_inclusive_jets = ak_inclusive_jets[minPtCut]
         ak_inclusive_cluster = ak_inclusive_cluster[minPtCut]
@@ -2040,5 +2080,5 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/myhistos_%s_%sAK4down.p"%(fin,batch), "wb") as pkl_file:
+    with open("outhists/myhistos_%s_%s.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
