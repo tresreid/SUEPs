@@ -27,11 +27,15 @@ from coffea.lookup_tools import extractor
 from coffea.nanoevents.methods import candidate
 ak.behavior.update(candidate.behavior)
 
+
+########SYSTEMATICS
 trigSystematics = 0 #0: nominal, 1: up err, 2: down err
-AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
+AK4sys = 2 #o: nominal, 1: err up, 2 err dowm
+killTrks = False
+
+########################
 eventDisplay_knob= False
 redoISRRM = True
-killTrks = True
 
 def gettrigweights(htarray,systematics=0):
     #flats = ak.flatten(htarray).to_numpy()
@@ -173,10 +177,10 @@ def sphericity(self, particles, r):
     return evals
 
 def packtrig(output,vals,var):
-        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var],weight=vals[0]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var],weight=vals[1]["wgt"]) 
-        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var],weight=vals[2]["wgt"]) 
-        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var],weight=vals[3]["wgt"]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var])#,weight=vals[0]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var])#,weight=vals[1]["wgt"]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var])#,weight=vals[2]["wgt"]) 
+        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var])#,weight=vals[3]["wgt"]) 
         return output
 def packsingledist(output,vals,var,wgt=True):
         if wgt:
@@ -2036,5 +2040,5 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
+    with open("outhists/myhistos_%s_%sAK4down.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
