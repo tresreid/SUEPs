@@ -33,14 +33,56 @@ trigSystematics = 0 #0: nominal, 1: up err, 2: down err
 AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 killTrks = False
+PUSystematics = 0 #0: nominal, 1: up err, 2: down err
 
 ########################
 eventDisplay_knob= False
 redoISRRM = True
 
+def pileup_weight(era,puarray,systematics=0):
+    if era == 2018:
+        f_MC = uproot.open("systematics/pileup/mcPileupUL2018.root")
+        f_data = uproot.open("systematics/pileup/PileupHistogram-UL2018-100bins_withVar.root")
+    elif era == 2017:
+        f_MC = uproot.open("systematics/pileup/mcPileupUL2017.root")
+        f_data = uproot.open("systematics/pileup/PileupHistogram-UL2017-100bins_withVar.root")
+    elif era == 2016:
+        f_MC = uproot.open("systematics/pileup/mcPileupUL2016.root")
+        f_data = uproot.open("systematics/pileup/PileupHistogram-UL2016-100bins_withVar.root")
+    else:
+        print('no pileup weights because no year was selected for function pileup_weight')
+
+    hist_MC = f_MC['pu_mc'].to_numpy()
+    #Normalize the data distribution
+    hist_data = f_data['pileup'].to_numpy()
+    hist_data[0].sum()
+    norm_data = hist_data[0]/hist_data[0].sum()
+    weights = np.divide(norm_data, hist_MC[0], out=np.ones_like(norm_data), where=hist_MC[0]!=0)
+
+    #The plus version of the pileup
+    hist_data_plus = f_data['pileup_plus'].to_numpy()
+    hist_data_plus[0].sum()
+    norm_data_plus = hist_data_plus[0]/hist_data_plus[0].sum()
+    weights_plus = np.divide(norm_data_plus, hist_MC[0], out=np.ones_like(norm_data_plus), where=hist_MC[0]!=0)
+
+    #The minus version of the pileup
+    hist_data_minus = f_data['pileup_minus'].to_numpy()
+    hist_data_minus[0].sum()
+    norm_data_minus = hist_data_minus[0]/hist_data_minus[0].sum()
+    weights_minus = np.divide(norm_data_minus, hist_MC[0], out=np.ones_like(norm_data_minus), where=hist_MC[0]!=0)
+    print("PU: ",weights)
+    if systematics==0:
+      return np.take(weights,puarray)
+    elif systematics==1:
+      return np.take(weights_plus,puarray)
+    elif systematics==2:
+      return np.take(weights_minus,puarray)
+    else:
+      return np.take(weights,puarray)
+
 def gettrigweights(htarray,systematics=0):
     #flats = ak.flatten(htarray).to_numpy()
-    bins, trigwgts, wgterr = np.loadtxt("systematics/trigger_systematics.txt", delimiter=",")
+    bins, trigwgts, wgterr = np.loadtxt("systematics/triggers/trigger_systematics.txt", delimiter=",")
     #bins =np.insert(bins,0,0)
     htbin = np.digitize(htarray,bins)
     trigwgts =np.insert(trigwgts,0,0)
@@ -1174,36 +1216,61 @@ class MyProcessor(processor.ProcessorABC):
 	#HLT Trigger DST_HT410_PFScouting_v16
         ext_ak4 = extractor()
         ext_ak4.add_weight_sets([ #change to correct files
-            #"* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt", #looks to be 0,
-            #"* * jet_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt", #needs area
-            #"* * jet_corrections/Summer19UL18_V5_MC_L2L3Residual_AK4PFchs.txt",
-            "* * jet_corrections/Summer19UL18_V5_MC_L2Residual_AK4PFchs.txt",
-            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK4PFchs.jec.txt",
-            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK4PFchs.txt", #looks to be 1, no change
-            "* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK4PFchs.junc.txt",
+            #"* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt", #looks to be 0,
+            #"* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt", #needs area
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L2L3Residual_AK4PFchs.txt",
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L2Residual_AK4PFchs.txt",
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L2Relative_AK4PFchs.jec.txt",
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L3Absolute_AK4PFchs.txt", #looks to be 1, no change
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_Uncertainty_AK4PFchs.junc.txt",
+            #"* * systematics/jetresolution_corrections/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt",
+            #"* * systematics/jetresolution_corrections/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt",
         ])
         ext_ak4.finalize()
         
         jec_stack_names_ak4 = [
             #"Summer19UL18_V5_MC_L1FastJet_AK4PFchs",
             #"Summer19UL18_V5_MC_L1RC_AK4PFchs",
-	    #"Summer19UL18_V5_MC_L2L3Residual_AK4PFchs",
+	    "Summer19UL18_V5_MC_L2L3Residual_AK4PFchs",
 	    "Summer19UL18_V5_MC_L2Residual_AK4PFchs",
             "Summer19UL18_V5_MC_L2Relative_AK4PFchs",
             "Summer19UL18_V5_MC_L3Absolute_AK4PFchs",
             "Summer19UL18_V5_MC_Uncertainty_AK4PFchs",
+            #"Summer19UL18_JRV2_MC_PtResolution_AK4PFchs",
+           #"Summer19UL18_JRV2_MC_SF_AK4PFchs",
         ]
         
         evaluator_ak4 = ext_ak4.make_evaluator()
-        
+
         jec_inputs_ak4 = {name: evaluator_ak4[name] for name in jec_stack_names_ak4}
         jec_stack_ak4 = JECStack(jec_inputs_ak4)
+
+        #ext_ak4res = extractor()
+        #ext_ak4res.add_weight_sets([ #change to correct files
+        #    #"* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt", #looks to be 0,
+        #    #"* * jet_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt", #needs area
+        #    #"* * jet_corrections/Summer19UL18_V5_MC_L2L3Residual_AK4PFchs.txt",
+        #    "* * systematics/jetresolution_corrections/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt",
+        #    "* * systematics/jetresolution_corrections/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt",
+        #])
+        #ext_ak4res.finalize()
+        #
+        #jec_stack_names_ak4res = [
+        #    "Summer19UL18_JRV2_MC_PtResolution_AK4PFchs",
+        #    "Summer19UL18_JRV2_MC_SF_AK4PFchs",
+        #]
+        #
+        #evaluator_ak4res = ext_ak4res.make_evaluator()
+        #
+        #jec_inputs_ak4res = {name: evaluator_ak4res[name] for name in jec_stack_names_ak4res}
+        #jec_stack_ak4res = JECStack(jec_inputs_ak4res)
+
         ext_ak15 = extractor()
         ext_ak15.add_weight_sets([ #change to correct files
            # "* * jet_corrections/Summer19UL18_V5_MC_L1FastJet_AK4PFPuppi.txt" #looks to be 0,
             #"* * jet_corrections/Summer19UL18_V5_MC_L1RC_AK4PFchs.txt" #looks to be 0,
-            "* * jet_corrections/Summer19UL18_V5_MC_L2Relative_AK8PFchs.txt",
-            "* * jet_corrections/Summer19UL18_V5_MC_L3Absolute_AK8PFchs.txt", #looks to be 1, no change
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L2Relative_AK8PFchs.txt",
+            "* * systematics/jetscale_corrections/Summer19UL18_V5_MC_L3Absolute_AK8PFchs.txt", #looks to be 1, no change
             #"* * jet_corrections/Summer19UL18_V5_MC_Uncertainty_AK8PFchs.txt",
         ])
         ext_ak15.finalize()
@@ -1234,6 +1301,7 @@ class MyProcessor(processor.ProcessorABC):
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
                'n_pvs': arrays["n_pvs"],
+               'PU': arrays["PU_num"],
                'nPVs_good0': ak.count(arrays["Vertex_isValidVtx"],axis=-1),
                'nPVs_good1': ak.count(arrays["Vertex_isValidVtx"][(arrays["Vertex_isValidVtx"] == 1)],axis=-1),
                'nPVs_good2': ak.count(arrays["Vertex_isValidVtx"][(abs(arrays["Vertex_z"]) <24 ) & (arrays["Vertex_isValidVtx"] == 1)],axis=-1),
@@ -1268,7 +1336,9 @@ class MyProcessor(processor.ProcessorABC):
                #'FatJet_ncount300': ak.count(arrays["FatJet_pt"][arrays["FatJet_pt"]>300],axis=-1),
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
-        vals0["wgt"] = gettrigweights(vals0["ht"],trigSystematics)
+        vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics)
+        vals0["PUwgt"] = pileup_weight(2018,vals0["PU"],PUSystematics)
+        vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]
 
         vals_vertex0 = ak.zip({
                       'Vertex_valid': arrays["Vertex_isValidVtx"],
@@ -1282,6 +1352,7 @@ class MyProcessor(processor.ProcessorABC):
                        'eta': arrays["Jet_eta"],
                        'phi': arrays["Jet_phi"],
                        'mass': arrays["Jet_m"],
+                       'area': arrays["Jet_area"],
                        'mass_raw': arrays["Jet_m"], # I think there should be another factor here?
                        'pt_raw': arrays["Jet_pt"],
                        'passId': arrays["Jet_passId"],
@@ -1304,15 +1375,16 @@ class MyProcessor(processor.ProcessorABC):
         jet_factory = CorrectedJetsFactory(name_map, jec_stack_ak4)
         corrected_jets = jet_factory.build(vals_jet0, lazy_cache=arrays.caches[0])
 
-        #print("corrected jet")
-        #print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
-        #print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
-        #
-        #print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
-        #print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
-        #
-        #print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
-        #print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
+        print("corrected jet")
+        print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
+        print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
+        
+        print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
+        print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
+        
+        #print('JES pt ratio', corrected_jets.JES_jes.pt/corrected_jets.pt_raw)
+        print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
+        print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
         #vals_fatjet0 = ak.zip({
         #               'pt' : arrays["FatJet_pt"],
         #               'eta': arrays["FatJet_eta"],
@@ -1727,18 +1799,15 @@ class MyProcessor(processor.ProcessorABC):
         vals1 = vals0[vals0.triggerHt >= 1]
         vals2 = vals1[vals1.ht >= 600]
         vals3 = spherey3 #vals2[vals2.FatJet_ncount50 >= 2]
-        print("spherey3",len(vals3))
-        #vals4 = vals3[vals3.PFcand_ncount75 >= 140]
         vals4 = vals3[vals3.FatJet_nconst >= 70]
         vals5 = vals4[vals4.sphere1_suep >= 0.7]
         vals4x = vals3[vals3.sphere1_suep >= 0.7]
-        #vals4x = vals3[vals3.eventBoosted_sphericity >= 0.6]
+
 
         vals_jet1 = corrected_jets[vals0.triggerHt >= 1]
         vals_jet2 = vals_jet1[vals1.ht >= 600]
         vals_jet3 = vals_jet2[vals2.FatJet_ncount50 >= 2]
         vals_jet4 = vals_jet3[vals3.FatJet_nconst >= 70]
-        #vals_jet4 = vals_jet3[vals3.PFcand_ncount75 >= 140]
         
         print("filling cutflows fj") 
         vals_fatjet1 = vals_fatjet0[vals0.triggerHt >= 1]
@@ -1977,7 +2046,7 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 fin = "HT2000"
 batch = 0
 signal=False
-runInteractive=True#False
+runInteractive=False
 if len(sys.argv) >= 2:
   fin = sys.argv[1]
 #fin = "sig400"
@@ -1992,8 +2061,8 @@ if "HT" in fin:
   else:
     fs=fs[start:end]
   fileset = {
-           fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
-           #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/%s/%s"%(fin,f) for f in fs],
+           #fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
+           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv3/E03/%s/%s"%(fin,f) for f in fs],
            #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/HT2000/4C832A72-AF24-D045-ACE7-67DFC5D01F90.root']
   }
 elif "Run" in fin:
@@ -2016,7 +2085,7 @@ else:
   runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_Ht.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_vertexgen.root"%(fin,decays[batch])]
   }  
 
