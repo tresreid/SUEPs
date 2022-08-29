@@ -1226,12 +1226,17 @@ def make2dTrig(sample,cut,var2,ylab="Sphericity (Unboosted)",xlab="Ht [GeV]",yfa
           fig.savefig("Plots/trigeff2d_%s_%s.%s"%(sample,var2,ext))
           plt.close()
 
-def make_systematics(samples,var,systematics=""):
+def make_systematics(samples,var,systematics1="",systematics2=""):
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
-  cutflow = {"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[],"sig200%s"%(systematics):[],"sig300%s"%(systematics):[],"sig400%s"%(systematics):[],"sig750%s"%(systematics):[],"sig1000%s"%(systematics):[]}
+  if systematics2 =="":
+    cutflow = {"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[],"sig200%s"%(systematics1):[],"sig300%s"%(systematics1):[],"sig400%s"%(systematics1):[],"sig750%s"%(systematics1):[],"sig1000%s"%(systematics1):[]}
+    syslist = ["",systematics1]
+  else:
+    cutflow = {"sig200":[],"sig300":[],"sig400":[],"sig750":[],"sig1000":[],"sig200%s"%(systematics1):[],"sig300%s"%(systematics1):[],"sig400%s"%(systematics1):[],"sig750%s"%(systematics1):[],"sig1000%s"%(systematics1):[],"sig200%s"%(systematics2):[],"sig300%s"%(systematics2):[],"sig400%s"%(systematics2):[],"sig750%s"%(systematics2):[],"sig1000%s"%(systematics2):[]}
+    syslist = ["",systematics1,systematics2]
   for sample in samples:
-    for systematic in ["",systematics]:#with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+    for systematic in syslist:#with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
       scaled = {}
       with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
           out = pickle.load(pkl_file)
@@ -1280,7 +1285,7 @@ def make_systematics(samples,var,systematics=""):
       s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
       for (k,s) in s4.items():
         cutflow[sample+systematic].append(s.sum())
-            
+  print(cutflow)          
   print(pd.DataFrame(cutflow))
   #print(pd.DataFrame(cutflow_sig))
   pd.set_option('display.float_format', lambda x: '%.2f' % x)
@@ -1294,23 +1299,30 @@ def make_systematics(samples,var,systematics=""):
     print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
     if i == 3 or i==5 or i==7 or i==9:
       print("\\hline")
-  print("##################  New Yields  ################")
+  print("##################  New Yields 1 ################")
   for i in yields.index:
-    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200%s"%(systematics)][i],yields["sig300%s"%(systematics)][i],yields["sig400%s"%(systematics)][i],yields["sig750%s"%(systematics)][i],yields["sig1000%s"%(systematics)][i]))
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200%s"%(systematics1)][i],yields["sig300%s"%(systematics1)][i],yields["sig400%s"%(systematics1)][i],yields["sig750%s"%(systematics1)][i],yields["sig1000%s"%(systematics1)][i]))
     if i == 3 or i==5 or i==7 or i==9:
       print("\\hline")
-  print("##################  Uncertainty  ################")
-  for i in yields.index:
-    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig200"][i]-yields["sig200%s"%(systematics)][i])/yields["sig200"][i],(yields["sig300"][i]-yields["sig300%s"%(systematics)][i])/yields["sig300"][i],(yields["sig400"][i]-yields["sig400%s"%(systematics)][i])/yields["sig400"][i],(yields["sig750"][i]-yields["sig750%s"%(systematics)][i])/yields["sig750"][i],(yields["sig1000"][i]-yields["sig1000%s"%(systematics)][i])/yields["sig1000"][i]))
-    if i == 3 or i==5 or i==7 or i==9:
-      print("\\hline")
-  #print("##################  RelEff  ################")
-  #for i in releff.index:
-  #  print("%.2e & %.2f & %.2f & %.2f & %.2f & %.2f\n"%(releff["QCD"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig750"][i],releff["sig1000"][i]))
-  #print("##################  SIGS  ################")
-  #for i in sigs.index:
-  #  print("%.2e & %.2e & %.2e & %.2e & %.2e\n"%(sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig750"][i],sigs["sig1000"][i]))
-  ##pd.reset_option('display.float_format')
+  if systematics2 == "":
+    print("##################  Uncertainty  ################")
+    for i in yields.index:
+      print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],(yields["sig750"][i]-yields["sig750%s"%(systematics1)][i])/yields["sig750"][i],(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
+      if i == 3 or i==5 or i==7 or i==9:
+        print("\\hline")
+  else:
+    print("##################  New Yields 2 ################")
+    for i in yields.index:
+      print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200%s"%(systematics2)][i],yields["sig300%s"%(systematics2)][i],yields["sig400%s"%(systematics2)][i],yields["sig750%s"%(systematics2)][i],yields["sig1000%s"%(systematics2)][i]))
+      if i == 3 or i==5 or i==7 or i==9:
+        print("\\hline")
+    print("##################  Uncertainty  ################")
+    for i in yields.index:
+      print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],(yields["sig750%s"%(systematics1)][i]-yields["sig750%s"%(systematics2)][i])/yields["sig750"][i],(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
+      if i == 3 or i==5 or i==7 or i==9:
+        print("\\hline")
+
+
 def make_cutflow(samples,var,trkkill=""):
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
@@ -2439,7 +2451,7 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 ######### Trigger Efficiency
 #print("running trigger studies")
 #make_trigs(["Data"])
-make_trigs(["Data"],systematics=True)
+#make_trigs(["Data"],systematics=True)
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
 #make_trigs(["Data"],"event_sphericity")
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
@@ -2625,4 +2637,6 @@ make_trigs(["Data"],systematics=True)
 #make_dists("QCD")
 #make_dists("sig400_2killtrk2")
 #make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
-#make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics="killtrk")
+#make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="killtrk")
+#make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="trigup",systematics2="trigdown")
+make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")

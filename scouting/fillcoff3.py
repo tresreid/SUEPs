@@ -70,7 +70,7 @@ def pileup_weight(era,puarray,systematics=0):
     hist_data_minus[0].sum()
     norm_data_minus = hist_data_minus[0]/hist_data_minus[0].sum()
     weights_minus = np.divide(norm_data_minus, hist_MC[0], out=np.ones_like(norm_data_minus), where=hist_MC[0]!=0)
-    print("PU: ",weights)
+    #print("PU: ",weights)
     if systematics==0:
       return np.take(weights,puarray)
     elif systematics==1:
@@ -1301,7 +1301,7 @@ class MyProcessor(processor.ProcessorABC):
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
                'n_pvs': arrays["n_pvs"],
-               'PU': arrays["PU_num"],
+               #'PU': arrays["PU_num"],
                'nPVs_good0': ak.count(arrays["Vertex_isValidVtx"],axis=-1),
                'nPVs_good1': ak.count(arrays["Vertex_isValidVtx"][(arrays["Vertex_isValidVtx"] == 1)],axis=-1),
                'nPVs_good2': ak.count(arrays["Vertex_isValidVtx"][(abs(arrays["Vertex_z"]) <24 ) & (arrays["Vertex_isValidVtx"] == 1)],axis=-1),
@@ -1337,8 +1337,8 @@ class MyProcessor(processor.ProcessorABC):
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
         vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics)
-        vals0["PUwgt"] = pileup_weight(2018,vals0["PU"],PUSystematics)
-        vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]
+        #vals0["PUwgt"] = pileup_weight(2018,vals0["PU"],PUSystematics)
+        vals0["wgt"] = vals0["trigwgt"]#*vals0["PUwgt"]
 
         vals_vertex0 = ak.zip({
                       'Vertex_valid': arrays["Vertex_isValidVtx"],
@@ -1375,16 +1375,16 @@ class MyProcessor(processor.ProcessorABC):
         jet_factory = CorrectedJetsFactory(name_map, jec_stack_ak4)
         corrected_jets = jet_factory.build(vals_jet0, lazy_cache=arrays.caches[0])
 
-        print("corrected jet")
-        print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
-        print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
-        
-        print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
-        print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
-        
-        #print('JES pt ratio', corrected_jets.JES_jes.pt/corrected_jets.pt_raw)
-        print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
-        print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
+        #print("corrected jet")
+        #print('untransformed pt ratios', vals_jet0.pt/vals_jet0.pt_raw)
+        #print('untransformed mass ratios', vals_jet0.mass/vals_jet0.mass_raw)
+        #
+        #print('transformed pt ratios', corrected_jets.pt/corrected_jets.pt_raw)
+        #print('transformed mass ratios', corrected_jets.mass/corrected_jets.mass_raw)
+        #
+        ##print('JES pt ratio', corrected_jets.JES_jes.pt/corrected_jets.pt_raw)
+        #print('JES UP pt ratio', corrected_jets.JES_jes.up.pt/corrected_jets.pt_raw)
+        #print('JES DOWN pt ratio', corrected_jets.JES_jes.down.pt/corrected_jets.pt_raw)
         #vals_fatjet0 = ak.zip({
         #               'pt' : arrays["FatJet_pt"],
         #               'eta': arrays["FatJet_eta"],
@@ -1716,7 +1716,7 @@ class MyProcessor(processor.ProcessorABC):
             #IRM_cands = ak.mask(IRM_cands,onetrackcut)
   
 
-            print(len(IRM_cands),len(spherex0))
+            #print(len(IRM_cands),len(spherex0))
             if(len(IRM_cands)!=0):
               eigs2 = sphericity(self,IRM_cands,2.0) # normal sphericity
               eigs1 = sphericity(self,IRM_cands,1.0) # sphere 1
@@ -1774,7 +1774,7 @@ class MyProcessor(processor.ProcessorABC):
           res_beta = spherey2["SUEP_beta"]-scalar["beta"].to_numpy()
           res_pt = spherey2["SUEP_pt"]-scalar["pt"].to_numpy()
           res_mass = spherey2["SUEP_mass"]-scalar["mass"].to_numpy()
-          print("res mass: ",len(res_mass))
+          #print("res mass: ",len(res_mass))
           phi1 = spherey2["SUEP_phi"].to_numpy()
           phi2 = scalar["phi"].to_numpy()
           res_dPhi0 = phi1-phi2 #SUEP_cand.phi.to_numpy()-scalar["phi"].to_numpy()
@@ -1948,12 +1948,12 @@ class MyProcessor(processor.ProcessorABC):
           output = packsingledist(output,resolutions,"res_dR")
           output = packsingledist(output,resolutions,"res_dPhi")
           output = packsingledist(output,resolutions,"res_dEta")
-          output = packtrig(output,trigs,"ht20")
-          output = packtrig(output,trigs,"ht30")
-          output = packtrig(output,trigs,"ht40")
-          output = packtrig(output,trigs,"ht50")
 
         output = packtrig(output,trigs,"ht")
+        output = packtrig(output,trigs,"ht20")
+        output = packtrig(output,trigs,"ht30")
+        output = packtrig(output,trigs,"ht40")
+        output = packtrig(output,trigs,"ht50")
      
         output = packtrig(output,trigs,"n_pfMu")
         output = packtrig(output,trigs,"event_sphericity")
@@ -2053,7 +2053,7 @@ if len(sys.argv) >= 2:
 if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if "HT" in fin:
-  fs = np.loadtxt("rootfiles/%sv2.txt"%(fin),dtype=str)
+  fs = np.loadtxt("rootfiles/%sv3.txt"%(fin),dtype=str)
   start = 100*batch
   end = 100*(batch+1)
   if (end > len(fs)):
@@ -2062,7 +2062,7 @@ if "HT" in fin:
     fs=fs[start:end]
   fileset = {
            #fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
-           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv3/E03/%s/%s"%(fin,f) for f in fs],
+           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv3/E03/2018/%s/%s"%(fin,f) for f in fs],
            #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/HT2000/4C832A72-AF24-D045-ACE7-67DFC5D01F90.root']
   }
 elif "Run" in fin:
