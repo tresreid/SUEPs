@@ -8,7 +8,7 @@ do
   echo $d
   python3 $dir/../make_html_listing.py $d
 done
-outdir=/publicweb/m/mreid/SUEPs/trigerr
+outdir=/publicweb/m/mreid/SUEPs/ht_test
 #outdir=/publicweb/m/mreid/SUEPs/suepJet_darkPho
 rm -r $outdir
 mkdir $outdir

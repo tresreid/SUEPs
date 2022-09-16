@@ -16,9 +16,13 @@ from matplotlib.colors import LinearSegmentedColormap
 import seaborn as sns
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.colors import LogNorm
+from root_numpy import array2hist, hist2array
+import ROOT
+#from ROOT import TFile
+#from rootpy.plotting import Hist2D
 
-ext="png"
-#ext="pdf"
+#ext="png"
+ext="pdf"
 pd.set_option("precision",2)
 
 #parameters = {'axes.labelsize': 13,
@@ -33,11 +37,11 @@ plt.rcParams.update(parameters)
 lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig750":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
-cuts=["0:None","1:HTTrig","2:HT>=600","3:FJ>=2","4:nPFCand>=140"]
+cuts=["0:None","1:HTTrig","2:HT>=700","3:FJ>=2","4:nPFCand>=140"]
 sigcolors = {"sig1000":"green","sig750":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","RunA":"black","QCD":"wheat"}
 labels = {"sig1000":r"$m_{\phi}$ = 1000 GeV","sig750":r"$m_{\phi}$ = 750 GeV","sig400":r"$m_{\phi}$ = 400 GeV","sig300":r"$m_{\phi}$ = 300 GeV","sig200":r"$m_{\phi}$ = 200 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
 
-selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>600 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>600 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>600 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
+selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>700 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>700 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>700 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
 
 directory = "outhists/"
 #directory = "outhists/nPV/"
@@ -375,7 +379,7 @@ def make_trkeff(sample,name,xlab,runPV=0):
         fig.savefig("Plots/track_eff_%s_%s_%d.%s"%(sample,name,runPV,ext))
         plt.close()
 
-def make_multitrigs(sig,varsx):
+def make_multitrigs(sig,varsx,qcdpd=None):
   fig, ax = plt.subplots(
   nrows=1,
   ncols=1,
@@ -384,20 +388,9 @@ def make_multitrigs(sig,varsx):
   xs = np.linspace(0,1500,100)
   nevts = {"ht20":[],"ht30":[],"ht40":[],"ht50":[]}
   for i,var in enumerate(varsx):
-    with open(directory+"myhistos_%s.p"%sig, "rb") as pkl_file:
-        out = pickle.load(pkl_file)
-        sample = sig.split("_")[0]
-        xsec = xsecs[sample.split("_")[0]]
-        if xsec ==0:
-          scale = 1
-        else:
-          scale= lumi*xsec/out["sumw"][sample]
-        out["trigdist_%s"%var].scale(scale)
-        
-        
-
-        s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
-        s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+    if sig == "QCD":
+        s = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+        s0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
         if("ht" in var):
           s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
           s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
@@ -416,19 +409,64 @@ def make_multitrigs(sig,varsx):
         p98sig = 1.65*popt[2]+popt[1]
         p90sig = 1.163*popt[2]+popt[1]
         ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=colors[i],label="%s"%var)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
-        #for thres in [500,550,600,650,700]:
-        #  thres_index = list(map(lambda i: i >= thres, s.to_hist().to_numpy()[1])).index(True)
-        #  nevts[var].append(np.sum(s1[thres_index:]))
+        for thres in [500,525,560,700]:
+          thres_index = list(map(lambda i: i >= thres, s.to_hist().to_numpy()[1])).index(True)
+          nevts[var].append(np.sum(s1[thres_index:]))
+    else:
+      with open(directory+"myhistos_%s.p"%sig, "rb") as pkl_file:
+          out = pickle.load(pkl_file)
+          sample = sig.split("_")[0]
+          xsec = xsecs[sample.split("_")[0]]
+          if xsec ==0:
+            scale = 1
+          else:
+            scale= lumi*xsec/out["sumw"][sample]
+          out["trigdist_%s"%var].scale(scale)
+          s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+          s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+
+          if("ht" in var):
+            s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
+            s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
+          s1 = s.to_hist().to_numpy()[0]
+          s2 = s0.to_hist().to_numpy()[0]
+          points = np.nan_to_num(s1/s2)
+          popt, pcov = curve_fit(func,xbins(s.to_hist().to_numpy()[1]),points,p0=[0.5,500,100,0.5])
+          hx = hist.plotratio(
+              #out["trigdist_%s"%var].integrate("cut",slice(3,4)),out["trigdist_%s"%var].integrate("cut",slice(1,2)),
+              s,s0,
+              ax=ax,
+              clear=False,
+              error_opts={'color': colors[i], 'marker': '.'},
+              unc='clopper-pearson'
+          )
+          p98sig = 1.65*popt[2]+popt[1]
+          p90sig = 1.163*popt[2]+popt[1]
+          ax.plot(xs,func(xs,popt[0],popt[1],popt[2],popt[3]), color=colors[i],label="%s"%var)#: 90:%d 98:%d "%(sample,p90sig,p98sig))
+          for thres in [500,525,560,700]:
+            thres_index = list(map(lambda i: i >= thres, s.to_hist().to_numpy()[1])).index(True)
+            nevts[var].append(np.sum(s1[thres_index:]))
   print(sig)
-  #print(pd.DataFrame(nevts,index=[500,550,600,650,700]))
+  df = pd.DataFrame(nevts,index=[500,525,560,700])
+  print(df)
   ax.set_ylim(0,1.1)
   ax.legend(loc="lower right")
   ax.set_xlabel("Ht [GeV]")
   ax.set_ylabel("Efficiency")
+  ax.axvline(x=500,color="grey")
+  ax.axvline(x=525,color="grey")
+  ax.axvline(x=560,color="grey")
+  ax.axvline(x=700,color="grey")
+  ax.axhline(y=0.90,color="grey")
   fig.suptitle("HT Trigger Efficiency CaloJet40 reference: %s"%sig)
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   fig.savefig("Plots/trigmulti_%s.%s"%(sig,ext))
   plt.close()
+  if qcdpd is not None:
+    divpd = df/((df+qcdpf).apply(np.sqrt))
+    print(divpd)
+  #print("%s %s %s %s"%(df["ht20"][3],df["ht30"][2],df["ht40"][1],df["ht50"][0]))
+  return df
 def make_trigs(samples,var="ht",systematics =False):
   fig, (ax,ax1) = plt.subplots(
   nrows=2,
@@ -516,7 +554,7 @@ def make_trigs(samples,var="ht",systematics =False):
       ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label=labels["Trigger"])#: 90:%d 98:%d"%(p90dat,p98dat))
       ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
 
-      ax.axvline(x=600,color="grey",ls="--")
+      ax.axvline(x=700,color="grey",ls="--")
       #ax.axvline(x=p98sig,color="blue",ls="--")
       #ax.axvline(x=p90sig,color="blue",ls=":")
       #ax.axvline(x=p98bkg,color="red",ls="--")
@@ -614,7 +652,7 @@ def make_trigs(samples,var="ht",systematics =False):
 
           
 
-          #ax.axvline(x=600,color="grey",ls="--")
+          #ax.axvline(x=700,color="grey",ls="--")
           #ax.axvline(x=p98sig,color="blue",ls="--")
           #ax.axvline(x=p90sig,color="blue",ls=":")
           #ax.axvline(x=p98bkg,color="red",ls="--")
@@ -781,9 +819,9 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
     locy = "right"
     
   if("fjn1" in var):
-    ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>600 GeV\n"%(r"$H_{t}$"),loc=locx))
+    ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>700 GeV\n"%(r"$H_{t}$"),loc=locx))
   elif("PFcand_ncount" in var):
-    ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>600 GeV\n 2+ AK15 Jets\n sphericity > 0.7"%(r"$H_{t}$"),loc=locx))
+    ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>700 GeV\n 2+ AK15 Jets\n sphericity > 0.7"%(r"$H_{t}$"),loc=locx))
   else:
     ax.add_artist(AnchoredText(selection[cut],loc=locx))
   ax.legend(leg,loc=locy)
@@ -812,6 +850,39 @@ def get_sig2d(s,sb,rangex,rangey):
     bkg.append(bkg1)
   return(sig,bkg)
 
+def makeCombineHistograms(samples,var,cut):
+  f = ROOT.TFile.Open("combineInput.root","RECREATE")
+  makeQCD = True
+  for sample in samples:
+    with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
+        out = pickle.load(pkl_file)
+        scale= lumi*xsecs[sample]/out["sumw"][sample]
+        scaled = {}
+        var2 = var+"_%s"%cut
+        xvar = "nPFCand"
+        for name, h in out.items():
+          if var2 not in name:
+            continue
+          if isinstance(h, hist.Hist):
+            scaled[name] = h.copy()
+            scaled[name].scale(scale)
+            s = scaled[name].to_hist().to_numpy()
+            h = ROOT.TH2F("%s"%sample,"%s"%sample,300,0,300,100,0,1)
+            for x in range(300):
+              for y in range(100):
+                print(s[2][x],s[3][y],s[0][0][x][y])
+                h.Fill(s[2][x],s[3][y],s[0][0][x][y])
+            h.Write()
+            if makeQCD:
+              s = qcdscaled[name].to_hist().to_numpy()
+              h = ROOT.TH2F("QCD","QCD",300,0,300,100,0,1)
+              for x in range(300):
+                for y in range(100):
+                  print(s[2][x],s[3][y],s[0][0][x][y])
+                  h.Fill(s[2][x],s[3][y],s[0][0][x][y])
+              h.Write()
+              makeQCD=False #only run once
+  f.Close()
 def makeSRSignif(sample,var,cut,xline=None,yline=None):
   with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
       out = pickle.load(pkl_file)
@@ -1294,7 +1365,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
   yields = pd.DataFrame(cutflow)
   #sigs = pd.DataFrame(cutflow_sig)
   print("##################  Yields  ################")
-  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 600 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\boostedSphericity $>70$","Cut 5a: \\nSUEPConstituents $>0.9$","Cut 4b: \\boostedSphericity $>80$","Cut 5b: \\nSUEPConstituents $>0.8$","Cut 4c: \\boostedSphericity $>100$","Cut 5c: \\nSUEPConstituents $>0.7$"] 
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 700 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>70$","Cut 5a: \\boostedSphericity $>0.9$","Cut 4b: \\nSUEPConstituents $>80$","Cut 5b: \\boostedSphericity $>0.8$","Cut 4c: \\nSUEPConstituents $>100$","Cut 5c:\\boostedSphericity $>0.7$"] 
   for i in yields.index:
     print("%s & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
     if i == 3 or i==5 or i==7 or i==9:
@@ -1477,7 +1548,7 @@ def make_cutflow(samples,var,trkkill=""):
   releff = pd.DataFrame(cutflow_releff)
   yields = pd.DataFrame(cutflow)
   sigs = pd.DataFrame(cutflow_sig)
-  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 600 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\boostedSphericity $>70$","Cut 5a: \\nSUEPConstituents $>0.9$","Cut 4b: \\boostedSphericity $>80$","Cut 5b: \\nSUEPConstituents $>0.8$","Cut 4c: \\boostedSphericity $>100$","Cut 5c: \\nSUEPConstituents $>0.7$"] 
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 700 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>70$","Cut 5a: \\boostedSphericity $>0.9$","Cut 4b: \\nSUEPConstituents $>80$","Cut 5b: \\boostedSphericity $>0.8$","Cut 4c: \\nSUEPConstituents $>100$","Cut 5c:\\boostedSphericity $>0.7$"] 
   print("##################  Yields  ################")
   for i in yields.index:
     print("%s & %.2e & %.2e & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig750"][i],yields["sig1000"][i]))
@@ -2444,10 +2515,10 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #############################ORGANIZE BY SECTION #######################################
 #######
 ######
-##################################### HT Trigger
-########### HT Distributions
+###################################### HT Trigger
+############ HT Distributions
 #make_overlapdists(["sig1000","sig750","sig400","sig300","sig200"],"ht",0,"Ht [GeV]",make_ratio=False)
-#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]",vline=600)
+#make_overlapdists(["sig1000","sig750","sig400","sig300","sig200","RunA","QCD"],"ht",1,"Ht [GeV]",vline=700)
 ######### Trigger Efficiency
 #print("running trigger studies")
 #make_trigs(["Data"])
@@ -2455,9 +2526,12 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"])
 #make_trigs(["Data"],"event_sphericity")
 #make_trigs(["sig1000_2","sig750_2","sig400_2","sig300_2","sig200_2"],"event_sphericity")
-#make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"])
-#make_multitrigs("sig750_2",["ht20","ht30","ht40","ht50"])
-#make_multitrigs("sig1000_2",["ht20","ht30","ht40","ht50"])
+#qcdpf = make_multitrigs("QCD",["ht20","ht30","ht40","ht50"])
+#make_multitrigs("sig200_2",["ht20","ht30","ht40","ht50"],qcdpf)
+#make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"],qcdpf)
+#make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"],qcdpf)
+#make_multitrigs("sig750_2",["ht20","ht30","ht40","ht50"],qcdpf)
+#make_multitrigs("sig1000_2",["ht20","ht30","ht40","ht50"],qcdpf)
 #
 #
 ############################### Track Selection
@@ -2535,12 +2609,13 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_overlapdists(["QCD","RunA","sig1000","sig750","sig400","sig300","sig200"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
 #make_overlapdists(["QCD","RunA","sig1000","sig750","sig400","sig300","sig200"],"ISR_eta",3,"ISR eta",make_ratio=True)
 #make_overlapdists(["QCD","RunA","sig1000","sig750","sig400","sig300","sig200"],"ISR_phi",3,"ISR phi",make_ratio=True)
-
+#
 ############################# ABCD
 #make_correlation("SR1_suep",3)
 #make_correlation("SR1_suep",1)
 #print("running ABCD studies")
 #makeSR("sig200","SR1_suep",3)
+makeCombineHistograms(["sig200","sig300","sig400","sig750","sig1000"],"SR1_suep",3)
 #makeSR("sig300","SR1_suep",3)
 #makeSR("sig750","SR1_suep",3)
 #makeSR("sig1000","SR1_suep",3)
@@ -2639,4 +2714,4 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
 #make_cutflow(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep")
 #make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="killtrk")
 #make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="trigup",systematics2="trigdown")
-make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")
+#make_systematics(["sig1000","sig750","sig400","sig300","sig200"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")
