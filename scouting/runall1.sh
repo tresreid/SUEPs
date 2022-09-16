@@ -3,7 +3,7 @@
 #for i in $(seq 0  9); do
 #python fillcoff3.py HT2000 ${i}
 #done
-#for i in $(seq 0  18); do
+#for i in $(seq 2  18); do
 #python fillcoff3.py HT1500 ${i}
 #done
 ##for i in $(seq 0  22); do
@@ -21,12 +21,12 @@
 #for i in $(seq 0  68); do
 #python fillcoff3.py HT200 ${i}
 #done
-python fillcoff3.py HT200 17
-python fillcoff3.py HT200 18
+python fillcoff3.py HT200 19
 python fillcoff3.py HT200 20
-python fillcoff3.py HT200 29
+python fillcoff3.py HT200 27
+python fillcoff3.py HT200 47
 python fillcoff3.py HT200 31
-python fillcoff3.py HT200 55
+#python fillcoff3.py HT200 55
 #python fillcoff3.py HT2000 0
 #python fillcoff3.py HT1500 0
 #python fillcoff3.py HT1500 1

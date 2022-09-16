@@ -6,13 +6,13 @@
 #for i in $(seq 0  18); do
 #python fillcoff3.py HT1500 ${i}
 #done
-#for i in $(seq 0  22); do
-#python fillcoff3.py HT1000 ${i}
-#done
+for i in $(seq 0  22); do
+python fillcoff3.py HT1000 ${i}
+done
 #for i in $(seq 0  54); do
 #python fillcoff3.py HT700 ${i}
 #done
-for i in $(seq 26  70); do
+for i in $(seq 0  70); do
 python fillcoff3.py HT500 ${i}
 done
 #for i in $(seq 0  64); do
