@@ -1260,7 +1260,7 @@ else:
   runInteractive=True
   decays = ["darkPho","darkPhoHad","generic"]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_vertexgen.root"%(fin,decays[batch])]
   }  
 appendname=""
@@ -1310,7 +1310,7 @@ if __name__ == "__main__":
 
     print("Waiting for at least one worker...")
     #client.wait_for_workers(1)
-    print("running %s %s %s"%(fin,batch,systematicType))
+    print("running %s %s %s"%(fin,batch,appendname))
     if(runInteractive):
       out = processor.run_uproot_job(
         fileset,
