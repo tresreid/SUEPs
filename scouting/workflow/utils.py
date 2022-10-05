@@ -32,7 +32,7 @@ def get_dr_ring(dr, phi_c=0, eta_c=0, n_points=600):
     deta = eta_c+np.concatenate((deta, deta[::-1]))
     dphi = phi_c+np.concatenate((dphi, -dphi[::-1]))
     return dphi, deta
-def plot_display(ievt,ht,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbtracks,isrtracks):
+def plot_display(fin,ievt,ht,particles,bparticles,suepjet,isrjet,bisrjet,sphericity,nbtracks,isrtracks):
     fig = plt.figure(figsize=(8,8))
     ax = plt.gca()
 

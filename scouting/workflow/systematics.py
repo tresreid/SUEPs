@@ -17,52 +17,57 @@ ak.behavior.update(candidate.behavior)
 
 
 def correctJets(vals_jet0,cache,era=18,datatype="MC",Run=""):
+        if datatype == "Trigger":
+          #datatype = "DATA"
+          return vals_jet0
         ext_ak4 = extractor()
         if era==18:
           if Run != "":
-            Run = "Run%s"%Run
+            Run = "_Run%s"%Run
           jecdir = "Autumn18%s_V19_%s"%(Run,datatype)
           jerdir = "Autumn18_V7b_%s"%(datatype)
-        if era==17:
+        elif era==17:
           jecdir = "Fall17_17Nov2017%s_V32_%s"%(Run,datatype)
           jerdir = "Summer19UL17_JRV3_%s"%(datatype)
-        if era==16:
+        elif era==16:
           jecdir = "Summer16_07Aug2017%s_V11_%s"%(Run,datatype)
           jerdir = "Summer20UL16_JRV3_%s"%(datatype)
         else:
           jerdir = "Summer19UL%s_JRV3_%s"%(era,datatype)
         jecpath = "jetscale_corrections/20%s/"%(era)+jecdir
         jerpath = "jetresolution_corrections/20%s/"%(era)+jerdir
-        ext_ak4.add_weight_sets([ #change to correct files
+        ext_ak4.add_weight_sets([
             "* * systematics/" + jecpath+"_L1FastJet_AK4PF.jec.txt", #looks to be 0,
             "* * systematics/" + jecpath+"_L1RC_AK4PF.jec.txt", #needs area
             "* * systematics/" + jecpath+"_L2L3Residual_AK4PF.jec.txt",
-            "* * systematics/" + jecpath+"_L2Residual_AK4PF.jec.txt",
             "* * systematics/" + jecpath+"_L2Relative_AK4PF.jec.txt",
             "* * systematics/" + jecpath+"_L3Absolute_AK4PF.jec.txt", #looks to be 1, no change
             "* * systematics/" + jecpath+"_Uncertainty_AK4PF.junc.txt",
-            "* * systematics/" + jerpath+"_PtResolution_AK4PF.jr.txt",
-            "* * systematics/" + jerpath+"_SF_AK4PF.jersf.txt",
+       #     "* * systematics/" + jerpath+"_PtResolution_AK4PF.jr.txt",
+       #     "* * systematics/" + jerpath+"_SF_AK4PF.jersf.txt",
         ])
+        if "DATA" not in datatype:
+        	ext_ak4.add_weight_sets([
+            	"* * systematics/" + jerpath+"_PtResolution_AK4PF.jr.txt",
+            	"* * systematics/" + jerpath+"_SF_AK4PF.jersf.txt",
+        	])
         ext_ak4.finalize()
 
         jec_stack_names_ak4 = [
             jecdir + "_L1FastJet_AK4PF",
-            #jecdir + "_L1RC_AK4PFchs",
-            #jecdir + "_L2L3Residual_AK4PFchs", # data only
-            #jecdir + "_L2Residual_AK4PFchs",
             jecdir + "_L2Relative_AK4PF",
             jecdir + "_L3Absolute_AK4PF",
             jecdir + "_Uncertainty_AK4PF",
-            jerdir + "_PtResolution_AK4PF",
-            jerdir + "_SF_AK4PF",
-            #"Summer19UL18_JRV2_MC_PtResolution_AK4PFchs",
-           #"Summer19UL18_JRV2_MC_SF_AK4PFchs",
         ]
         if(datatype=="DATA"):
           jec_stack_names_ak4 = [
             jecdir + "_L1RC_AK4PF",
             jecdir + "_L2L3Residual_AK4PF"
+        ]+ jec_stack_names_ak4
+        else:
+          jec_stack_names_ak4 = [
+            jerdir + "_PtResolution_AK4PF",
+            jerdir + "_SF_AK4PF",
         ]+ jec_stack_names_ak4
 
         evaluator_ak4 = ext_ak4.make_evaluator()

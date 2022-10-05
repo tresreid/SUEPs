@@ -3,9 +3,11 @@ import awkward as ak
 
 def packtrig(output,vals,var):
         output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var])#,weight=vals[0]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 1: Ref Trig", v1=vals[1][var])#,weight=vals[1]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 2: HT Trig noRef", v1=vals[2][var])#,weight=vals[2]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 3: HT Trig Ref", v1=vals[3][var])#,weight=vals[3]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 1: HT Trig noRef", v1=vals[1][var])#,weight=vals[2]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 2: CaloJet 40 Ref Trig", v1=vals[2][var])#,weight=vals[1]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 3: CaloJet 40 Ref + HT Trig", v1=vals[3][var])#,weight=vals[3]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 4: Mu Ref Trig", v1=vals[4][var])#,weight=vals[1]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 5: Mu Ref + HT Trig", v1=vals[5][var])#,weight=vals[3]["wgt"])
         return output
 def packsingledist(output,vals,var,wgt=True):
         if wgt:
@@ -83,10 +85,12 @@ def pack2D(output,vals,var1,var2):
         output["2d_%s_%s"%(var1,var2)].fill(cut="cut 4: No cut",       v1=vals[4][var1],v2=vals[4][var2],weight=vals[4]["wgt"])
         return output
 def packtrig2D(output,vals,var1,var2):
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2],weight=vals[0]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: Ref Trig",     v1=vals[1][var1],v2=vals[1][var2],weight=vals[1]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: HT Trig noRef",v1=vals[2][var1],v2=vals[2][var2],weight=vals[2]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: HT Trig Ref",  v1=vals[3][var1],v2=vals[3][var2],weight=vals[3]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2])#,weight=vals[0]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: HT Trig noRef",v1=vals[1][var1],v2=vals[1][var2])#,weight=vals[2]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: CaloJet 40 Ref Trig",     v1=vals[2][var1],v2=vals[2][var2])#,weight=vals[1]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: CaoloJet 40 Ref + HT Trig",  v1=vals[3][var1],v2=vals[3][var2])#,weight=vals[3]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 4: Mu Ref Trig",     v1=vals[4][var1],v2=vals[4][var2])#,weight=vals[1]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 5: Mu Ref + HT Trig",  v1=vals[5][var1],v2=vals[5][var2])#,weight=vals[3]["wgt"])
         return output
 
 def fill_scalars(output,scalar0,vals,resolutions):
@@ -157,10 +161,12 @@ def fill_trkID(output,vals_tracks,vals,vals_gen0):
         return output
 def fill_trigs(output,vals0):
         print("filling cutflows trigs")
-        trig1 = vals0[vals0.triggerMu >=1]
-        trig2 = vals0[vals0.triggerHt >=1]
-        trig3 = trig1[trig1.triggerHt >=1]
-        trigs = [vals0,trig1,trig2,trig3]
+        trig1 = vals0[vals0.triggerHt >=1] #HT no ref
+        trig2 = vals0[vals0.triggerCalo >=1] # calojet ref
+        trig3 = trig2[trig2.triggerHt >=1] # calojet +ht
+        trig4 = vals0[vals0.triggerMu >=1] # mu ref
+        trig5 = trig4[trig4.triggerHt >=1] # mu ref + ht
+        trigs = [vals0,trig1,trig2,trig3,trig4,trig5]
 
         output = packtrig(output,trigs,"ht")
         output = packtrig(output,trigs,"ht20")

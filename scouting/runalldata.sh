@@ -8,7 +8,7 @@
 #python fillcoff3.py RunA 6
 #python fillcoff3.py RunA 7
 #python fillcoff3.py RunA 8
-for i in $(seq 0  14); do
+for i in $(seq 0  100); do
 #python nPVplots.py RunA ${i}
 python fillcoff3.py RunA ${i}
 done

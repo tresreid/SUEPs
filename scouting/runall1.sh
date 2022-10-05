@@ -1,31 +1,19 @@
 #1/bin/bash
 
-#for i in $(seq 0  9); do
-#python fillcoff3.py HT2000 ${i}
-#done
-#for i in $(seq 2  18); do
-#python fillcoff3.py HT1500 ${i}
-#done
-##for i in $(seq 0  22); do
-##python fillcoff3.py HT1000 ${i}
-##done
-#for i in $(seq 0  54); do
-#python fillcoff3.py HT700 ${i}
-#done
-#for i in $(seq 0  70); do
-#python fillcoff3.py HT500 ${i}
-#done
-#for i in $(seq 0  64); do
-#python fillcoff3.py HT300 ${i}
-#done
-#for i in $(seq 0  68); do
-#python fillcoff3.py HT200 ${i}
-#done
-python fillcoff3.py HT200 19
-python fillcoff3.py HT200 20
-python fillcoff3.py HT200 27
-python fillcoff3.py HT200 47
-python fillcoff3.py HT200 31
+for i in $(seq 0  9); do
+python fillcoff3.py HT2000 ${i}
+done
+for i in $(seq 0  18); do
+python fillcoff3.py HT1500 ${i}
+done
+for i in $(seq 0  60); do
+python fillcoff3.py HT700 ${i}
+done
+#python fillcoff3.py HT200 19
+#python fillcoff3.py HT200 20
+#python fillcoff3.py HT200 27
+#python fillcoff3.py HT200 47
+#python fillcoff3.py HT200 31
 #python fillcoff3.py HT200 55
 #python fillcoff3.py HT2000 0
 #python fillcoff3.py HT1500 0
