@@ -21,8 +21,8 @@ import ROOT
 #from ROOT import TFile
 #from rootpy.plotting import Hist2D
 
-ext="png"
-#ext="pdf"
+#ext="png"
+ext="pdf"
 pd.set_option("precision",2)
 
 #parameters = {'axes.labelsize': 13,
@@ -46,6 +46,10 @@ selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s
 
 region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
 region_cuts_sphere = [50,80,65,50]
+#region_cuts_tracks = [70,70,80,100] #gap, R1,R2,R3
+#region_cuts_sphere = [70,90,80,70]
+#region_cuts_tracks = [70,70,70,70] #gap, R1,R2,R3
+#region_cuts_sphere = [50,50,50,50]
 inner_tracks = 20
 inner_sphere = 38
 
@@ -177,9 +181,10 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
               ax.step(s1[1],np.append(s1[0],s1[0][-1]),color=sigcolors[sample],label=labels[sample],linestyle="--",where="post",zorder=2)
             ax.set_xlabel("")
   if(vline):
-    ax.axvline(x=vline,color="grey",ls="--")
-    if(make_ratio):
-      ax1.axvline(x=vline,color="grey",ls="--")
+    for v in vline:
+      ax.axvline(x=v,color="grey",ls="--")
+      if(make_ratio):
+        ax1.axvline(x=v,color="grey",ls="--")
         
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
   if("res" in var):
@@ -395,8 +400,10 @@ def make_multitrigs(sig,varsx,qcdpd=None):
   nevts = {"ht20":[],"ht30":[],"ht40":[],"ht50":[]}
   for i,var in enumerate(varsx):
     if sig == "QCD":
-        s = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
-        s0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+        #s = qcdscaled["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+        #s0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+        s = qcdscaled["trigdist_%s"%var].integrate("cut",slice(5,6))#.to_hist().to_numpy()
+        s0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(4,5))#.to_hist().to_numpy()
         if("ht" in var):
           s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
           s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
@@ -428,8 +435,10 @@ def make_multitrigs(sig,varsx,qcdpd=None):
           else:
             scale= lumi*xsec/out["sumw"][sample]
           out["trigdist_%s"%var].scale(scale)
-          s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
-          s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+          #s = out["trigdist_%s"%var].integrate("cut",slice(3,4))#.to_hist().to_numpy()
+          #s0 = out["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+          s = out["trigdist_%s"%var].integrate("cut",slice(5,6))#.to_hist().to_numpy()
+          s0 = out["trigdist_%s"%var].integrate("cut",slice(4,5))#.to_hist().to_numpy()
 
           if("ht" in var):
             s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
@@ -826,6 +835,8 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
     ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>560 GeV\n"%(r"$H_{t}$"),loc=locx))
   elif("PFcand_ncount" in var):
     ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n sphericity > 0.7"%(r"$H_{t}$"),loc=locx))
+  elif("FatJet_nconst" in var and cut ==4):
+    ax.add_artist(AnchoredText("Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n sphericity > 0.7"%(r"$H_{t}$"),loc=locx))
   else:
     ax.add_artist(AnchoredText(selection[cut],loc=locx))
   ax.legend(leg,loc=locy)
@@ -834,8 +845,8 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
     ax1.set_ylim([0,100])
   elif large_max:
     ax1.set_ylim([0,60])
-  else:
-    ax1.set_ylim([0,1])
+  #else:
+  #  ax1.set_ylim([0,1])
   #ax.autoscale(axis='y', tight=True)
   fig.savefig("Plots/signif_%s_%s.%s"%(var,cut,ext))
   plt.close()
@@ -860,7 +871,7 @@ def makeCombineHistograms(samples,var,cut):
   f = ROOT.TFile.Open("combineInput.root","RECREATE")
   #makeQCD = True
   for sample in samples:
-    for systematic in ["","killtrk","AK4up","AK4down"]:
+    for systematic in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown"]:
       with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
           out = pickle.load(pkl_file)
           scale= lumi*xsecs[sample]/out["sumw"][sample]
@@ -899,8 +910,12 @@ def makeCombineHistograms(samples,var,cut):
                 point=3
                 #x0 = 100
                 #y0 = 70
-              x0 = region_cuts_tracks[point]
-              y0 = region_cuts_sphere[point]
+              #x0 = region_cuts_tracks[point]
+              #y0 = region_cuts_sphere[point]
+              x0 = region_cuts_tracks[0]
+              y0 = region_cuts_sphere[0] #use only gap point
+              region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
+              region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
               for region in ["A","B","C","D","E","F","G","H","SR","ALL"]:
                 if region == "A":
                   xx = x1
@@ -955,19 +970,28 @@ def makeCombineHistograms(samples,var,cut):
                 else:
                   print("what happened")
                   pass
+                #region_sum = 0
                 h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
                 if systematic == "":
                   hb = ROOT.TH2F("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
                 for x in range(xx,xxx):
                   for y in range(yy,yyy):
-                    print(s[2][x],s[3][y],s[0][0][x][y])
+                    region_sum[region] = region_sum[region] + s[0][0][x][y]
+                    #print(s[2][x],s[3][y],s[0][0][x][y])
                     h.Fill(s[2][x],s[3][y],s[0][0][x][y])
                     if systematic == "":
-                      print(b[2][x],b[3][y],b[0][0][x][y])
+                      region_sum[region] = region_sum[region] + s[0][0][x][y]
+                      region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
+                      #print(b[2][x],b[3][y],b[0][0][x][y])
                       hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
                 h.Write()
                 if systematic == "":
                   hb.Write()
+              #print("Region %s: %s"%(region,region_sum))
+              if systematic == "":
+                print(sample)
+                print(region_sum)
+                print(region_sumqcd)
   f.Close()
 def makeSRSignif(sample,var,cut,xline=None,yline=None):
   with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
@@ -987,15 +1011,8 @@ def makeSRSignif(sample,var,cut,xline=None,yline=None):
           b = qcdscaled[name].to_hist().to_numpy()
           #print(s)
           sb = b[0][0]
-          #sb = np.add(s[0][0],b[0][0])
-          #sb = np.add(np.add(s[0][0],b[0][0]),0.5*np.square(b[0][0]))
-          #sb = s[0][0]+b[0][0]#+0.5*np.square(b[0][0])
-          #sb = b[0][0]*b[0][0]
-          #print(b[0][0][70][70])
           sig, sigbkg = get_sig2d(s[0][0],sb,xbins(s[2]),xbins(s[3]))
           signif = sig/ np.sqrt(np.add(np.add(sig,sigbkg),np.square(sigbkg)))
-          #signif = sig/ np.sqrt(sig+sigbkg)
-          #signif = sig/ np.sqrt(sigbkg)
           signif = np.nan_to_num(signif)
           maxi = np.max(signif)
           maxindex = unravel_index(np.argmax(signif),signif.shape)
@@ -1028,16 +1045,10 @@ def makeSRSignif(sample,var,cut,xline=None,yline=None):
           plt.close()
 def makeSRSignig9(sample="qcd",SR="SR1_suep",cut=3):
   if cut == 2 or cut == 3:
-    #highx1 = 50
-    #highx2 = 70
-    #highy1 = 40
-    #highy2 = 50
     highx2 = 70
     highy2 = 50
   else:
-    #highx1 = 75
     highx2 = 100
-    #highy1 = 40
     highy2 = 70
   var = "nPFCand"
   SR = SR+"_%s"%cut
@@ -1424,6 +1435,18 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
       s2 = scaled["SR1_suep_3"].integrate("nPFCand",slice(0,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
       for (k,s) in s2.items():
         cutflow[sample+systematic].append(s.sum())
+####  ######SR 0
+      #x1 =70
+      #y1 = 0.9
+      x1 = region_cuts_tracks[0]
+      y1 = region_cuts_sphere[0]/100.
+      s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+      for (k,s) in s3.items():
+        cutflow[sample+systematic].append(s.sum())
+
+      s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+      for (k,s) in s4.items():
+        cutflow[sample+systematic].append(s.sum())
 ####  ######SR 1
       #x1 =70
       #y1 = 0.9
@@ -1467,32 +1490,32 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
   yields = pd.DataFrame(cutflow)
   #sigs = pd.DataFrame(cutflow_sig)
   print("##################  Yields  ################")
-  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]] 
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]] 
   for i in yields.index:
     print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
-    if i == 3 or i==5 or i==7 or i==9:
+    if i == 3 or i==5 or i==7 or i==9 or i == 11:
       print("\\hline")
   print("##################  New Yields 1 ################")
   for i in yields.index:
     print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125%s"%(systematics1)][i],yields["sig200%s"%(systematics1)][i],yields["sig300%s"%(systematics1)][i],yields["sig400%s"%(systematics1)][i],yields["sig700%s"%(systematics1)][i],yields["sig1000%s"%(systematics1)][i]))
-    if i == 3 or i==5 or i==7 or i==9:
+    if i == 3 or i==5 or i==7 or i==9 or i == 11:
       print("\\hline")
   if systematics2 == "":
     print("##################  Uncertainty  ################")
     for i in yields.index:
       print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
-      if i == 3 or i==5 or i==7 or i==9:
+      if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
   else:
     print("##################  New Yields 2 ################")
     for i in yields.index:
       print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125%s"%(systematics2)][i],yields["sig200%s"%(systematics2)][i],yields["sig300%s"%(systematics2)][i],yields["sig400%s"%(systematics2)][i],yields["sig700%s"%(systematics2)][i],yields["sig1000%s"%(systematics2)][i]))
-      if i == 3 or i==5 or i==7 or i==9:
+      if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
     print("##################  Uncertainty  ################")
     for i in yields.index:
       print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
-      if i == 3 or i==5 or i==7 or i==9:
+      if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
 
 
@@ -1519,9 +1542,20 @@ def make_cutflow(samples,var,trkkill=""):
     print("QCD TESTTTTT %d %s %.2f"%(6,"test",b.sum()))
     cutflow["QCD"].append(b.sum())
     cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][2])
-###########SR1 (70,.9)
-  #x1 =70
-  #y1 = 0.9
+###########SR0 (70,.5)
+  x1 = region_cuts_tracks[0]
+  y1 = region_cuts_sphere[0]/100.
+  b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+  for (k,b) in b3.items():
+    print("QCD TESTTTTT %d %s %.2f"%(7,"test",b.sum()))
+    cutflow["QCD"].append(b.sum())
+    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][3])
+  b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+  for (k,b) in b4.items():
+    print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
+    cutflow["QCD"].append(b.sum())
+    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][4])
+###########SR1
   x1 = region_cuts_tracks[1]
   y1 = region_cuts_sphere[1]/100.
   b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
@@ -1533,8 +1567,8 @@ def make_cutflow(samples,var,trkkill=""):
   for (k,b) in b4.items():
     print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
     cutflow["QCD"].append(b.sum())
-    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][4])
-###########SR2 (80,0.8)
+    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][6])
+###########SR2 
   #x1 =80
   #y1 = 0.8
   x1 = region_cuts_tracks[2]
@@ -1548,8 +1582,8 @@ def make_cutflow(samples,var,trkkill=""):
   for (k,b) in b4.items():
     print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
     cutflow["QCD"].append(b.sum())
-    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][6])
-###########SR3 (100,.70)
+    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][8])
+###########SR3 
   #x1 =100
   #y1 = 0.7
   x1 = region_cuts_tracks[3]
@@ -1563,7 +1597,7 @@ def make_cutflow(samples,var,trkkill=""):
   for (k,b) in b4.items():
     print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
     cutflow["QCD"].append(b.sum())
-    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][8])
+    cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][10])
   for sample in samples:
     #with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
     with open(directory+"myhistos_%s_2%s.p"%(sample,trkkill), "rb") as pkl_file:
@@ -1579,7 +1613,7 @@ def make_cutflow(samples,var,trkkill=""):
             scaled[name].scale(scale)
         
         for cut in [0,1,2]:#,3,4]: 
-          s1 = scaled[name].integrate("cut",slice(cut,cut+1)).values()
+          s1 = scaled[name1].integrate("cut",slice(cut,cut+1)).values()
           for (k,s) in s1.items():
             print("%s %d %s %.2f"%(sample,cut,name,s.sum()))
             cutflow[sample].append(s.sum())
@@ -1602,11 +1636,9 @@ def make_cutflow(samples,var,trkkill=""):
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][2])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][3]+(cutflow["QCD"][3]**2)))
-##############SR 1
-        #x1 =70
-        #y1 = 0.9
-        x1 = region_cuts_tracks[1]
-        y1 = region_cuts_sphere[1]/100.
+##############SR 0
+        x1 = region_cuts_tracks[0]
+        y1 = region_cuts_sphere[0]/100.
         s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
         for (k,s) in s3.items():
           #print("QCD TESTTTTT %d %s %.2f"%(7,"test",b.sum()))
@@ -1620,28 +1652,27 @@ def make_cutflow(samples,var,trkkill=""):
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][4])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][5]+(cutflow["QCD"][5]**2)))
-##############SR 2
-        #x1 =80
-        #y1 = 0.8
-        x1 = region_cuts_tracks[2]
-        y1 = region_cuts_sphere[2]/100.
+##############SR 1
+        x1 = region_cuts_tracks[1]
+        y1 = region_cuts_sphere[1]/100.
         s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
         for (k,s) in s3.items():
           #print("QCD TESTTTTT %d %s %.2f"%(7,"test",b.sum()))
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][3])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][6]+(cutflow["QCD"][6]**2)))
+
         s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
         for (k,s) in s4.items():
           #print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][6])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][7]+(cutflow["QCD"][7]**2)))
-##############SR 3
-        #x1 =100
-        #y1 = 0.7
-        x1 = region_cuts_tracks[3]
-        y1 = region_cuts_sphere[3]/100.
+##############SR 2
+        #x1 =80
+        #y1 = 0.8
+        x1 = region_cuts_tracks[2]
+        y1 = region_cuts_sphere[2]/100.
         s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
         for (k,s) in s3.items():
           #print("QCD TESTTTTT %d %s %.2f"%(7,"test",b.sum()))
@@ -1654,6 +1685,23 @@ def make_cutflow(samples,var,trkkill=""):
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][8])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][9]+(cutflow["QCD"][9]**2)))
+##############SR 3
+        #x1 =100
+        #y1 = 0.7
+        x1 = region_cuts_tracks[3]
+        y1 = region_cuts_sphere[3]/100.
+        s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+        for (k,s) in s3.items():
+          #print("QCD TESTTTTT %d %s %.2f"%(7,"test",b.sum()))
+          cutflow[sample].append(s.sum())
+          cutflow_releff[sample].append(100*s.sum()/cutflow[sample][3])
+          cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][10]+(cutflow["QCD"][10]**2)))
+        s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+        for (k,s) in s4.items():
+          #print("QCD TESTTTTT %d %s %.2f"%(8,"test",b.sum()))
+          cutflow[sample].append(s.sum())
+          cutflow_releff[sample].append(100*s.sum()/cutflow[sample][10])
+          cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][11]+(cutflow["QCD"][11]**2)))
             
   print(pd.DataFrame(cutflow))
   print(pd.DataFrame(cutflow_sig))
@@ -1662,21 +1710,21 @@ def make_cutflow(samples,var,trkkill=""):
   releff = pd.DataFrame(cutflow_releff)
   yields = pd.DataFrame(cutflow)
   sigs = pd.DataFrame(cutflow_sig)
-  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]] 
+  cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]] 
   print("##################  Yields  ################")
   for i in yields.index:
     print("%s & %.2e & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
-    if i == 3 or i==5 or i==7 or i==9:
+    if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
   print("##################  RelEff  ################")
   for i in releff.index:
-    print("%s & %.2e & %.2f & %.2f $ %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],releff["QCD"][i],releff["sig125"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig700"][i],releff["sig1000"][i]))
-    if i == 3 or i==5 or i==7 or i==9:
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i+1],releff["QCD"][i],releff["sig125"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig700"][i],releff["sig1000"][i]))
+    if i+1 == 3 or i+1==5 or i+1==7 or i+1==9 or i+1==11:
       print("\\hline")
   print("##################  SIGS  ################")
   for i in sigs.index:
     print("%s & %.2e & %.2e & %.2e & %.2e & %.2e & %.2e \\\\"%(cuts[i],sigs["sig125"][i],sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig700"][i],sigs["sig1000"][i]))
-    if i == 3 or i==5 or i==7 or i==9:
+    if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
   #pd.reset_option('display.float_format')
 
@@ -1733,41 +1781,6 @@ def make_correlation(SR,cut):
 def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   high1 = region_cuts_tracks[point]
   high2 = region_cuts_sphere[point]
-  #if (point ==0):
-  #  high1 = 70
-  #  high2 = 50
-  ##if (point ==1):
-  ##  high1 = 70
-  ##  high2 = 90
-  ##if (point ==2):
-  ##  high1 = 80
-  ##  high2 = 80
-  ##if (point ==3):
-  ##  high1 = 100
-  ##  high2 = 70
-  #if (point ==1):
-  #  #high1 = 85
-  #  #high2 = 80
-  #  high1 = region_cuts_tracks[1]
-  #  high2 = region_cuts_sphere[1] #0.5
-  #if (point ==2):
-  #  #high1 = 90
-  #  #high2 = 65
-  #  high1 = region_cuts_tracks[2]
-  #  high2 = region_cuts_sphere[2] #0.5
-  #if (point ==3):
-  #  #high1 = 105
-  #  #high2 = 50
-  #  high1 = region_cuts_tracks[3]
-  #  high2 = region_cuts_sphere[3] #0.5
-  #if cut == 2 or cut ==3:
-  #  #var = "FatJet_nconst"
-  #  high1 = 70
-  #  high2 = 70
-  #  #high2 = 50
-  #else:
-  #  high1 = 100
-  #  high2 = 60
   var = "nPFCand"
   SR = SR+"_%s"%cut
   if sample == "qcd":
@@ -1816,7 +1829,8 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   dbin_err = dbin[1]
   ratx = bbinx/abinx
   expected = ratx*cbinx
-  err = expected*np.sqrt(abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
+  rel_err = (abin_err/(abinx*abinx)+bbin_err/(bbinx*bbinx)+cbin_err/(cbinx*cbinx))
+  err = expected*np.sqrt(rel_err)
   print(abinx,np.sqrt(abin_err),bbinx,cbinx,dbinx,ratx,expected,dbinx/expected,err)
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)),
@@ -1844,7 +1858,17 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       error_opts={'color': 'r', 'marker': '+'},
       unc='num'
   )
-  ax1.set_xlim(high1,175)
+#new ratio
+
+  xbin = xbins(h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).to_hist().to_numpy()[1])
+  b_rat1, b_err1 = h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).values(sumw2=True)[()]
+  b_rat2, b_err2 = h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).values(sumw2=True)[()]
+  ratio = (b_rat1/b_rat2)
+  ratio_err = ratio*np.sqrt( np.divide(b_err1,np.square(b_rat1)) +np.divide(b_err2,np.square(b_rat2)) + rel_err)#+(d1_err/d1)**2+(d2_err/d2)**2)
+  hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
+  hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
+  hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+  ax1.set_xlim(high1,125)
   if yrange:
     ax1.set_ylim(0.5,1.5)
   else:
@@ -1864,38 +1888,9 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   fig.savefig("Plots/closure_%s_%s.%s"%(sample,SR,ext))
   plt.close()
 def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
-  highx1 = region_cuts_tracks[0]
+  highx1 = inner_tracks #region_cuts_tracks[0]
   highx2 = region_cuts_tracks[point]
   highy1 = region_cuts_sphere[point]
-  #if cut == 2 or cut == 3:
-    #var = "FatJet_nconst"
-    #highx1 = 50
-  #if (point==0):
-  #  highx2 = 70
-  #  highy1 = 50
-  ##if (point==1):
-  ##  highx2 = 70
-  ##  highy1 = 90
-  ##if (point==2):
-  ##  highx2 = 80
-  ##  highy1 = 80
-  ##if (point==3):
-  ##  highx2 = 100
-  ##  highy1 = 70
-  #if (point ==1):
-  #  highx2 = 85
-  #  highy1 = 80
-  #if (point ==2):
-  #  highx2 = 90
-  #  highy1 = 65
-  #if (point ==3):
-  #  highx2 = 105
-  #  highy1 = 50
-  #  #highy1 = 50
-  #else:
-  #  highx1 = 75
-  #  highx2 = 100
-  #  highy1 = 50
   var = "nPFCand"
   SR = SR+"_%s"%cut
   if sample == "qcd":
@@ -1955,7 +1950,8 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   D_err  = np.sqrt(dbin[1])/dbinx
   E_err  = np.sqrt(ebin[1])/ebinx
   ratx = ((ebinx**2)*abinx)/((bbinx**2)*dbinx)
-  err = ratx*cbinx*np.sqrt((D_err)**2 +(2*B_err)**2 +(C_err)**2 +(A_err)**2 + (2*E_err)**2)
+  rel_err = ((D_err)**2 +(2*B_err)**2 +(C_err)**2 +(A_err)**2 + (2*E_err)**2)
+  err = ratx*cbinx*np.sqrt(rel_err)
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
       ax=ax,
@@ -1984,7 +1980,18 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       error_opts={'color': 'r', 'marker': '+'},
       unc='num'
   )
-  ax1.set_xlim(highx2,175)
+#new ratio
+
+  xbin = xbins(h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)).to_hist().to_numpy()[1])
+  b_rat1, b_err1 = h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)).values(sumw2=True)[()]
+  b_rat2, b_err2 = h2.integrate("eventBoostedSphericity",slice(lowy/100,highy1/100)).values(sumw2=True)[()]
+  ratio = (b_rat1/b_rat2)
+  ratio_err = ratio*np.sqrt( np.divide(b_err1,np.square(b_rat1)) +np.divide(b_err2,np.square(b_rat2)) + rel_err)#+(d1_err/d1)**2+(d2_err/d2)**2)
+  hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
+  hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
+  hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+
+  ax1.set_xlim(highx2,125)
   if yrange:
     ax1.set_ylim(0.5,1.5)
   if("isrsuep" in SR):
@@ -2002,37 +2009,10 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   plt.close()
 def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   #if cut == 2 or cut == 3:
-  highx1 = region_cuts_tracks[0]#20
-  highy1 = region_cuts_sphere[0]#38
+  highx1 = inner_tracks #region_cuts_tracks[0]#20
+  highy1 = inner_sphere #region_cuts_sphere[0]#38
   highx2 = region_cuts_tracks[point]
   highy2 = region_cuts_sphere[point]
-  #if (point ==0):
-  #  highx2 = 70
-  #  highy2 = 50
-  ##if (point ==1):
-  ##  highx2 = 70
-  ##  highy2 = 90
-  ##if (point ==2):
-  ##  highx2 = 80
-  ##  highy2 = 80
-  ##if (point ==3):
-  ##  highx2 = 100
-  ##  highy2 = 70
-  #if (point ==1):
-  #  highx2 = 85
-  #  highy2 = 80
-  #if (point ==2):
-  #  highx2 = 90
-  #  highy2 = 65
-  #if (point ==3):
-  #  highx2 = 105
-  #  highy2 = 50
-  #  #highy2 = 50
-  ##else:
-  ##  highx1 = 75
-  ##  highx2 = 100
-  ##  highy1 = 40
-  ##  highy2 = 50
   var = "nPFCand"
   SR = SR+"_%s"%cut
   if sample == "qcd":
@@ -2067,15 +2047,15 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   )
   fig.subplots_adjust(hspace=.07)
   h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
-  abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
-  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
-  gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
 
   abinx = abin[0]
   bbinx = bbin[0]
@@ -2103,25 +2083,48 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   F_err  = np.sqrt(fbin[1])/fbinx
   G_err  = np.sqrt(gbin[1])/gbinx
   H_err  = np.sqrt(hbin[1])/hbinx
-  ratx = (gbinx*cbinx/abinx)*((hbinx/ebinx)**4)*(fbinx**3)/(((gbinx*fbinx/dbinx)**2)*((hbinx*cbinx/bbinx)**2)) 
-  err = ratx*fbinx*np.sqrt((2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(2*F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2)
+  print("A: %s +/- %s"%(abinx,np.sqrt(abin_err)))
+  print("B: %s +/- %s"%(bbinx,np.sqrt(bbin_err)))
+  print("C: %s +/- %s"%(cbinx,np.sqrt(cbin_err)))
+  print("D: %s +/- %s"%(dbinx,np.sqrt(dbin_err)))
+  print("E: %s +/- %s"%(ebinx,np.sqrt(ebin_err)))
+  print("F: %s +/- %s"%(fbinx,np.sqrt(fbin_err)))
+  print("G: %s +/- %s"%(gbinx,np.sqrt(gbin_err)))
+  print("H: %s +/- %s"%(hbinx,np.sqrt(hbin_err)))
+  print("SR: %s +/- %s"%(SRbinx,np.sqrt(SRbin_err)))
+  ratx = fbinx*((hbinx*dbinx*bbinx)**2)/((gbinx*cbinx*abinx)*(ebinx**4)) 
+  #ratx = (gbinx*cbinx/abinx)*((hbinx/ebinx)**4)*(fbinx**3)/(((gbinx*fbinx/dbinx)**2)*((hbinx*cbinx/bbinx)**2)) 
+  rel_err = (2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2
+  #rel_err = (2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(2*F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2
+  #err = ratx*np.sqrt(rel_err+fbin_err)
+  err = ratx*fbinx*np.sqrt(rel_err+F_err**2)
+  #err = ratx*np.sqrt(F_err**2 + rel_err) #ratx*fbinx*np.sqrt(rel_err)
+  #err = ratx*fbinx*np.sqrt(rel_err)
+  print(ratx)
+  print(rel_err)
+  print(err)
+  print(fbinx)
+  #err = ratx*fbinx*np.sqrt((2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(2*F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2)
   hx = hist.plot1d(
-      h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)),
+      h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)),
       ax=ax,
       stack=False,
+      error_opts={'color': 'r', 'marker': '+'},
+      #unc='num',
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"blue"}
   )
   h2 = h1.copy()
   h2.scale(ratx)
   hx2 = hist.plot1d(
-      h2.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
+      h2.integrate("eventBoostedSphericity",slice(highy1/100.,highy2/100.)),
       ax=ax,
       clear=False,
       stack=False,
+      error_opts={'color': 'r', 'marker': '+'},
+      #unc='num',
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
   ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy2),loc="center right",prop=dict(size=12)))
-  #leg = ["Observed %.2f"%(SRbinx),"Predicted: %.2f"%(ratx*fbinx)]
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
   ax.legend(leg)
   hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
@@ -2133,9 +2136,26 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       error_opts={'color': 'r', 'marker': '+'},
       unc='num'
   )
-  ax1.set_xlim(highx2,175)
+  #new ratio
+
+  #print(h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).to_hist().to_numpy())
+  #print(h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).values(sumw2=True)[()])
+  xbin = xbins(h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).to_hist().to_numpy()[1])
+  b_rat1, b_err1 = h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).values(sumw2=True)[()]
+  b_rat2, b_err2 = h2.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)).values(sumw2=True)[()]
+  ratio = (b_rat1/b_rat2)
+  #ratio_err = ratio*np.sqrt( b_err1/(b_rat1**2) +b_err2/(b_rat2**2))#+(d1_err/d1)**2+(d2_err/d2)**2)
+  ratio_err = ratio*np.sqrt( np.divide(b_err1,np.square(b_rat1)) +np.divide(b_err2,np.square(b_rat2)) + rel_err)#+(d1_err/d1)**2+(d2_err/d2)**2)
+  #ratio_err = ratio*np.sqrt( b_err1/(b_rat1**2) +b_err2/(b_rat2**2))#+(d1_err/d1)**2+(d2_err/d2)**2)
+  #hxrat = ax1.errorbar(xbin,ratio)
+  hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
+  hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
+  hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+######
+  #ax1.set_xlim(0,125)
+  ax1.set_xlim(highx2,125)
   if yrange:
-    ax1.set_ylim(0.5,1.5)
+    ax1.set_ylim(0.0,2.0)
   if("isrsuep" in SR):
     ax1.set_xlabel("ISR Jet Track Multiplicity")
   else:
@@ -2200,7 +2220,7 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
     #ratio = []
     #ratio_err = []
     #points = []
-    for highx2, highy2 in zip(region_cuts_tracks[1:],region_cuts_sphere[1:]):
+    for highx2, highy2 in zip(region_cuts_tracks,region_cuts_sphere):
     #for highx2, highy2 in zip([70,80,100],[90,80,70]):
       if gap == 0:
         gapx = highx2
@@ -2268,13 +2288,16 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
   print(sobs)
   print(signifi)
   for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[1],region_cuts_sphere[1]/100.,sample,pred[sample][0],sobs[sample][0],obs[sample][0],signifi[sample][0]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[0],region_cuts_sphere[0]/100.,sample,pred[sample][0],sobs[sample][0],obs[sample][0],signifi[sample][0]))
   print("\\hline")
   for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[2],region_cuts_sphere[2]/100.,sample,pred[sample][1],sobs[sample][1],obs[sample][1],signifi[sample][1]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[1],region_cuts_sphere[1]/100.,sample,pred[sample][1],sobs[sample][1],obs[sample][1],signifi[sample][1]))
   print("\\hline")
   for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[3],region_cuts_sphere[3]/100.,sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[2],region_cuts_sphere[2]/100.,sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2]))
+  print("\\hline")
+  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[3],region_cuts_sphere[3]/100.,sample,pred[sample][3],sobs[sample][3],obs[sample][3],signifi[sample][3]))
 
 def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   highx1 = inner_tracks#22
@@ -2608,18 +2631,6 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   )
   fig.subplots_adjust(hspace=.07)
   
- # if (point ==0):
- #   highx2 = 70
- #   highy2 = 70
- # if (point ==1):
- #   highx2 = 70
- #   highy2 = 90
- # if (point ==2):
- #   highx2 = 80
- #   highy2 = 80
- # if (point ==3):
- #   highx2 = 100
- #   highy2 = 70
   expected = []
   expected_err = []
   observed = []
@@ -2629,8 +2640,6 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   points = []
   gapx = region_cuts_tracks[0]
   gapy = region_cuts_sphere[0]
-  #for highx2 in [70,80,90,100]:
-  #  for highy2 in [70,80,90]:
   for highx2 in region_cuts_tracks:#[70,85,90,105]:
     for highy2 in region_cuts_sphere: #[50,65,80]:
       if gap > 0:
@@ -2743,44 +2752,6 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   fig.savefig("Plots/closureBinned_%s_%s_%s.%s"%(sample,SR,gap,ext))
   plt.close()
 
-def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
-  if cut == 2 or cut == 3:
-    highx1 = inner_tracks#22
-    highx2 = region_cuts_tracks[0]
-    highy1 = inner_sphere#42
-    highy2 = region_cuts_sphere[0]#70
-    #highy2 = 50
-  else:
-    highx1 = 75
-    highx2 = 100
-    highy1 = 40
-    highy2 = 50
-  var = "nPFCand"
-  SR = SR+"_%s"%cut
-  h1 = qcddatafullscaled[SR].integrate("axis",slice(0,1))
-  h2 = datafullscaled[SR].integrate("axis",slice(0,1))
-  lowx =0
-  lowy = 30
-  highx3 = 300
-  highy3 = 100
-  
-  #h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
-  abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100))
-  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100))
-  gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100))
-  abin2 = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100))
-  dbin2 = h2.integrate("eventBoostedSphericity",slice(highy1/100, highy2/100))
-  gbin2 = h2.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100))
-
-  print(abin.to_hist().to_numpy())
-  print(dbin.to_hist().to_numpy())
-  print(gbin.to_hist().to_numpy())
-  b1= abin.to_hist().to_numpy()
-  b2= dbin.to_hist().to_numpy()
-  b3= gbin.to_hist().to_numpy()
-  d1= abin2.to_hist().to_numpy()
-  d2= dbin2.to_hist().to_numpy()
-  d3= gbin2.to_hist().to_numpy()
   for i,(b,d) in enumerate(zip([b1,b2,b3],[d1,d2,d3])):
     fig, (ax, ax1) = plt.subplots(
         nrows=2,
@@ -2816,133 +2787,351 @@ def make_datacompare(sample,SR,cut,xlab=None,make_ratio=True,vline=None):
     ax1.set_xlabel(xlab)
     fig.savefig("Plots/controlbins_dist_%s_cut%s_%s.%s"%(var,cut,i,ext))
     plt.close()
+def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
+  if cut == 2 or cut == 3:
+    highx1 = inner_tracks#22
+    highx2 = region_cuts_tracks[0]
+    highy1 = inner_sphere#42
+    highy2 = region_cuts_sphere[0]#70
+    #highy2 = 50
+  else:
+    highx1 = 75
+    highx2 = 100
+    highy1 = 40
+    highy2 = 50
+  var = "nPFCand"
+  sr = sr+"_%s"%cut
+  #h1 = qcdscaled[sr].integrate("axis",slice(0,1))
+  h1 = qcddatafullscaled[sr].integrate("axis",slice(0,1))
+  h2 = datafullscaled[sr].integrate("axis",slice(0,1))
+  lowx =0
+  lowy = 30
+  highx3 = 300
+  highy3 = 100
+  gapx = highx2
+  gapy = highy2
+  
+  #h1 = h1.rebin(var,hist.bin(var,var,150,0,300))
+  abin  = h1.integrate("eventBoostedSphericity",slice(  lowy/100.,  highy1/100.))
+  dbin  = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.))
+  gbin  = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.))
+  abin2 = h2.integrate("eventBoostedSphericity",slice(  lowy/100.,  highy1/100.))
+  dbin2 = h2.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.))
+  gbin2 = h2.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.))
+  abinx = h2.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  bbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  cbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  dbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  ebinx = h2.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  fbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  gbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  hbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  #SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  ratx = (gbinx*cbinx/abinx)*((hbinx/ebinx)**4)*(fbinx**3)/(((gbinx*fbinx/dbinx)**2)*((hbinx*cbinx/bbinx)**2)) 
 
+  print(abin.to_hist().to_numpy())
+  print(dbin.to_hist().to_numpy())
+  print(gbin.to_hist().to_numpy())
+  b1= abin.to_hist().to_numpy()
+  b2= dbin.to_hist().to_numpy()
+  b3= gbin.to_hist().to_numpy()
+  d1= abin2.to_hist().to_numpy()
+  d2= dbin2.to_hist().to_numpy()
+  d3= gbin2.to_hist().to_numpy()
+  for i,(b,d) in enumerate(zip([b1,b2,b3],[d1,d2,d3])):
+    fig, (ax, ax1) = plt.subplots(
+        nrows=2,
+        ncols=1,
+        figsize=(7,7),
+        gridspec_kw={"height_ratios": (3, 1)},
+        sharex=True
+    )
+    fig.subplots_adjust(hspace=.07)
+    if i==2:
+      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      #ax.step(xbins(b[1])[:highx2],b[0][:highx2],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(d[1])[:highx2],d[0][:highx2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+      ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
+      ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="green")
+      #ax.step(xbins(d2[1])[highx2:],d2[0][highx2:]*ratx,color="purple",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      #ax1.scatter(xbins(b[1])[highy2:],ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="purple")
+    else:
+      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+      ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+    #ax.step(s2[1][:-1],s2[0],color="red",linestyle="--",where="mid",zorder=2)
+    #ax.step(s3[1][:-1],s3[0],color="green",linestyle="--",where="mid",zorder=2)
+    ax.axvline(x=highx1,color="green",ls="--")
+    ax.axvline(x=highx2,color="magenta",ls="--")
+    ax1.axvline(x=highx1,color="green",ls="--")
+    ax1.axvline(x=highx2,color="magenta",ls="--")
+    ax.autoscale(axis='y', tight=True)
+    ax.set_yscale("log")
+    #ax.add_artist(anchoredtext(selection[cut],loc="upper right",prop=dict(size=15)))
+    ax.legend(loc="right")
+    ax.set_xlim([0,125])
+    ax1.set_ylim([0.5,1.5])
+    ax1.axhline(y=1,color="grey",ls="--")
+    ax1.set_ylabel("Data/MC")
+    ax.set_ylabel("Events")
+    ax1.set_xlabel(xlab)
+    fig.savefig("Plots/controlbins_dist_%s_cut%s_%s.%s"%(var,cut,i,ext))
+    plt.close()
 
-##############################ORGANIZE BY SECTION #######################################
-########
+def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
+  if cut == 2 or cut == 3:
+    highx1 = inner_tracks#22
+    highx2 = region_cuts_tracks[0]
+    highy1 = inner_sphere#42
+    highy2 = region_cuts_sphere[0]#70
+    #highy2 = 50
+  else:
+    highx1 = 75
+    highx2 = 100
+    highy1 = 40
+    highy2 = 50
+  var = "nPFCand"
+  sr = sr+"_%s"%cut
+  #h1 = qcdscaled[sr].integrate("axis",slice(0,1))
+  h1 = qcddatafullscaled[sr].integrate("axis",slice(0,1))
+  h2 = datafullscaled[sr].integrate("axis",slice(0,1))
+  lowx =0
+  lowy = 30
+  highx3 = 300
+  highy3 = 100
+  gapx = highx2
+  gapy = highy2
+  
+  #h1 = h1.rebin(var,hist.bin(var,var,150,0,300))
+  abin  = h1.integrate("nPFCand",slice( lowx,  highx1))
+  bbin  = h1.integrate("nPFCand",slice(highx1, highx2))
+  cbin  = h1.integrate("nPFCand",slice(highx2, highx3))
+  abin2 = h2.integrate("nPFCand",slice( lowx,  highx1))
+  bbin2 = h2.integrate("nPFCand",slice(highx1, highx2))
+  cbin2 = h2.integrate("nPFCand",slice(highx2, highx3))
+  #abinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  #bbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  #cbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  #dbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  #ebinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  #fbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  #gbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  #hbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  abinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  dbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  gbinx = h2.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  bbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  ebinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  hbinx = h2.integrate("eventBoostedSphericity",slice(highy1/100, gapy/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()][0]
+  cbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()][0]
+  fbinx = h2.integrate("eventBoostedSphericity",slice(highy2/100, highy3/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()][0]
+  #SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100,highy3/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  ratx = (gbinx*cbinx/abinx)*((hbinx/ebinx)**4)*(fbinx**3)/(((gbinx*fbinx/dbinx)**2)*((hbinx*cbinx/bbinx)**2)) 
+
+  #print(abin.to_hist().to_numpy())
+  #print(bbin.to_hist().to_numpy())
+  #print(cbin.to_hist().to_numpy())
+  b1= abin.to_hist().to_numpy()
+  b2= bbin.to_hist().to_numpy()
+  b3= cbin.to_hist().to_numpy()
+  d1= abin2.to_hist().to_numpy()
+  d2= bbin2.to_hist().to_numpy()
+  d3= cbin2.to_hist().to_numpy()
+  for i,(b,d) in enumerate(zip([b1,b2,b3],[d1,d2,d3])):
+    fig, (ax, ax1) = plt.subplots(
+        nrows=2,
+        ncols=1,
+        figsize=(7,7),
+        gridspec_kw={"height_ratios": (3, 1)},
+        sharex=True
+    )
+    fig.subplots_adjust(hspace=.07)
+    if i==2:
+      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      #ax.step(xbins(b[1])[:highy2],b[0][:highy2],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(d[1])[:highy2],d[0][:highy2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+      ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
+      ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="green")
+      #ax.step(xbins(d3[1][highy2:]),d3[0][highy2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      #ax1.scatter(xbins(b[1][highy2:]),ratx*d3[0][highy2:]/b[0][highy2:],marker=".",color="green")
+    else:
+      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+      ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+    #ax.step(s2[1][:-1],s2[0],color="red",linestyle="--",where="mid",zorder=2)
+    #ax.step(s3[1][:-1],s3[0],color="green",linestyle="--",where="mid",zorder=2)
+    ax.axvline(x=lowy/100.,color="grey",ls="--")
+    ax.axvline(x=highy1/100.,color="green",ls="--")
+    ax.axvline(x=highy2/100.,color="magenta",ls="--")
+    ax1.axvline(x=lowy/100.,color="grey",ls="--")
+    ax1.axvline(x=highy1/100.,color="green",ls="--")
+    ax1.axvline(x=highy2/100.,color="magenta",ls="--")
+    ax.autoscale(axis='y', tight=True)
+    ax.set_yscale("log")
+    #ax.add_artist(anchoredtext(selection[cut],loc="upper right",prop=dict(size=15)))
+    ax.legend(loc="right")
+    ax.set_xlim([0,1])
+    ax1.set_ylim([0.5,1.5])
+    ax1.axhline(y=1,color="grey",ls="--")
+    ax1.set_ylabel("Data/MC")
+    ax.set_ylabel("Events")
+    ax1.set_xlabel(xlab)
+    fig.savefig("Plots/controlbins2_dist_%s_cut%s_%s.%s"%(var,cut,i,ext))
+    plt.close()
+
+def make_limits():
+  dirx = "../limits/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/"
+  values = {0:[],1:[],2:[],3:[],4:[],5:[]}
+  #values = {200:[],300:[],400:[],700:[],1000:[],}
+  sigs = [125,200,400,700,1000]
+  xsec=[]
+  for sig in sigs:
+    xsec.append(xsecs["sig%s"%sig])
+    f = ROOT.TFile.Open(dirx+"higgsCombineTest.AsymptoticLimits.mH%s.root"%sig)
+    tree = f.Get("limit")
+    for i in range(0,6):
+      tree.GetEntry(i)
+      #print(tree.limit)
+      #values[i].append(tree.limit )
+      values[i].append(tree.limit * xsecs["sig%s"%sig])
+  
+  print(values)
+  fig, ax = plt.subplots()
+  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
+  ax.fill_between(sigs,values[0],values[4],color="yellow",label="Expected $\pm 2 \sigma$") # 2 sigma band
+  ax.fill_between(sigs,values[1],values[3],color="lime",label="Expected $\pm 1 \sigma$") # 1 sigma band
+  ax.plot(sigs,values[2],color="black",label = "Median Expected",marker=".",linestyle="--") #median band 
+  ax.plot(sigs,xsec,color="blue",label = "Theory",marker=".",linestyle="--") #theory band 
+  ax.set_xlabel("$m_{s}$ [GeV]")
+  ax.set_ylabel("cross section (pb)")
+  ax.set_yscale("log")
+  ax.legend()
+  fig.tight_layout()
+  fig.savefig("Plots/limits.%s"%(ext))
+  plt.close()
+
+#############################ORGANIZE BY SECTION #######################################
 #######
-###################################### HT Trigger
-############ HT Distributions
-make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht",0,"Ht [GeV]",make_ratio=False)
-make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=560)
+######
+##################################### HT Trigger
+########## HT Distributions
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
 ######## Trigger Efficiency
-#print("running trigger studies")
+print("running trigger studies")
 make_trigs(["Data"])
 make_trigs(["Data"],systematics=True)
-#make_trigs(["sig1000_2","sig700_2","sig400_2","sig300_2","sig200_2","sig125_2"])
-#make_trigs(["Data"],"event_sphericity")
-#make_trigs(["sig1000_2","sig700_2","sig400_2","sig300_2","sig200_2","sig125_2"],"event_sphericity")
-#qcdpf = make_multitrigs("QCD",["ht20","ht30","ht40","ht50"])
-#make_multitrigs("sig125_2",["ht20","ht30","ht40","ht50"],qcdpf)
-#make_multitrigs("sig200_2",["ht20","ht30","ht40","ht50"],qcdpf)
-#make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"],qcdpf)
-#make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"],qcdpf)
-#make_multitrigs("sig700_2",["ht20","ht30","ht40","ht50"],qcdpf)
-#make_multitrigs("sig1000_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_trigs(["sig1000_2","sig700_2","sig400_2","sig300_2","sig200_2","sig125_2"])
+make_trigs(["Data"],"event_sphericity")
+make_trigs(["sig1000_2","sig700_2","sig400_2","sig300_2","sig200_2","sig125_2"],"event_sphericity")
+qcdpf = make_multitrigs("QCD",["ht20","ht30","ht40","ht50"])
+make_multitrigs("sig125_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_multitrigs("sig200_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_multitrigs("sig300_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_multitrigs("sig400_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_multitrigs("sig700_2",["ht20","ht30","ht40","ht50"],qcdpf)
+make_multitrigs("sig1000_2",["ht20","ht30","ht40","ht50"],qcdpf)
 
 
-############################## Track Selection
-#print("running track studies")
-######### TRK Eff and Fakes 
-#make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#maxpoints = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount70",4,maxpoints,"PFCand(70) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount80",4,maxpoints,"PFCand(80) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount90",4,maxpoints,"PFCand(90) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
-#make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"Track pt threshold")
+############################# Track Selection
+print("running track studies")
+######## TRK Eff and Fakes 
+make_trkeff("sig400_2","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi")
+make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta")
+make_trkeff("sig400_2","dist_trkID_gen_phi","Gen Phi",runPV=1)
+make_trkeff("sig400_2","dist_trkID_gen_eta","Gen Eta",runPV=1)
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_phi","PFCand Phi")
+make_trkeff("sig400_2","dist_trkIDFK_PFcand_eta","PFCand Eta")
+maxpoints = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount70",4,maxpoints,"PFCand(70) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount80",4,maxpoints,"PFCand(80) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount90",4,maxpoints,"PFCand(90) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
+make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"Track pt threshold")
+
+make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=[0.02])
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
+
+
+###########################  FatJet Selection
+
+print("running Jet studies")
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","QCD"],"sphere1_suep",3,xlab="SUEP Sphericity",make_ratio=False,shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","QCD"],"sphere1_isrsuep",3,xlab="ISR Sphericity",make_ratio=False,shift_leg=True)
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
 #
-#make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=0.02)
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
-#
-#
-############################  FatJet Selection
-#
-#print("running Jet studies")
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","QCD"],"sphere1_suep",3,xlab="SUEP Sphericity",make_ratio=False,shift_leg=True)
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","QCD"],"sphere1_isrsuep",3,xlab="ISR Sphericity",make_ratio=False,shift_leg=True)
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
-##make_overlapdists(["sig1000","sig700","sig400","sig300","sig200"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
-##
-#make_overlapdists(["sig400"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
-#make_overlapdists(["sig400"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
-#make_overlapdists(["sig400"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
-#make_overlapdists(["sig400"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
-#make_overlapdists(["sig400"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
-#make_overlapdists(["sig400"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
-#
-#maxpointsfj = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount50",2,maxpointsfj,xlab="AK15(50) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount100",2,maxpointsfj,xlab="AK15(100) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount150",2,maxpointsfj,xlab="AK15(150) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount200",2,maxpointsfj,xlab="AK15(200) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount250",2,maxpointsfj,xlab="AK15(250) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount300",2,maxpointsfj,xlab="AK15(300) Multiplicity") 
-#make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpointsfj,[50,100,150,200,250,300],"AK15 pt threshold")
-#
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_pt",3,"AK15 Jet pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_eta",3,"AK15 Jet Eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_phi",3,"AK15 Jet Phi")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_ncount50",3,"AK15 Jet(50) Multiplicity")
-########################### BOOSTING and sphericity
-### TODO ISR removal methods
-#print("running sphericity studies")
-#empty = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",3,empty,xlab="SUEP Jet Track Multiplicity") 
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",4,empty,xlab="SUEP Jet Track Multiplicity") 
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",3,empty,xlab="Boosted Sphericity",shift_leg=True)
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",4,empty,xlab="Boosted Sphericity",shift_leg=True)
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",3,empty,xlab="Unboosted Sphericity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",4,empty,xlab="Unboosted Sphericity")
-##### TODO cutflow table and significance by cut
-#make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep")
-#
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_pt",3,"SUEP pT [GeV]",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_eta",3,"SUEP eta",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_phi",3,"SUEP phi",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_eta",3,"ISR eta",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_phi",3,"ISR phi",make_ratio=True)
-#
-############################# ABCD
+make_overlapdists(["sig400"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
+make_overlapdists(["sig400"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
+make_overlapdists(["sig400"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
+make_overlapdists(["sig400"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+make_overlapdists(["sig400"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+make_overlapdists(["sig400"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+
+maxpointsfj = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount50",2,maxpointsfj,xlab="AK15(50) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount100",2,maxpointsfj,xlab="AK15(100) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount150",2,maxpointsfj,xlab="AK15(150) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount200",2,maxpointsfj,xlab="AK15(200) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount250",2,maxpointsfj,xlab="AK15(250) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount300",2,maxpointsfj,xlab="AK15(300) Multiplicity") 
+make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpointsfj,[50,100,150,200,250,300],"AK15 pt threshold")
+
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_pt",3,"AK15 Jet pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_eta",3,"AK15 Jet Eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_phi",3,"AK15 Jet Phi")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_ncount50",3,"AK15 Jet(50) Multiplicity")
+########################## BOOSTING and sphericity
+## TODO ISR removal methods
+print("running sphericity studies")
+empty = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",3,empty,xlab="SUEP Jet Track Multiplicity") 
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",4,empty,xlab="SUEP Jet Track Multiplicity") 
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",3,empty,xlab="Boosted Sphericity",shift_leg=True)
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",4,empty,xlab="Boosted Sphericity",shift_leg=True)
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",3,empty,xlab="Unboosted Sphericity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",4,empty,xlab="Unboosted Sphericity")
+#### TODO cutflow table and significance by cut
+make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
+make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep")
+
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_pt",3,"SUEP pT [GeV]",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_eta",3,"SUEP eta",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_phi",3,"SUEP phi",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_eta",3,"ISR eta",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_phi",3,"ISR phi",make_ratio=True)
+
+############################## ABCD
 #make_correlation("SR1_suep",3)
 #make_correlation("SR1_suep",1)
 #print("running ABCD studies")
 #makeSR("sig200","SR1_suep",3)
-##makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
 ##makeSR("sig300","SR1_suep",3)
 ##makeSR("sig700","SR1_suep",3)
-##makeSR("sig1000","SR1_suep",3)
+#makeSR("sig1000","SR1_suep",3)
 #makeSR("sig400","SR1_suep",3)
 #makeSR("sig400","SR1_suep",3,lines=4,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=6,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=9,SR=0)
 #######significances
-##makeSRSignif("sig200","SR1_suep",3,xline=70,yline=90)
-##makeSRSignif("sig300","SR1_suep",3,xline=80,yline=80)
-##makeSRSignif("sig400","SR1_suep",3,xline=80,yline=80)
-##makeSRSignif("sig700","SR1_suep",3,xline=100,yline=70)
-##makeSRSignif("sig1000","SR1_suep",3,xline=100,yline=70)
 #makeSRSignif("sig125","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
 #makeSRSignif("sig200","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
 #makeSRSignif("sig300","SR1_suep",3,xline=region_cuts_tracks[2],yline=region_cuts_sphere[2])
@@ -2954,7 +3143,7 @@ make_trigs(["Data"],systematics=True)
 #make_closure_correction9("qcd","SR1_suep",3)
 #make_closure_correction6("qcd","SR1_suep",3)
 #makeSRSignig9("qcd","SR1_suep",3) # error plot
-######signal contamination
+#######signal Injection closure
 #make_closure_correction9("sig125","SR1_suep",3, point=1)
 #make_closure_correction9("sig200","SR1_suep",3, point=1)
 #make_closure_correction9("sig300","SR1_suep",3, point=2)
@@ -2962,7 +3151,7 @@ make_trigs(["Data"],systematics=True)
 #make_closure_correction9("sig700","SR1_suep",3, point=3)
 #make_closure_correction9("sig1000","SR1_suep",3,point=3)
 #
-###data validation
+####data validation
 #make_closure("RunA","SR1_suep",3)
 #make_closure_correction6("RunA","SR1_suep",3)
 #make_closure_correction9("RunA","SR1_suep",3)
@@ -2970,22 +3159,20 @@ make_trigs(["Data"],systematics=True)
 #make_closure_correction9("Data","SR1_isrsuep",3)
 #make_closure_correction6("Data","SR1_isrsuep",3)
 #compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0)
-#
-#
-#for g in [0,1,2]:
-#  make_closure_correction_binned("qcd","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig125","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig200","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig300","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig400","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig700","SR1_suep",3,gap=g)
-#  make_closure_correction_binned("sig1000","SR1_suep",3,gap=g)
+#make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
+#make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
+##
+##
+##for g in [0,1,2]:
+##  make_closure_correction_binned("qcd","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig125","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig200","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig300","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig400","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig700","SR1_suep",3,gap=g)
+##  make_closure_correction_binned("sig1000","SR1_suep",3,gap=g)
 #make_closure_correction_binnedFull("SR1_suep",3,gap=2,zoom=0)
 #make_closure_correction_binnedFull("SR1_suep",3,gap=2,zoom=1)
-######signal contamination
-#cutflow_correction_binned()
-#cutflow_correction_binned(gap=1)
-##cutflow_correction_binned(gap=2)
 
 
 
@@ -3028,15 +3215,24 @@ make_trigs(["Data"],systematics=True)
 #make_overlapdists(["sig400"],"cparam1_suep",3,xlab="SUEP C Parameter (r=1)",make_ratio=False,shift_leg=True)
 #make_overlapdists(["sig400"],"dparam1_suep",3,xlab="SUEP D Parameter (r=1)",make_ratio=False,shift_leg=True)
 #make_overlapdists(["sig400"],"aplanarity1_suep",3,xlab="SUEP Aplanarity (r=1)",make_ratio=False,shift_leg=True)
-#
-#make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
 
 
 
+###############Distributions
 #make_dists("QCD")
 #make_dists("sig400_2")
-#make_cutflow(["sig1000","sig700","sig400","sig300","sig200"],"sphere1_suep")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200"],"sphere1_suep",systematics1="killtrk")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200"],"sphere1_suep",systematics1="trigup",systematics2="trigdown")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200"],"sphere1_suep",systematics1="PUup",systematics2="PUdown")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")
+######################### CUTFLOW TABLES
+#make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
+#make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="killtrk")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="trigup",systematics2="trigdown")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="PUup",systematics2="PUdown")
+#####Signal Contamination
+#cutflow_correction_binned()
+#cutflow_correction_binned(gap=1)
+#cutflow_correction_binned(gap=2)
+
+####################Limits
+#makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
+#make_limits()
