@@ -910,12 +910,6 @@ class MyProcessor(processor.ProcessorABC):
         corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
 
         vals_nsub0 = load_nsub(arrays) 
-        if(signal):
-          alldRtracks = ak.zip({'PFcand_alldR': np.sqrt(arrays["PFcand_alldR"])})
-          alldRtracks = ak.flatten(alldRtracks)
-          output = packsingledist(output,alldRtracks,"PFcand_alldR",wgt=False)
-          vals_gen0 = load_gen(arrays) 
-          scalar0  = load_scalar(arrays)
         vals_tracks0 = load_tracks(arrays,signal) 
         calculateHT(vals0,corrected_jets,AK4sys)
 
@@ -926,9 +920,24 @@ class MyProcessor(processor.ProcessorABC):
         	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]
         else:
                 vals0["wgt"] = 1
+                vals0["PUwgt"] = 1
         if(signal):
+          vals_gen0 = load_gen(arrays) 
+          scalar0  = load_scalar(arrays)
           vals_gen0["wgt"] = vals0["wgt"]
           scalar0["wgt"] = vals0["wgt"]
+          alldRtracks = ak.zip({'PFcand_alldR': np.sqrt(arrays["PFcand_alldR"])})
+          alldRtracks["PUwgt"] = vals0["PUwgt"] 
+          alldRtracks = ak.flatten(alldRtracks)
+          output = packsingledist(output,alldRtracks,"PFcand_alldR",wgt=False)
+        vals_nsub0["wgt"] = vals0["wgt"]
+        vals_nsub0["PUwgt"] = vals0["PUwgt"]
+        vals_tracks0["wgt"] = vals0["wgt"]
+        vals_tracks0["PUwgt"] = vals0["PUwgt"]
+        corrected_jets["wgt"] = vals0["wgt"]
+        corrected_jets["PUwgt"] = vals0["PUwgt"]
+        vals_vertex0["wgt"] = vals0["wgt"]
+        vals_vertex0["PUwgt"] = vals0["PUwgt"]
         print("weights set")
 
 
@@ -963,6 +972,8 @@ class MyProcessor(processor.ProcessorABC):
               "mass": jets_sorted.m,
               "FatJet_nconst": ak.num(cluster_sorted,axis=-1),
           }, with_name="Momentum4D")
+          vals_fatjet0["wgt"] = vals0["wgt"]
+          vals_fatjet0["PUwgt"] = vals0["PUwgt"]
           vals0["FatJet_ncount30"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>30],axis=-1)
           vals0["FatJet_ncount50"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>50],axis=-1)
           vals0["FatJet_ncount100"] = ak.count(vals_fatjet0["pt"][vals_fatjet0["pt"]>100],axis=-1)
@@ -1228,9 +1239,12 @@ if len(sys.argv) >= 2:
 if len(sys.argv) >= 3:
   batch = int(sys.argv[2])
 if len(sys.argv) >= 4:
-  systematicType = int(sys.argv[3])
+  era = int(sys.argv[3])
+if len(sys.argv) >= 5:
+  systematicType = int(sys.argv[4])
 if "HT" in fin:
-  datatype="MC"
+  #datatype="MC"
+  datatype="Trigger"
   fs = np.loadtxt("rootfiles/%sv4.txt"%(fin),dtype=str)
   start = 100*batch
   end = 100*(batch+1)
@@ -1240,7 +1254,7 @@ if "HT" in fin:
     fs=fs[start:end]
   fileset = {
            #fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
-           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2018/%s/%s"%(fin,f) for f in fs],
+           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
            #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/HT2000/4C832A72-AF24-D045-ACE7-67DFC5D01F90.root']
   }
 elif "Run" in fin:
@@ -1251,7 +1265,7 @@ elif "Run" in fin:
   fs = np.loadtxt("rootfiles/Data_%s.txt"%(fin),dtype=str)
   fs=fs[5*batch:5*(batch+1)]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/2018/%s/ScoutingPFHT+Run2018%s-v1+RAW/%s"%(fin,Run,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
   }  
 elif "Trigger" in fin:
   datatype="Trigger"
@@ -1354,6 +1368,6 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/myhistos_%s_%s%s.p"%(fin,batch,appendname), "wb") as pkl_file:
+    with open("outhists/20%s/%s/myhistos_%s_%s%s.p"%(era,datatype,fin,batch,appendname), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)

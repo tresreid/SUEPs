@@ -2,18 +2,30 @@ import numpy as np
 import awkward as ak
 
 def packtrig(output,vals,var):
-        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var])#,weight=vals[0]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 1: HT Trig noRef", v1=vals[1][var])#,weight=vals[2]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 2: CaloJet 40 Ref Trig", v1=vals[2][var])#,weight=vals[1]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 3: CaloJet 40 Ref + HT Trig", v1=vals[3][var])#,weight=vals[3]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 4: Mu Ref Trig", v1=vals[4][var])#,weight=vals[1]["wgt"])
-        output["trigdist_%s"%(var)].fill(cut="Cut 5: Mu Ref + HT Trig", v1=vals[5][var])#,weight=vals[3]["wgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var],weight=vals[0]["PUwgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 1: HT Trig noRef", v1=vals[1][var],weight=vals[1]["PUwgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 2: CaloJet 40 Ref Trig", v1=vals[2][var],weight=vals[2]["PUwgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 3: CaloJet 40 Ref + HT Trig", v1=vals[3][var],weight=vals[3]["PUwgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 4: Mu Ref Trig", v1=vals[4][var],weight=vals[4]["PUwgt"])
+        output["trigdist_%s"%(var)].fill(cut="Cut 5: Mu Ref + HT Trig", v1=vals[5][var],weight=vals[5]["PUwgt"])
         return output
 def packsingledist(output,vals,var,wgt=True):
         if wgt:
           output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var],weight=vals["wgt"])
         else:
-          output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var])
+          output["dist_%s"%(var)].fill(cut="cut 0:No cut", v1=vals[var],weight=vals["PUwgt"])
+        return output
+def packdistnowgt(output,vals,var,prefix=""):
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var],weight=vals[0]["PUwgt"])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig", v1=vals[1][var],weight=vals[1]["PUwgt"])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=560", v1=vals[2][var],weight=vals[2]["PUwgt"])
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2", v1=vals[3][var],weight=vals[3]["PUwgt"])
+        if("PFcand_n" in var):
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var])
+        else:
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var])
+        if(len(vals)>=6):
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var])
         return output
 def packdist(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var],weight=vals[0]["wgt"])
@@ -32,34 +44,34 @@ def packdist(output,vals,var,prefix=""):
         #output["dist_%s"%(var)].fill(cut="cut 4:FJ nPFCand>=80", v1=vals[4][var])
         return output
 def packtrkFKID(output,vals,var,var2,prefix=""):
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",          v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 1: |eta| < 2.4",          v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 2: q != 0",               v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 3: PV = 0",               v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.5",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.6",      v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.7",      v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 0.75",     v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 8: PFcand_pt > 0.8",      v1=ak.flatten(vals[8][var]), v2=ak.flatten(vals[8][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 9: PFcand_pt > 0.9",      v1=ak.flatten(vals[9][var]), v2=ak.flatten(vals[9][var2]))
-        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 10: PFcand_pt > 1.0",     v1=ak.flatten(vals[10][var]), v2=ak.flatten(vals[10][var2]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",          v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]),weight=ak.flatten(vals[0]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 1: |eta| < 2.4",          v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]),weight=ak.flatten(vals[1]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 2: q != 0",               v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]),weight=ak.flatten(vals[2]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 3: PV = 0",               v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]),weight=ak.flatten(vals[3]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.5",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]),weight=ak.flatten(vals[4]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.6",      v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]),weight=ak.flatten(vals[5]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.7",      v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]),weight=ak.flatten(vals[6]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 0.75",     v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]),weight=ak.flatten(vals[7]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 8: PFcand_pt > 0.8",      v1=ak.flatten(vals[8][var]), v2=ak.flatten(vals[8][var2]),weight=ak.flatten(vals[8]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 9: PFcand_pt > 0.9",      v1=ak.flatten(vals[9][var]), v2=ak.flatten(vals[9][var2]),weight=ak.flatten(vals[9]["wgt"]))
+        output["dist_trkIDFK_%s%s"%(prefix,var)].fill(cut="cut 10: PFcand_pt > 1.0",     v1=ak.flatten(vals[10][var]), v2=ak.flatten(vals[10][var2]),weight=ak.flatten(vals[10]["wgt"]))
         return output
 def packtrkID(output,vals,var,var2,var3,prefix=""):
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]), v3=ak.flatten(vals[0][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]), v3=ak.flatten(vals[1][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]), v3=ak.flatten(vals[2][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]), v3=ak.flatten(vals[3][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]), v3=ak.flatten(vals[4][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]), v3=ak.flatten(vals[5][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]), v3=ak.flatten(vals[6][var3]))
-        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]), v3=ak.flatten(vals[7][var3]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 0:Preselection",           v1=ak.flatten(vals[0][var]), v2=ak.flatten(vals[0][var2]), v3=ak.flatten(vals[0][var3]),weight=ak.flatten(vals[0]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 1: PFcand_pt > 0.5",       v1=ak.flatten(vals[1][var]), v2=ak.flatten(vals[1][var2]), v3=ak.flatten(vals[1][var3]),weight=ak.flatten(vals[1]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 2: PFcand_pt > 0.6",       v1=ak.flatten(vals[2][var]), v2=ak.flatten(vals[2][var2]), v3=ak.flatten(vals[2][var3]),weight=ak.flatten(vals[2]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 3: PFcand_pt > 0.7",       v1=ak.flatten(vals[3][var]), v2=ak.flatten(vals[3][var2]), v3=ak.flatten(vals[3][var3]),weight=ak.flatten(vals[3]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 4: PFcand_pt > 0.75",      v1=ak.flatten(vals[4][var]), v2=ak.flatten(vals[4][var2]), v3=ak.flatten(vals[4][var3]),weight=ak.flatten(vals[4]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 5: PFcand_pt > 0.8",       v1=ak.flatten(vals[5][var]), v2=ak.flatten(vals[5][var2]), v3=ak.flatten(vals[5][var3]),weight=ak.flatten(vals[5]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]), v3=ak.flatten(vals[6][var3]),weight=ak.flatten(vals[6]["wgt"]))
+        output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]), v3=ak.flatten(vals[7][var3]),weight=ak.flatten(vals[7]["wgt"]))
         return output
 def packdistflat(output,vals,var,prefix=""):
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var]))
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig",      v1=ak.flatten(vals[1][var]))
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=560",      v1=ak.flatten(vals[2][var]))
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2",        v1=ak.flatten(vals[3][var]))
-        output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFCand(SUEP)>=70", v1=ak.flatten(vals[4][var]))
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var]),weight=ak.flatten(vals[0]["wgt"]))
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig",      v1=ak.flatten(vals[1][var]),weight=ak.flatten(vals[1]["wgt"]))
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=560",      v1=ak.flatten(vals[2][var]),weight=ak.flatten(vals[2]["wgt"]))
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2",        v1=ak.flatten(vals[3][var]),weight=ak.flatten(vals[3]["wgt"]))
+        output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFCand(SUEP)>=70", v1=ak.flatten(vals[4][var]),weight=ak.flatten(vals[4]["wgt"]))
         #if(len(vals)>=6):
         #  output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:Pre + nPVs < 30", v1=ak.flatten(vals[5][var]))
         #  output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:Pre + nPVs >=30", v1=ak.flatten(vals[6][var]))
@@ -85,12 +97,12 @@ def pack2D(output,vals,var1,var2):
         output["2d_%s_%s"%(var1,var2)].fill(cut="cut 4: No cut",       v1=vals[4][var1],v2=vals[4][var2],weight=vals[4]["wgt"])
         return output
 def packtrig2D(output,vals,var1,var2):
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2])#,weight=vals[0]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: HT Trig noRef",v1=vals[1][var1],v2=vals[1][var2])#,weight=vals[2]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: CaloJet 40 Ref Trig",     v1=vals[2][var1],v2=vals[2][var2])#,weight=vals[1]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: CaoloJet 40 Ref + HT Trig",  v1=vals[3][var1],v2=vals[3][var2])#,weight=vals[3]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 4: Mu Ref Trig",     v1=vals[4][var1],v2=vals[4][var2])#,weight=vals[1]["wgt"])
-        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 5: Mu Ref + HT Trig",  v1=vals[5][var1],v2=vals[5][var2])#,weight=vals[3]["wgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 0: No cut",       v1=vals[0][var1],v2=vals[0][var2],weight=vals[0]["PUwgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 1: HT Trig noRef",v1=vals[1][var1],v2=vals[1][var2],weight=vals[1]["PUwgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 2: CaloJet 40 Ref Trig",     v1=vals[2][var1],v2=vals[2][var2],weight=vals[2]["PUwgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 3: CaoloJet 40 Ref + HT Trig",  v1=vals[3][var1],v2=vals[3][var2],weight=vals[3]["PUwgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 4: Mu Ref Trig",     v1=vals[4][var1],v2=vals[4][var2],weight=vals[4]["PUwgt"])
+        output["trig2d_%s_%s"%(var1,var2)].fill(cut="Cut 5: Mu Ref + HT Trig",  v1=vals[5][var1],v2=vals[5][var2],weight=vals[5]["PUwgt"])
         return output
 
 def fill_scalars(output,scalar0,vals,resolutions):
@@ -251,7 +263,7 @@ def fill_jets(output,corrected_jets,vals,vals_fatjet0,vals_nsub0):
         return output
 def fill_vals(output, vals):
         print("filling cutflows vals")
-        output = packdist(output,vals,"ht")
+        output = packdistnowgt(output,vals,"ht")
         output = packdist(output,vals,"n_pfcand")
         output = packdist(output,vals,"event_sphericity")
         output = packdist(output,vals,"eventBoosted_sphericity")

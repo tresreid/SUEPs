@@ -16,10 +16,10 @@
 #python fillcoff3.py HT500 ${i}
 #done
 for i in $(seq 0  64); do
-python fillcoff3.py HT300 ${i}
+python fillcoff3.py HT300 ${i} 18
 done
 for i in $(seq 0  68); do
-python fillcoff3.py HT200 ${i}
+python fillcoff3.py HT200 ${i} 18
 done
 #python fillcoff3.py HT2000 0
 #python fillcoff3.py HT1500 0
