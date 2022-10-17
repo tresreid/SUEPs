@@ -27,6 +27,8 @@ def correctJets(vals_jet0,cache,era=18,datatype="MC",Run=""):
           jecdir = "Autumn18%s_V19_%s"%(Run,datatype)
           jerdir = "Autumn18_V7b_%s"%(datatype)
         elif era==17:
+          if Run =="D" or Run =="E":
+            Run = "DE"
           jecdir = "Fall17_17Nov2017%s_V32_%s"%(Run,datatype)
           jerdir = "Summer19UL17_JRV3_%s"%(datatype)
         elif era==16:

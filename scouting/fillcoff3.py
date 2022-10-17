@@ -904,7 +904,7 @@ class MyProcessor(processor.ProcessorABC):
         dataset = arrays.metadata['dataset']
         output["sumw"][dataset] += len(arrays) # get number of events
 
-        vals0 = load_vals(arrays,datatype) 
+        vals0 = load_vals(arrays,datatype,era) 
         vals_vertex0 = load_vertex(arrays) 
         vals_jet0 = load_jets(arrays,datatype) 
         corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
@@ -1237,7 +1237,7 @@ if len(sys.argv) >= 2:
   fin = sys.argv[1]
 #fin = "sig400"
 if len(sys.argv) >= 3:
-  batch = int(sys.argv[2])
+  batch = sys.argv[2]
 if len(sys.argv) >= 4:
   era = int(sys.argv[3])
 if len(sys.argv) >= 5:
@@ -1245,7 +1245,8 @@ if len(sys.argv) >= 5:
 if "HT" in fin:
   #datatype="MC"
   datatype="Trigger"
-  fs = np.loadtxt("rootfiles/%sv4.txt"%(fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/%sv4.txt"%(era,fin),dtype=str)
+  batch = int(batch)
   start = 100*batch
   end = 100*(batch+1)
   if (end > len(fs)):
@@ -1262,16 +1263,19 @@ elif "Run" in fin:
   Run = fin[3:]
   print("Run",Run)
   #Runs = ["RunA","RunB","RunC"]
-  fs = np.loadtxt("rootfiles/Data_%s.txt"%(fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/Data_%s.txt"%(era,fin),dtype=str)
+  batch = int(batch)
   fs=fs[5*batch:5*(batch+1)]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
   }  
 elif "Trigger" in fin:
   datatype="Trigger"
   #Runs = ["RunA","RunB","RunC"]
   #runInteractive=True
-  fs = np.loadtxt("rootfiles/%s.txt"%(fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/%s.txt"%(era,fin),dtype=str)
+  batch = int(batch)
   fs=fs[10*batch:10*(batch+1)]
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/ScoutingPFCommissioning+Run2018A-v1+RAW/%s"%(f) for f in fs]
@@ -1280,7 +1284,7 @@ else:
   datatype="MC"
   signal=True
   runInteractive=True
-  decays = ["darkPho","darkPhoHad","generic"]
+  decays = {0:"darkPho",1:"darkPhoHad",2:"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
@@ -1332,7 +1336,7 @@ if __name__ == "__main__":
 
     print("Waiting for at least one worker...")
     #client.wait_for_workers(1)
-    print("running %s %s %s"%(fin,batch,appendname))
+    print("running %s %s %s 20%s"%(fin,batch,appendname,era))
     if(runInteractive):
       out = processor.run_uproot_job(
         fileset,

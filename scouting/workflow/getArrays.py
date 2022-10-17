@@ -110,10 +110,15 @@ def load_resolutions(scalar0,vals0,spherey2):
         })
         resolutions["wgt"] = spherey2["wgt"]
         return resolutions
-def load_vals(arrays,dataset):
-        tright = [item[7] for item in arrays["hltResult"]]
-        trigcalo = [item[5] for item in arrays["hltResult"]] #actually calojet40 reference trigger
-        trigmu = [item[2] for item in arrays["hltResult"]] #actually calojet40 reference trigger
+def load_vals(arrays,dataset,era):
+        if era == 18:
+          tright = [item[7] for item in arrays["hltResult"]]
+          trigcalo = [item[5] for item in arrays["hltResult"]] #calojet40 reference trigger
+          trigmu = [item[2] for item in arrays["hltResult"]] #mu reference trigger
+        else:
+          tright = [item[5] for item in arrays["hltResult"]]
+          trigcalo = [item[3] for item in arrays["hltResult"]] #calojet40 reference trigger
+          trigmu = [item[1] for item in arrays["hltResult"]] #mu reference trigger
         #trigger order:
         #HLT Trigger DST_DoubleMu1_noVtx_CaloScouting_v2
         #HLT Trigger DST_DoubleMu3_noVtx_CaloScouting_Monitoring_v6
