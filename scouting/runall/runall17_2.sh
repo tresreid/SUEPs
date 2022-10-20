@@ -1,10 +1,10 @@
 #1/bin/bash
 
-for i in $(seq 0  22); do
-python fillcoff3.py HT1000 ${i} 18
+for i in $(seq 0  17); do
+python fillcoff3.py HT1000 ${i} 17
 done
-for i in $(seq 0  70); do
-python fillcoff3.py HT500 ${i} 18
+for i in $(seq 0  75); do
+python fillcoff3.py HT500 ${i} 17
 done
 #for i in $(seq 0  64); do
 #python fillcoff3.py HT300 ${i}

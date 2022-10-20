@@ -1243,8 +1243,8 @@ if len(sys.argv) >= 4:
 if len(sys.argv) >= 5:
   systematicType = int(sys.argv[4])
 if "HT" in fin:
-  #datatype="MC"
-  datatype="Trigger"
+  datatype="MC"
+  #datatype="Trigger"
   fs = np.loadtxt("rootfiles/20%s/%sv4.txt"%(era,fin),dtype=str)
   batch = int(batch)
   start = 100*batch
@@ -1284,7 +1284,7 @@ else:
   datatype="MC"
   signal=True
   runInteractive=True
-  decays = {0:"darkPho",1:"darkPhoHad",2:"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
+  decays = {"0":"darkPho","1":"darkPhoHad","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s.root"%(fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
