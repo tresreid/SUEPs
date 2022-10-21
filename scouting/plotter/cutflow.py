@@ -438,6 +438,6 @@ def make_limits(scan=0):
   ax.set_yscale("log")
   ax.legend()
   fig.tight_layout()
-  fig.savefig("/uscms/home/mreid/nobackup/sueps/analysis/SUEPs/scouting/plotter/Plots/limits_%s.%s"%(scan,ext))
+  fig.savefig("/uscms/home/mreid/nobackup/sueps/analysis/SUEPs/scouting/plotter/Plots/limits_%s_%s.%s"%(scan,year,ext))
   plt.close()
 

@@ -610,7 +610,7 @@ def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   ax1.axhline(y=1,color="gray",ls="--")
   fig.savefig("Plots/compareDataRegion_%s_%s_%s.%s"%(SR,zoom,year,ext))
   plt.close()
-def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0,zoom=0):
+def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0,zoom=0):
   highx1 = inner_tracks#20
   highy1 = inner_sphere#38
   lowx =0
@@ -627,7 +627,7 @@ def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0,zoom=0)
       sharex=True
   )
   fig.subplots_adjust(hspace=.07)
-  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+  for sample in samples:#["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
     if sample == "QCD":
        h1 = qcdscaled[SR].integrate("axis",slice(0,1))
     elif sample == "RunA":
@@ -726,8 +726,8 @@ def make_closure_correction_binnedFull(SR="SR1_suep",cut=0,point=0,gap=0,zoom=0)
   ax.set_ylabel("Events")
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Predicted")
-  fig.suptitle("9 Bin Predicted vs Observed by Bin")
-  fig.savefig("Plots/closureBinnedFull_%s_%s_%s_%s.%s"%(SR,gap,zoom,year,ext))
+  fig.suptitle("9 Bin Predicted vs Observed by Bin: %s"%sample)
+  fig.savefig("Plots/closureBinnedFull_%s_%s_%s_%s_%s.%s"%(sample,SR,gap,zoom,year,ext))
   plt.close()
 
 def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0):

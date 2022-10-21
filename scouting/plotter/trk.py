@@ -40,7 +40,7 @@ def make_trkeff(sample,name,xlab,runPV=0):
         #ax1.legend(["no cut", "|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
         fig.suptitle("Track Fake Rate: %s"%sample)
         hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
-        fig.savefig("Plots/track_fake_%s_%s.%s"%(sample,name,ext))
+        fig.savefig("Plots/track_fake_%s_%s_%s.%s"%(sample,name,year,ext))
         plt.close()
       else:
         num = out[name].integrate("v3",slice(0,4)).integrate("v2",slice(0,0.02)).copy()
@@ -98,5 +98,5 @@ def make_trkeff(sample,name,xlab,runPV=0):
         ax1.set_ylabel("Efficiency")
         fig.suptitle("Track Efficiency: %s"%sample)
         hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
-        fig.savefig("Plots/track_eff_%s_%s_%d.%s"%(sample,name,runPV,ext))
+        fig.savefig("Plots/track_eff_%s_%s_%d_%s.%s"%(sample,name,runPV,year,ext))
         plt.close()

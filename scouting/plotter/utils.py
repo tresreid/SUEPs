@@ -19,10 +19,10 @@ from matplotlib.colors import LogNorm
 from root_numpy import array2hist, hist2array
 import ROOT
 
-year = 2018
-#year = 2017
-ext="png"
-#ext="pdf"
+#year = 2018
+year = 2017
+#ext="png"
+ext="pdf"
 pd.set_option("precision",2)
 
 parameters = {'axes.labelsize': 20,
