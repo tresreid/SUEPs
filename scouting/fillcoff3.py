@@ -1286,7 +1286,7 @@ else:
   runInteractive=True
   decays = {"0":"darkPho","1":"darkPhoHad","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s.root"%(fin,decays[batch])]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
   }  
 appendname=""
@@ -1372,6 +1372,8 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    with open("outhists/20%s/%s/myhistos_%s_%s%s.p"%(era,datatype,fin,batch,appendname), "wb") as pkl_file:
+    if signal:
+      datatype = "SIG"
+    with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
