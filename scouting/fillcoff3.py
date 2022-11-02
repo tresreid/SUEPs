@@ -1,5 +1,5 @@
 import awkward as ak
-from coffea import hist, processor, nanoevents
+from coffea import hist, processor, nanoevents, lumi_tools
 import uproot
 from coffea.nanoevents import NanoEventsFactory, BaseSchema
 import matplotlib.pyplot as plt
@@ -36,6 +36,7 @@ trigSystematics = 0 #0: nominal, 1: up err, 2: down err
 AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 PUSystematics = 0 #0: nominal, 1: up err, 2: down err
+PSSystematics = 0 #0: nominal, 1: up err, 2: down err
 killTrks = False
 era=18
 datatype= "MC"
@@ -903,6 +904,8 @@ class MyProcessor(processor.ProcessorABC):
         output = self.accumulator.identity()
         dataset = arrays.metadata['dataset']
         output["sumw"][dataset] += len(arrays) # get number of events
+        if "DATA" in datatype:
+          arrays = applyGoldenJSON(era,arrays)
 
         vals0 = load_vals(arrays,datatype,era) 
         vals_vertex0 = load_vertex(arrays) 
@@ -917,7 +920,8 @@ class MyProcessor(processor.ProcessorABC):
         if "DATA" not in datatype and "Trigger" not in datatype:
         	vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
         	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)
-        	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]
+       		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
+        	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]
         else:
                 vals0["wgt"] = 1
                 vals0["PUwgt"] = 1
@@ -1266,10 +1270,16 @@ elif "Run" in fin:
   fs = np.loadtxt("rootfiles/20%s/Data_%s.txt"%(era,fin),dtype=str)
   batch = int(batch)
   fs=fs[5*batch:5*(batch+1)]
-  fileset = {
+  if(era==18):
+    fileset = {
+     #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
+    }
+  else:  
+    fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
-  }  
+    }  
 elif "Trigger" in fin:
   datatype="Trigger"
   #Runs = ["RunA","RunB","RunC"]
@@ -1311,6 +1321,12 @@ if systematicType ==6:
 if systematicType ==7:
 	PUSystematics = 2 #0: nominal, 1: up err, 2: down err
 	appendname = "PUdown"
+if systematicType ==8:
+	PSSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "PSdown"
+if systematicType ==9:
+	PSSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "PSdown"
 	
 
 if __name__ == "__main__":
