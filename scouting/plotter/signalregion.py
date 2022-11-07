@@ -120,23 +120,12 @@ def makeSR(sample,var,cut,lines=0,SR=0):
       plt.close()
 
 def makeSRSignif(sample,var,cut,xline=None,yline=None):
-  with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
-      out = pickle.load(pkl_file)
-      scale= lumi*xsecs[sample]/out["sumw"][sample]
-      scaled = {}
       name = var+"_%s"%cut
       print(name)
       xvar = "SUEP Jet Track Multiplicity"
-      #for name, h in out.items():
-      #  if var2 not in name:
-      #    continue
-      #  if isinstance(h, hist.Hist):
-      #    scaled[name] = h.copy()
-      #    scaled[name].scale(scale)
       scaled = sigscaled[sample]
       s = scaled[name].to_hist().to_numpy()
       b = qcdscaled[name].to_hist().to_numpy()
-      #print(s)
       sb = b[0][0]
       sig, sigbkg = get_sig2d(s[0][0],sb,xbins(s[2]),xbins(s[3]))
       signif = sig/ np.sqrt(np.add(np.add(sig,sigbkg),np.square(sigbkg)))

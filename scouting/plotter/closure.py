@@ -17,7 +17,7 @@ def make_correlation(SR,cut):
     norm = np.linalg.norm(h2[0])
     xbin = xbins(h2[1])
     ax1.step(xbin[:-high1],h2[0][:-high1]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="mid")
-  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax1)
   ax1.legend(title="Boosted\n Sphericity\n Bins")
   ax1.set_xlabel(var)
   ax1.set_ylabel("AU")
@@ -39,7 +39,7 @@ def make_correlation(SR,cut):
       xbin = xbins(h2[1])
       ax1.step(xbin[cut:],h2[0][cut:]/norm,color=colors[i],label="%s-%s"%(sphere[i],sphere[i+1]),linestyle="-",where="mid")
 
-    hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
+    hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax1)
     ax1.legend(title="%s Bins"%var)
     ax1.set_xlabel("Boosted Sphericity")
     ax1.set_ylabel("AU")
@@ -109,7 +109,7 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   )
   leg = ["Observed %.2f +/- %.2f"%(dbinx,np.sqrt(dbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*cbinx,err),"point"]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -140,7 +140,7 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       ax1.set_xlabel("Suep Jet Track Multiplcity")
     else:
       ax1.set_xlabel("Event Tracks")
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(high1,high2),loc="center right",prop=dict(size=12)))
+  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(high1,high2/100.),loc="center right",prop=dict(size=12)))
   ax1.axhline(y=1,color="gray",ls="--")
   ax.set_xlabel("")
   ax1.set_ylabel("Observed/Predicted")
@@ -218,10 +218,10 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       stack=False,
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy1),loc="center right",prop=dict(size=12)))
+  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy1/100.),loc="center right",prop=dict(size=12)))
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*cbinx,err)]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -258,7 +258,7 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
+def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1):
   highx1 = inner_tracks #region_cuts_tracks[0]#20
   highy1 = inner_sphere #region_cuts_sphere[0]#38
   highx2 = region_cuts_tracks[point]
@@ -277,6 +277,12 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   lowy = 30
   highx3 = 300
   highy3 = 100
+  if gap:
+    gapx = region_cuts_tracks[0] 
+    gapy = region_cuts_sphere[0]
+  else:
+    gapx = highx2
+    gapy = highy2
 
   fig, (ax, ax1) = plt.subplots(
       nrows=2,
@@ -287,14 +293,23 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   )
   fig.subplots_adjust(hspace=.07)
   h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
+  #abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  #bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  #cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  #dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  #ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  #fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  #gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  #hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  #SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
   abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()]
   cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
-  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+  dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+  ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()]
+  fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
   gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
+  hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()]
   SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
   abinx = abin[0]
   bbinx = bbin[0]
@@ -353,10 +368,10 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       #unc='num',
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy2),loc="center right",prop=dict(size=12)))
+  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy2/100.),loc="center right",prop=dict(size=12)))
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
   ax.legend(leg)
-  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
   hx1 = hist.plotratio(
@@ -390,7 +405,7 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Predicted")
   fig.suptitle("9 Bin Closure: %s"%(sample))
-  fig.savefig("Plots/closure9_%s_%s_%s.%s"%(sample,SR,year,ext))
+  fig.savefig("Plots/closure9_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
   plt.close()
 
 def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
@@ -417,16 +432,6 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
     elif sample == "Data":
        h1 = datafullscaled[SR].integrate("axis",slice(0,1))
     else:
-      #with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
-      #    out = pickle.load(pkl_file)
-      #    scale= lumi*xsecs[sample]/out["sumw"][sample]
-      #    scaled = {}
-      #    for name, h in out.items():
-      #      if SR not in name or "mu" in name or "trig" in name:
-      #        continue
-      #      if isinstance(h, hist.Hist):
-      #        scaled[name] = h.copy()
-      #        scaled[name].scale(scale)
       h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
       h2 = (sigscaled[sample][SR]).integrate("axis",slice(0,1))
 
@@ -602,6 +607,7 @@ def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   ax.errorbar(range(9),dobserved,yerr=dobserved_err,xerr=0.5,color="red",label="Data",ls='none',marker=".")
   ax1.errorbar(range(9),ratio,yerr=ratio_err,color="black",ls='none',marker="+")
   plt.xticks(range(9),points)#, rotation="-45")
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
   ax.legend()
   ax.set_yscale("log")
   y1, y2 = ax.get_ylim()
@@ -647,15 +653,15 @@ def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0
     points = []
     gapx = region_cuts_tracks[0]
     gapy = region_cuts_sphere[0]
-    for highx2 in region_cuts_tracks: #[70,85,90,105]:
-      for highy2 in region_cuts_sphere: #[50,65,80]:
-        if gap > 0:
+    for highx2 in [70,80,90,100]: #region_cuts_tracks: #[70,85,90,105]:
+      for highy2 in [50,60,70,80,90]: #region_cuts_sphere: #[50,65,80]:
+        if gap == 0:
           gapx = highx2
           gapy = highy2
-          if gap ==2:
-            highy3 = highy2+10
-            if highx2!=100:
-              highx3 = highx2+10
+        if gap ==2:
+          highy3 = highy2+10
+          if highx2!=100:
+            highx3 = highx2+10
         h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
         abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
         bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()]
@@ -706,14 +712,15 @@ def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0
         ratio_err.append((SRbinx/(ratx*fbinx))*np.sqrt(SR_err**2 + err1))
         points.append("(%d,%.2f)"%(highx2,highy2/100))
     if "QCD" in sample:
-      ax.fill_between([x-0.5 for x in range(17)],np.append(expected,expected[-1]),color=sigcolors[sample],alpha=0.8,zorder=0,linestyle="-",step="post")
+      ax.fill_between([x-0.5 for x in range(21)],np.append(expected,expected[-1]),color=sigcolors[sample],alpha=0.8,zorder=0,linestyle="-",step="post")
       col = "black"
     else:
       col = sigcolors[sample]
-    ax.step(range(16),expected,color=col,label="%s: expected"%(sample),linestyle="--",where="mid")
-    ax.errorbar(range(16),observed,yerr=observed_err,xerr=0.5,color=col,label="%s: observed"%(sample),ls='none',marker=".")
-    ax1.errorbar(range(16),ratio,yerr=ratio_err,color=col,ls='none',marker="+")
-    plt.xticks(range(16),points, rotation="-45")
+    hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
+    ax.step(range(20),expected,color=col,label="%s: expected"%(sample),linestyle="--",where="mid")
+    ax.errorbar(range(20),observed,yerr=observed_err,xerr=0.5,color=col,label="%s: observed"%(sample),ls='none',marker=".")
+    ax1.errorbar(range(20),ratio,yerr=ratio_err,color=col,ls='none',marker="+")
+    plt.xticks(range(20),points, rotation="-45")
   ax.legend()
   ax.set_yscale("log")
   y1, y2 = ax.get_ylim()
@@ -721,10 +728,16 @@ def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0
   if zoom:
     ax1.set_ylim(0,10)
     ax.set_ylim(10,2000)
-  else:
-    ax1.set_ylim(0,50)
+  #else:
+  #  ax1.set_ylim(0,50)
   ax.set_ylabel("Events")
   ax1.axhline(y=1,color="gray",ls="--")
+  ax1.axvline(x=4.5,color="grey",ls="--")
+  ax1.axvline(x=9.5,color="grey",ls="--")
+  ax1.axvline(x=14.5,color="grey",ls="--")
+  ax.axvline(x=4.5,color="grey",ls="--")
+  ax.axvline(x=9.5,color="grey",ls="--")
+  ax.axvline(x=14.5,color="grey",ls="--")
   ax1.set_ylabel("Observed/Predicted")
   fig.suptitle("9 Bin Predicted vs Observed by Bin: %s"%sample)
   fig.savefig("Plots/closureBinnedFull_%s_%s_%s_%s_%s.%s"%(sample,SR,gap,zoom,year,ext))
@@ -827,6 +840,7 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   ax.errorbar(range(16),expected,yerr=expected_err,xerr=0.5,color="red",label="expected",ls='none')
   ax.errorbar(range(16),observed,yerr=observed_err,xerr=0.5,color="blue",label="observed",ls='none')
   ax1.errorbar(range(16),ratio,yerr=ratio_err,color="black",ls='none',marker="+")
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.legend()
   plt.xticks(range(16),points, rotation="-45")
   ax.set_yscale("log")
@@ -909,6 +923,7 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
     ax.axvline(x=highx1,color="green",ls="--")
+    hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
     ax.axvline(x=highx2,color="magenta",ls="--")
     ax1.axvline(x=highx1,color="green",ls="--")
     ax1.axvline(x=highx2,color="magenta",ls="--")
@@ -988,6 +1003,7 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
     ax.axvline(x=lowy/100.,color="grey",ls="--")
+    hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
     ax.axvline(x=highy1/100.,color="green",ls="--")
     ax.axvline(x=highy2/100.,color="magenta",ls="--")
     ax1.axvline(x=lowy/100.,color="grey",ls="--")

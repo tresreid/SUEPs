@@ -1,17 +1,6 @@
 from utils import *
 
 def make_trkeff(sample,name,xlab,runPV=0):
-#  with open(directory+"myhistos_%s.p"%sample, "rb") as pkl_file:
-#      out = pickle.load(pkl_file)
-#      sample = sample.split("_")[0]
-#      xsec = xsecs[sample.split("_")[0]]
-#      if xsec ==0:
-#        scale = 1
-#      else:
-#        scale= lumi*xsec/out["sumw"][sample]
-#      #out[name].scale(scale)
-#
-#
       out = sigscaled[sample]
       if("IDFK" in name):
         ###############FAKE
@@ -39,7 +28,7 @@ def make_trkeff(sample,name,xlab,runPV=0):
         ax1.set_ylabel("Fake Rate")
         #ax1.legend(["no cut", "|eta| < 2.4","q != 0","PV =0","pt > 0.5","pt >0.6","pt >0.7","pt >0.75","pt >0.8","pt >0.9","pt >1.0",],loc="lower right")
         fig.suptitle("Track Fake Rate: %s"%sample)
-        hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
+        hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
         fig.savefig("Plots/track_fake_%s_%s_%s.%s"%(sample,name,year,ext))
         plt.close()
       else:
@@ -97,6 +86,6 @@ def make_trkeff(sample,name,xlab,runPV=0):
         ax1.set_xlabel(xlab)
         ax1.set_ylabel("Efficiency")
         fig.suptitle("Track Efficiency: %s"%sample)
-        hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2)
+        hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
         fig.savefig("Plots/track_eff_%s_%s_%d_%s.%s"%(sample,name,runPV,year,ext))
         plt.close()

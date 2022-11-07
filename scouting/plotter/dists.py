@@ -16,7 +16,7 @@ def make_threshold(samples,allmaxpoints,xs,xlab):
   ax1.set_xlabel(xlab)
   ax1.set_ylabel("s/sqrt(s+b+$b^{2}$)")
   ax1.legend()
-  fig.savefig("Plots/threshold_%s_%s.%s"%(xlab,year,ext))
+  fig.savefig("Plots/threshold_%s_%s.%s"%(xlab.replace(" ", "_"),year,ext))
   plt.close()
 
 def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
@@ -41,7 +41,10 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
       fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3),"color":"wheat"}
   )
   large_max = False
+  large_max1 = False
   large_max2 = False
+  large_max3 = False
+  large_max4 = False
   for sample in samples:
     scaled = sigscaled[sample]
     s = scaled[name].integrate("cut",slice(cut,cut+1)).to_hist().to_numpy()
@@ -65,8 +68,14 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
       maxpoints["err_%s"%sample].append(err[np.nanargmax(signifline)])
     if(np.nanmax(signifline) > 1):
       large_max = True
-    if(np.nanmax(signifline) > 60):
+    if(np.nanmax(signifline) > 5):
+      large_max1 = True
+    if(np.nanmax(signifline) > 20):
       large_max2 = True
+    if(np.nanmax(signifline) > 30):
+      large_max3 = True
+    if(np.nanmax(signifline) > 60):
+      large_max4 = True
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   y1,y2 = ax.get_ylim()
@@ -93,10 +102,16 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
   else:
     ax.add_artist(AnchoredText(selection[cut],loc=locx))
   ax.legend(leg,loc=locy)
-  if large_max2:
+  if large_max4:
     ax1.set_ylim([0,100])
-  elif large_max:
+  elif large_max3:
     ax1.set_ylim([0,60])
+  elif large_max2:
+    ax1.set_ylim([0,40])
+  elif large_max1:
+    ax1.set_ylim([0,20])
+  elif large_max:
+    ax1.set_ylim([0,5])
   #else:
   #  ax1.set_ylim([0,1])
   #ax.autoscale(axis='y', tight=True)
@@ -224,7 +239,7 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
     ax.set_xscale("log")
     ax.set_xlim([0.6,50])
   if("FatJet_pt" in var):
-    ax.set_xlim([50,300])
+    ax.set_xlim([50,1000])
   ax.set_ylabel("Events")
   if make_ratio:
     ax1.set_xlabel(xlab)

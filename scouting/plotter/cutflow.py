@@ -69,7 +69,7 @@ def make_cutflow(samples,var):
   sigs = pd.DataFrame(cutflow_sig)
   print("##################  Yields  ################")
   for i in yields.index:
-    print("%s & %.2e & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
     if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
   print("##################  RelEff  ################")
@@ -84,7 +84,7 @@ def make_cutflow(samples,var):
       print("\\hline")
 
 def make_systematics(samples,var,systematics1="",systematics2=""):
-  name1 = "dist_%s"%var
+  name = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   if systematics2 =="":
     cutflow = {"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[],"sig125%s"%(systematics1):[],"sig200%s"%(systematics1):[],"sig300%s"%(systematics1):[],"sig400%s"%(systematics1):[],"sig700%s"%(systematics1):[],"sig1000%s"%(systematics1):[]}
@@ -94,14 +94,14 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
     syslist = ["",systematics1,systematics2]
   for sample in samples:
     for systematic in syslist:
-      scaled = {}
-      with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
-          out = pickle.load(pkl_file)
-          scale= lumi*xsecs[sample]/out["sumw"][sample]
-          for name, h in out.items():
-            if isinstance(h, hist.Hist):
-              scaled[name] = h.copy()
-              scaled[name].scale(scale)
+      scaled = sigscaled_sys[sample][systematic] 
+      #with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
+      #    out = pickle.load(pkl_file)
+      #    scale= lumi*xsecs[sample]/out["sumw"][sample]
+      #    for name, h in out.items():
+      #      if isinstance(h, hist.Hist):
+      #        scaled[name] = h.copy()
+      #        scaled[name].scale(scale)
 
       for cut in [0,1,2]:#,3,4]:
         s1 = scaled[name].integrate("cut",slice(cut,cut+1)).values()
@@ -156,6 +156,124 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
 
 
 
+def makeCombineHistograms(samples,var,cut):
+  f = ROOT.TFile.Open("combineInput.root","RECREATE")
+  #makeQCD = True
+  for sample in samples:
+    #for systematic in ["m2t0p5", "m2t1", "m2t2", "m2t3", "m2t4", "m3t1p5", "m3t3", "m3t6", "m5t1", "m5t5", "m5t10"]:
+    for systematic in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown"]:
+      #with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
+      #with open(directory+"myhistos_%s_%s.p"%(sample,systematic), "rb") as pkl_file:
+      #    out = pickle.load(pkl_file)
+      #    scale= lumi*xsecs[sample]/out["sumw"][sample]
+      #    scaled = {}
+      scaled = sigscaled_sys[sample][systematic]
+      name = var+"_%s"%cut
+      xvar = "SUEP Jet Track Multiplicity"
+     #     for name, h in out.items():
+     #       if var2 not in name:
+     #         continue
+     #       if isinstance(h, hist.Hist):
+     #         scaled[name] = h.copy()
+     #         scaled[name].scale(scale)
+      s = scaled[name].to_hist().to_numpy()
+      if systematic == "":
+        b = qcdscaled[name].to_hist().to_numpy()
+      else:
+        systematic = "_"+systematic #for aesthetic purposes
+
+      x1 = 0
+      x2 = inner_tracks
+      x3 = region_cuts_tracks[0]
+      x4 = 300
+      y1 = 30
+      y2 = inner_sphere
+      y3 = region_cuts_sphere[0]
+      y4 = 100
+      if sample == "sig200" or sample == "sig125":
+        point=1
+      if sample == "sig300" or sample == "sig400":
+        point=2
+      if sample == "sig700" or sample == "sig1000":
+        point=3
+      x0 = region_cuts_tracks[0]
+      y0 = region_cuts_sphere[0] #use only gap point
+      region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
+      region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
+      for region in ["A","B","C","D","E","F","G","H","SR","ALL"]:
+        if region == "A":
+          xx = x1
+          xxx = x2
+          yy = y1
+          yyy = y2
+        elif region == "B":
+          xx = x2
+          xxx = x3
+          yy = y1
+          yyy = y2
+        elif region == "C":
+          xx = x0
+          xxx = x4
+          yy = y1
+          yyy = y2
+        elif region == "D":
+          xx = x1
+          xxx = x2
+          yy = y2
+          yyy = y3
+        elif region == "E":
+          xx = x2
+          xxx = x3
+          yy = y2
+          yyy = y3
+        elif region == "F":
+          xx = x0
+          xxx = x4
+          yy = y2
+          yyy = y3
+        elif region == "G":
+          xx = x1
+          xxx = x2
+          yy = y0
+          yyy = y4
+        elif region == "H":
+          xx = x2
+          xxx = x3
+          yy = y0
+          yyy = y4
+        elif region == "SR":
+          xx = x0
+          xxx = x4
+          yy = y0
+          yyy = y4
+        elif region == "ALL":
+          xx = 0
+          xxx = x4
+          yy = 0
+          yyy = y4
+        else:
+          print("what happened")
+          pass
+        #h = ROOT.TH2F("%s_%s"%(systematic,region),"%s_%s"%(systematic,region),300,0,300,100,0,1)
+        h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
+        if systematic == "":
+          hb = ROOT.TH2F("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
+        for x in range(xx,xxx):
+          for y in range(yy,yyy):
+            region_sum[region] = region_sum[region] + s[0][0][x][y]
+            h.Fill(s[2][x],s[3][y],s[0][0][x][y])
+            if systematic == "":
+              region_sum[region] = region_sum[region] + s[0][0][x][y]
+              region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
+              hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
+        h.Write()
+        if systematic == "":
+          hb.Write()
+      if systematic == "":
+        print(sample)
+        print(region_sum)
+        print(region_sumqcd)
+  f.Close()
 #def makeCombineHistograms(samples,var,cut):
 #  f = ROOT.TFile.Open("combineInputscan.root","RECREATE")
 #  #makeQCD = True
@@ -176,8 +294,8 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
 #              scaled[name] = h.copy()
 #              scaled[name].scale(scale)
 #              s = scaled[name].to_hist().to_numpy()
-#              if systematic == "":
-#                b = qcdscaled[name].to_hist().to_numpy()
+#              #if systematic == "":
+#              b = qcdscaled[name].to_hist().to_numpy()
 #              #else:
 #              #  systematic = "_"+systematic #for aesthetic purposes
 #
@@ -255,141 +373,24 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
 #                  pass
 #                h = ROOT.TH2F("%s_%s"%(systematic,region),"%s_%s"%(systematic,region),300,0,300,100,0,1)
 #                #h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
-#                if systematic == "":
-#                  hb = ROOT.TH2F("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
+#                #if systematic == "":
+#                hb = ROOT.TH2F("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
 #                for x in range(xx,xxx):
 #                  for y in range(yy,yyy):
 #                    region_sum[region] = region_sum[region] + s[0][0][x][y]
 #                    h.Fill(s[2][x],s[3][y],s[0][0][x][y])
-#                    if systematic == "":
-#                      region_sum[region] = region_sum[region] + s[0][0][x][y]
-#                      region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
-#                      hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
+#                    #if systematic == "":
+#                    region_sum[region] = region_sum[region] + s[0][0][x][y]
+#                    region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
+#                    hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
 #                h.Write()
-#                if systematic == "":
-#                  hb.Write()
+#                #if systematic == "":
+#                hb.Write()
 #              if systematic == "":
 #                print(sample)
 #                print(region_sum)
 #                print(region_sumqcd)
 #  f.Close()
-def makeCombineHistograms(samples,var,cut):
-  f = ROOT.TFile.Open("combineInputscan.root","RECREATE")
-  #makeQCD = True
-  for sample in samples:
-    for systematic in ["m2t0p5", "m2t1", "m2t2", "m2t3", "m2t4", "m3t1p5", "m3t3", "m3t6", "m5t1", "m5t5", "m5t10"]:
-    #for systematic in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown"]:
-      #with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
-      with open(directory+"myhistos_%s_%s.p"%(sample,systematic), "rb") as pkl_file:
-          out = pickle.load(pkl_file)
-          scale= lumi*xsecs[sample]/out["sumw"][sample]
-          scaled = {}
-          var2 = var+"_%s"%cut
-          xvar = "SUEP Jet Track Multiplicity"
-          for name, h in out.items():
-            if var2 not in name:
-              continue
-            if isinstance(h, hist.Hist):
-              scaled[name] = h.copy()
-              scaled[name].scale(scale)
-              s = scaled[name].to_hist().to_numpy()
-              #if systematic == "":
-              b = qcdscaled[name].to_hist().to_numpy()
-              #else:
-              #  systematic = "_"+systematic #for aesthetic purposes
-
-              x1 = 0
-              x2 = inner_tracks
-              x3 = region_cuts_tracks[0]
-              x4 = 300
-              y1 = 30
-              y2 = inner_sphere
-              y3 = region_cuts_sphere[0]
-              y4 = 100
-              if sample == "sig200" or sample == "sig125":
-                point=1
-              if sample == "sig300" or sample == "sig400":
-                point=2
-              if sample == "sig700" or sample == "sig1000":
-                point=3
-              x0 = region_cuts_tracks[0]
-              y0 = region_cuts_sphere[0] #use only gap point
-              region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
-              region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"SR":0,"ALL":0}
-              for region in ["A","B","C","D","E","F","G","H","SR","ALL"]:
-                if region == "A":
-                  xx = x1
-                  xxx = x2
-                  yy = y1
-                  yyy = y2
-                elif region == "B":
-                  xx = x2
-                  xxx = x3
-                  yy = y1
-                  yyy = y2
-                elif region == "C":
-                  xx = x0
-                  xxx = x4
-                  yy = y1
-                  yyy = y2
-                elif region == "D":
-                  xx = x1
-                  xxx = x2
-                  yy = y2
-                  yyy = y3
-                elif region == "E":
-                  xx = x2
-                  xxx = x3
-                  yy = y2
-                  yyy = y3
-                elif region == "F":
-                  xx = x0
-                  xxx = x4
-                  yy = y2
-                  yyy = y3
-                elif region == "G":
-                  xx = x1
-                  xxx = x2
-                  yy = y0
-                  yyy = y4
-                elif region == "H":
-                  xx = x2
-                  xxx = x3
-                  yy = y0
-                  yyy = y4
-                elif region == "SR":
-                  xx = x0
-                  xxx = x4
-                  yy = y0
-                  yyy = y4
-                elif region == "ALL":
-                  xx = 0
-                  xxx = x4
-                  yy = 0
-                  yyy = y4
-                else:
-                  print("what happened")
-                  pass
-                h = ROOT.TH2F("%s_%s"%(systematic,region),"%s_%s"%(systematic,region),300,0,300,100,0,1)
-                #h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
-                #if systematic == "":
-                hb = ROOT.TH2F("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
-                for x in range(xx,xxx):
-                  for y in range(yy,yyy):
-                    region_sum[region] = region_sum[region] + s[0][0][x][y]
-                    h.Fill(s[2][x],s[3][y],s[0][0][x][y])
-                    #if systematic == "":
-                    region_sum[region] = region_sum[region] + s[0][0][x][y]
-                    region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
-                    hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
-                h.Write()
-                #if systematic == "":
-                hb.Write()
-              if systematic == "":
-                print(sample)
-                print(region_sum)
-                print(region_sumqcd)
-  f.Close()
 
 
 def make_limits(scan=0):
@@ -397,7 +398,7 @@ def make_limits(scan=0):
   values = {0:[],1:[],2:[],3:[],4:[],5:[]}
   xlab = "$Temp$ [GeV]"
   if scan == 0 :
-    sigs = [125,200,400,700,1000]
+    sigs = [125,200,300,400,700,1000]
     xs = sigs
     xlab = "$m_{s}$ [GeV]"
   elif scan == 2:
@@ -427,14 +428,14 @@ def make_limits(scan=0):
 
   print(values)
   fig, ax = plt.subplots()
-  hep.cms.label('',data=False,lumi=lumi/1000,year=2018,loc=2,ax=ax)
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.add_artist(AnchoredText(txt,loc="upper center",prop=dict(size=10)))
   ax.fill_between(xs,values[0],values[4],color="yellow",label="Expected $\pm 2 \sigma$") # 2 sigma band
   ax.fill_between(xs,values[1],values[3],color="lime",label="Expected $\pm 1 \sigma$") # 1 sigma band
   ax.plot(xs,values[2],color="black",label = "Median Expected",marker=".",linestyle="--") #median band
   ax.plot(xs,xsec,color="blue",label = "Theory",marker=".",linestyle="--") #theory band
   ax.set_xlabel(xlab)
-  ax.set_ylabel("cross section (pb)")
+  ax.set_ylabel("Cross Section (pb)")
   ax.set_yscale("log")
   ax.legend()
   fig.tight_layout()
