@@ -127,6 +127,14 @@ def pileup_weight(puarray,systematics=0,era=18):
       return np.take(weights_minus,puarray)
     else:
       return np.take(weights,puarray)
+def PS_weight(array,PSSystematics):
+	if(PSSystematics==1):
+		pswgt = array["PSweights"][:,2] * array["PSweights"][:,3]
+	elif(PSSystematics==2):
+		pswgt = array["PSweights"][:,4] * array["PSweights"][:,5]
+	else:
+		pswgt =1 
+	return pswgt
 def gettrigweights(htarray,systematics=0,era=18):
     bins, trigwgts, wgterr = np.loadtxt("systematics/triggers/trigger_systematics_%s.txt"%(era), delimiter=",")
     htbin = np.digitize(htarray,bins)
@@ -167,3 +175,19 @@ def calculateHT(vals0,corrected_jets,AK4sys):
                 vals0['ht50'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 50)],axis=-1)
         vals0['ht'] = vals0['ht30']
         return vals0
+
+from coffea import lumi_tools
+
+def applyGoldenJSON(era, events):
+    if era == 16:
+        LumiJSON = lumi_tools.LumiMask('systematics/GoldenJSON/Cert_271036-284044_13TeV_Legacy2016_Collisions16_JSON.txt')
+    elif era == 17:
+        LumiJSON = lumi_tools.LumiMask('systematics/GoldenJSON/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt')
+    elif era == 18:
+        LumiJSON = lumi_tools.LumiMask('systematics/GoldenJSON/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt')
+    else:
+        print('No era is defined. Please specify the year')
+
+    events = events[LumiJSON(events.run, events.lumSec)]
+
+    return events
