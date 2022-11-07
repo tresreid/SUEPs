@@ -41,8 +41,8 @@ def make_datatrigs(samples,var="ht",systematics =False):
   fig.subplots_adjust(hspace=.07)
 
 
-  b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(5,6))#.to_hist().to_numpy()
-  b0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(4,5))#.to_hist().to_numpy()
+  b = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(5,6))#.to_hist().to_numpy()
+  b0 = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(4,5))#.to_hist().to_numpy()
   if("ht" in var):
     b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
     b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
@@ -91,7 +91,7 @@ def make_datatrigs(samples,var="ht",systematics =False):
   ratio_err = ratio*np.sqrt( (b1_err/b1)**2 +(b2_err/b2)**2+(d1_err/d1)**2+(d2_err/d2)**2)
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err)
   if systematics:
-    np.savetxt("systematics/triggers/trigger_systematics_18.txt",(b.to_hist().to_numpy()[1][1:],np.nan_to_num(ratio),ratio_err), delimiter=",")
+    np.savetxt("../systematics/triggers/trigger_systematics_%s.txt"%(year),(b.to_hist().to_numpy()[1][1:],np.nan_to_num(ratio),ratio_err), delimiter=",")
 
   ax1.axhline(y=1,color="grey",ls="--")
   ax.set_ylim(0,1.1)
@@ -124,8 +124,8 @@ def make_sigtrigs(samples,var="ht",systematics =False):
   else:
     xs = np.linspace(0,1500,100)
     ax.set_xlabel("Ht [GeV]")
-  b = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
-  b0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(0,1))#.to_hist().to_numpy()
+  b = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+  b0 = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(0,1))#.to_hist().to_numpy()
   if("ht" in var):
     b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
     b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
@@ -190,8 +190,8 @@ def make_multitrigs(sig,varsx,qcdpf=None):
   nevts = {"ht20":[],"ht30":[],"ht40":[],"ht50":[]}
   for i,var in enumerate(varsx):
     if sig == "QCD":
-        s = qcdscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
-        s0 = qcdscaled["trigdist_%s"%var].integrate("cut",slice(0,1))#.to_hist().to_numpy()
+        s = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+        s0 = qcdtrigscaled["trigdist_%s"%var].integrate("cut",slice(0,1))#.to_hist().to_numpy()
         if("ht" in var):
           s = s.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))
           s0 = s0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,40)]+[700,800,1000,1200,1500]))

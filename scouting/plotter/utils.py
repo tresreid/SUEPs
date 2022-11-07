@@ -22,8 +22,8 @@ import ROOT
 #year = 2018
 #year = "Run3"
 year = 2017
-#ext="png"
-ext="pdf"
+ext="png"
+#ext="pdf"
 pd.set_option("precision",2)
 
 parameters = {'axes.labelsize': 20,
@@ -62,6 +62,7 @@ def load_all(year):
   datascaled = {}
   datafullscaled = {}
   trigscaled = {}
+  qcdtrigscaled = {}
   datafulllumi = 0
   if year == 2018:
     lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
@@ -83,12 +84,19 @@ def load_all(year):
           datascaled[name] = h.copy()
       h1 = datascaled["dist_ht"].integrate("cut",slice(2,3))
       datalumi = sum(h1.values(sumw2=True)[()][0])
-  #with open(directory+"myhistos_Trigger_%s.p"%year, "rb") as pkl_file:
-  with open(directory+"myhistos_Trigger_%s.p"%2018, "rb") as pkl_file:
+  #with open(directory+"myhistos_MCTrigger_%s.p"%year, "rb") as pkl_file:
+  with open(directory+"myhistos_QCD_%s.p"%year, "rb") as pkl_file:
+      out = pickle.load(pkl_file)
+      for name, h in out.items():
+        if isinstance(h, hist.Hist):
+          qcdtrigscaled[name] = h.copy()
+          qcdtrigscaled[name].scale(lumi)
+  with open(directory+"myhistos_Trigger_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           trigscaled[name] = h.copy()
+          trigscaled[name].scale(lumi)
   #with open(directory+"myhistos_HT2000_0.p", "rb") as pkl_file:
   with open(directory+"myhistos_QCD_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
@@ -105,7 +113,7 @@ def load_all(year):
           qcddatascaled[name].scale(datalumi/qcdlumi)
           qcddatafullscaled[name] = h.copy()
           qcddatafullscaled[name].scale(datafulllumi/qcdlumi)
-  return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled
+  return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled, qcdtrigscaled
 def load_samples(sample,year,systematic=""):
       sigscaled = {}
       if year == 2018:
@@ -149,8 +157,8 @@ sig400scaled_sys = {}
 sig700scaled_sys = {}
 sig1000scaled_sys = {}
 if year == "Run3":
-  qcdscaled_18, qcddatascaled_18,qcddatafullscaled_18,datascaled_18,datafullscaled_18,trigscaled_18 = load_all(2018)
-  qcdscaled_17, qcddatascaled_17,qcddatafullscaled_17,datascaled_17,datafullscaled_17,trigscaled_17 = load_all(2017)
+  qcdscaled_18, qcddatascaled_18,qcddatafullscaled_18,datascaled_18,datafullscaled_18,trigscaled_18,qcdtrigscaled_18 = load_all(2018)
+  qcdscaled_17, qcddatascaled_17,qcddatafullscaled_17,datascaled_17,datafullscaled_17,trigscaled_17,qcdtrigscaled_17 = load_all(2017)
 
   qcdscaled = merge_years(qcdscaled_18,qcdscaled_17) 
   qcddatascaled = merge_years(qcddatascaled_18,qcddatascaled_17) 
@@ -158,6 +166,7 @@ if year == "Run3":
   datascaled = merge_years(datascaled_18,datascaled_17) 
   datafullscaled = merge_years(datafullscaled_18,datafullscaled_17) 
   trigscaled = merge_years(trigscaled_18,trigscaled_17) 
+  qcdtrigscaled = merge_years(qcdtrigscaled_18,qcdtrigscaled_17) 
 
   sig125scaled_18 =   load_samples("sig125_2",2018)
   sig200scaled_18 =   load_samples("sig200_2",2018)
@@ -199,7 +208,7 @@ if year == "Run3":
     sig700scaled_sys[sys] =  merge_years(sig700scaled_sys_18,sig700scaled_sys_17) 
     sig1000scaled_sys[sys] = merge_years(sig1000scaled_sys_18,sig1000scaled_sys_17) 
 else:
-  qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled = load_all(year)
+  qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled,qcdtrigscaled = load_all(year)
   sig125scaled =   load_samples("sig125_2",year)
   sig200scaled =   load_samples("sig200_2",year)
   sig300scaled =   load_samples("sig300_2",year)
