@@ -1,6 +1,6 @@
 #1/bin/bash
 for i in $(seq 0  37); do
-python fillcoff3.py Trigger ${i}
+python fillcoff3.py TriggerA ${i}
 done
 ##python fillcoff3.py Trigger 0 
 ##python fillcoff3.py Trigger 1

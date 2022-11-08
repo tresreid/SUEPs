@@ -37,6 +37,7 @@ AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 PUSystematics = 0 #0: nominal, 1: up err, 2: down err
 PSSystematics = 0 #0: nominal, 1: up err, 2: down err
+higgsSystematics = 0
 killTrks = False
 era=18
 datatype= "MC"
@@ -928,6 +929,9 @@ class MyProcessor(processor.ProcessorABC):
         if(signal):
           vals_gen0 = load_gen(arrays) 
           scalar0  = load_scalar(arrays)
+          if "125" in fin:
+            vals0["higgswgt"] = higgs_reweight(scalar0["pt"],higgsSystematics)
+            vals0["wgt"] = vals0["wgt"]*vals0["higgswgt"]
           vals_gen0["wgt"] = vals0["wgt"]
           scalar0["wgt"] = vals0["wgt"]
           alldRtracks = ak.zip({'PFcand_alldR': np.sqrt(arrays["PFcand_alldR"])})
@@ -1282,13 +1286,15 @@ elif "Run" in fin:
     }  
 elif "Trigger" in fin:
   datatype="Trigger"
+  Run = fin[7:]
+  print("Run",Run)
   #Runs = ["RunA","RunB","RunC"]
   #runInteractive=True
-  fs = np.loadtxt("rootfiles/20%s/%s.txt"%(era,fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/Trigger_%s.txt"%(era,Run),dtype=str)
   batch = int(batch)
   fs=fs[10*batch:10*(batch+1)]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Data/ScoutingPFCommissioning+Run2018A-v1+RAW/%s"%(f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/Trigger/ScoutingPFCommissioning+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
   }  
 else:
   datatype="MC"
@@ -1327,6 +1333,12 @@ if systematicType ==8:
 if systematicType ==9:
 	PSSystematics = 2 #0: nominal, 1: up err, 2: down err
 	appendname = "PSdown"
+if systematicType ==10:
+	higgsSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "higgsup"
+if systematicType ==11:
+	higgsSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "higgsdown"
 	
 
 if __name__ == "__main__":

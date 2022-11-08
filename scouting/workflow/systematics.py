@@ -1,5 +1,6 @@
 import awkward as ak
 import numpy as np
+import matplotlib.pyplot as plt
 import uproot
 from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty
 from coffea.jetmet_tools import JECStack, CorrectedJetsFactory
@@ -135,8 +136,50 @@ def PS_weight(array,PSSystematics):
 	else:
 		pswgt =1 
 	return pswgt
+def higgs_reweight(gen_pt,higgsSystematics):
+    bins = np.array([   0,  400,  450,  500,  550,  600,  650,  700,  750,  800,  850,
+            900,  950, 1000, 1050, 1100, 1150, 1200, 1250, 15000])
+    Higgs_factor = np.array([1.25, 1.25, 1.25, 1.25, 1.25, 1.24, 1.24, 1.24, 1.24, 1.24, 1.24,
+           1.24, 1.24, 1.24, 1.24, 1.24, 1.24, 1.24, 1.24])
+    up_factor   = np.array([1.092, 1.092, 1.089, 1.088, 1.088, 1.087, 1.087, 1.087, 1.087,
+           1.087, 1.085, 1.086, 1.086, 1.086, 1.087, 1.087, 1.087, 1.086,
+           1.086])
+    down_factor = np.array([0.88, 0.88, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
+           0.89, 0.89, 0.89, 0.89, 0.89, 0.88, 0.88, 0.88])
+
+    vals = plt.hist(gen_pt, bins=bins)
+
+    freqs = vals[0] * Higgs_factor
+    ups   = freqs * up_factor
+    downs = freqs * down_factor
+
+    start = vals[0].sum()
+    end = freqs.sum()
+    factor = start/end
+
+    freqs = freqs * factor
+    ups = ups * factor
+    downs = downs * factor
+
+    higgs_weights = freqs / vals[0]
+    higgs_weights_up = ups / vals[0]
+    higgs_weights_down = downs / vals[0]
+
+    gen_bin = np.digitize(gen_pt,bins)-1
+    if higgsSystematics == 1:
+         higgs_weight = higgs_weights_up[gen_bin]
+    elif higgsSystematics == 2:
+         higgs_weight = higgs_weights_up[gen_bin]
+    else:
+         higgs_weight = higgs_weights[gen_bin]
+    #print(higgs_weight)
+    #print(higgs_weights[gen_bin])
+    #print(higgs_weights_up[gen_bin])
+    #print(higgs_weights_down[gen_bin])
+    return higgs_weight
+
 def gettrigweights(htarray,systematics=0,era=18):
-    bins, trigwgts, wgterr = np.loadtxt("systematics/triggers/trigger_systematics_%s.txt"%(era), delimiter=",")
+    bins, trigwgts, wgterr = np.loadtxt("systematics/triggers/trigger_systematics_20%s.txt"%(era), delimiter=",")
     htbin = np.digitize(htarray,bins)
     trigwgts =np.insert(trigwgts,0,0)
     wgterr =np.insert(wgterr,0,0)
