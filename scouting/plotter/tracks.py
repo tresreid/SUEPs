@@ -11,6 +11,7 @@ pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
 
+#directory = uproot.open("../../../CMSSW_10_6_26/src/PhysicsTools/qcdtest_numEvent100.root")
 directory = uproot.open("../../../testsite/CMSSW_10_6_26/src/PhysicsTools/qcdtest_numEvent100.root")
 tree = directory["mmtree/tree"]
 
@@ -29,11 +30,11 @@ onlineTrack_dR         = ak.flatten(tree["onlineTrack_dR"].array())
 onlineTrack_pt         = ak.flatten(tree["PFcand_pt"].array())
 onlineTrack_eta        = ak.flatten(tree["PFcand_eta"].array())
 onlineTrack_phi        = ak.flatten(tree["PFcand_phi"].array())
-onlineTrack_dz         = ak.flatten(tree["PFcand_dz"].array())
+#onlineTrack_dz         = ak.flatten(tree["PFcand_dz"].array())
 onlineTrack_offlinept  = ak.flatten(tree["onlineTrack_offlinept"].array())
 onlineTrack_offlineeta = ak.flatten(tree["onlineTrack_offlineeta"].array())
 onlineTrack_offlinephi = ak.flatten(tree["onlineTrack_offlinephi"].array())
-onlineTrack_offlinedz  = ak.flatten(tree["onlineTrack_offlinedz"].array())
+#onlineTrack_offlinedz  = ak.flatten(tree["onlineTrack_offlinedz"].array())
 onlineTrack_paired     = ak.flatten(tree["onlineTrack_paired"].array())
 
 dfoff = pd.DataFrame({
@@ -54,11 +55,11 @@ dfon = pd.DataFrame({
 'onlineTrack_pt':onlineTrack_pt, 
 'onlineTrack_eta':onlineTrack_eta, 
 'onlineTrack_phi':onlineTrack_phi, 
-'onlineTrack_dz':onlineTrack_dz, 
+#'onlineTrack_dz':onlineTrack_dz, 
 'onlineTrack_offlinept': onlineTrack_offlinept, 
 'onlineTrack_offlineeta':onlineTrack_offlineeta, 
 'onlineTrack_offlinephi':onlineTrack_offlinephi, 
-'onlineTrack_offlinedz':onlineTrack_offlinedz, 
+#'onlineTrack_offlinedz':onlineTrack_offlinedz, 
 'onlineTrack_paired':onlineTrack_paired, 
 })
 df2on = dfon[dfon["onlineTrack_paired"] == 1]
@@ -137,8 +138,12 @@ def make_hist(var,version=0):
   elif var == "eta":
     xbin = eta_bins
     ax1.set_xlabel("%s Track %s"%(v3,var))
+  elif var == "dz":
+    xbin = np.array(range(-100,100,1))/10.
+    ax1.set_xlabel("%s Track %s"%(v3,var))
   else:
     xbin = phi_bins
+    ax1.set_xlabel("%s Track %s"%(v3,var))
   ax1.set_ylabel("Ratio" )
   ax.set_ylabel("nTracks")
   
@@ -157,7 +162,7 @@ def make_hist(var,version=0):
 make_scatter("pt")
 make_scatter("eta")
 make_scatter("phi")
-make_scatter("dz")
+#make_scatter("dz")
 make_hist("pt")
 make_hist("eta")
 make_hist("phi")
@@ -165,8 +170,8 @@ make_hist("dz")
 make_scatter("pt",1)
 make_scatter("eta",1)
 make_scatter("phi",1)
-make_scatter("dz",1)
+#make_scatter("dz",1)
 make_hist("pt",1)
 make_hist("eta",1)
 make_hist("phi",1)
-make_hist("dz",1)
+#make_hist("dz",1)

@@ -20,8 +20,8 @@ from root_numpy import array2hist, hist2array
 import ROOT
 
 #year = 2018
-#year = "Run3"
-year = 2017
+year = "Run3"
+#year = 2017
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -77,7 +77,7 @@ def load_all(year):
           datafullscaled[name] = h.copy()
       h1 = datafullscaled["dist_ht"].integrate("cut",slice(2,3))
       datafulllumi = sum(h1.values(sumw2=True)[()][0])
-  with open(directory+"myhistos_RunA.p", "rb") as pkl_file:
+  with open(directory+"myhistos_Data1_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
@@ -187,13 +187,13 @@ if year == "Run3":
   sig400scaled = merge_years(sig400scaled_18,sig400scaled_17)  
   sig700scaled = merge_years(sig700scaled_18,sig700scaled_17)  
   sig1000scaled = merge_years(sig1000scaled_18,sig1000scaled_17)  
-  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown"]:
-    sig125scaled_sys_18=   load_samples("sig125_2",2017,sys)
-    sig200scaled_sys_18=   load_samples("sig200_2",2017,sys)
-    sig300scaled_sys_18=   load_samples("sig300_2",2017,sys)
-    sig400scaled_sys_18=   load_samples("sig400_2",2017,sys)
-    sig700scaled_sys_18=   load_samples("sig700_2",2017,sys)
-    sig1000scaled_sys_18 =  load_samples("sig1000_2",2017,sys)
+  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
+    sig125scaled_sys_18=   load_samples("sig125_2",2018,sys)
+    sig200scaled_sys_18=   load_samples("sig200_2",2018,sys)
+    sig300scaled_sys_18=   load_samples("sig300_2",2018,sys)
+    sig400scaled_sys_18=   load_samples("sig400_2",2018,sys)
+    sig700scaled_sys_18=   load_samples("sig700_2",2018,sys)
+    sig1000scaled_sys_18 =  load_samples("sig1000_2",2018,sys)
     sig125scaled_sys_17=   load_samples("sig125_2",2017,sys)
     sig200scaled_sys_17=   load_samples("sig200_2",2017,sys)
     sig300scaled_sys_17=   load_samples("sig300_2",2017,sys)
@@ -207,6 +207,12 @@ if year == "Run3":
     sig400scaled_sys[sys] =  merge_years(sig400scaled_sys_18,sig400scaled_sys_17) 
     sig700scaled_sys[sys] =  merge_years(sig700scaled_sys_18,sig700scaled_sys_17) 
     sig1000scaled_sys[sys] = merge_years(sig1000scaled_sys_18,sig1000scaled_sys_17) 
+  sig125scaled_sys_18=   load_samples("sig125_2",2018,"higgsup")
+  sig125scaled_sys_17=   load_samples("sig125_2",2017,"higgsup")
+  sig125scaled_sys["higgsup"] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17) 
+  sig125scaled_sys_181=   load_samples("sig125_2",2018,"higgsdown")
+  sig125scaled_sys_171=   load_samples("sig125_2",2017,"higgsdown")
+  sig125scaled_sys["higgsdown"] =  merge_years(sig125scaled_sys_181,sig125scaled_sys_171) 
 else:
   qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled,qcdtrigscaled = load_all(year)
   sig125scaled =   load_samples("sig125_2",year)
@@ -216,13 +222,15 @@ else:
   sig700scaled =   load_samples("sig700_2",year)
   sig1000scaled =  load_samples("sig1000_2",year)
 
-  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown"]:
+  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
     sig125scaled_sys[sys] =   load_samples("sig125_2",year,sys)
     sig200scaled_sys[sys] =   load_samples("sig200_2",year,sys)
     sig300scaled_sys[sys] =   load_samples("sig300_2",year,sys)
     sig400scaled_sys[sys] =   load_samples("sig400_2",year,sys)
     sig700scaled_sys[sys] =   load_samples("sig700_2",year,sys)
     sig1000scaled_sys[sys] =  load_samples("sig1000_2",year,sys)
+  sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"higgsup")
+  sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"higgsdown")
 
 sigscaled = {"sig125":sig125scaled,"sig200":sig200scaled,"sig300":sig300scaled,"sig400":sig400scaled,"sig700":sig700scaled,"sig1000":sig1000scaled}
 sigscaled_sys = {"sig125":sig125scaled_sys,"sig200":sig200scaled_sys,"sig300":sig300scaled_sys,"sig400":sig400scaled_sys,"sig700":sig700scaled_sys,"sig1000":sig1000scaled_sys}

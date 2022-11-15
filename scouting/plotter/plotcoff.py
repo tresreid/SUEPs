@@ -40,13 +40,13 @@ from closure import *
 ########### HT Distributions
 #make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
 #make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
-####### Trigger Efficiency
-print("running trigger studies")
+######## Trigger Efficiency
+#print("running trigger studies")
 #make_datatrigs(["Data"])
-make_datatrigs(["Data"],systematics=True)
+###make_datatrigs(["Data"],systematics=True)
 #make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
 #
-
+#
 ############################## Track Selection
 #print("running track studies")
 ######### TRK Eff and Fakes 
@@ -276,10 +276,13 @@ make_datatrigs(["Data"],systematics=True)
 #make_dists("sig400")
 ######################### CUTFLOW TABLES
 #make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="killtrk")
 #make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="trigup",systematics2="trigdown")
 #make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="AK4up",systematics2="AK4down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="PUup",systematics2="PUdown")
+make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="PUup",systematics2="PUdown")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="killtrk")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="PSup",systematics2="PSdown")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="Prefireup",systematics2="Prefiredown")
+#make_systematics(["sig125"],"sphere1_suep",systematics1="higgsup",systematics2="higgsdown")
 #####Signal Contamination
 #cutflow_correction_binned()
 #cutflow_correction_binned(gap=1)
