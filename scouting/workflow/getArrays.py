@@ -115,6 +115,10 @@ def load_vals(arrays,dataset,era):
           tright = [item[7] for item in arrays["hltResult"]]
           trigcalo = [item[5] for item in arrays["hltResult"]] #calojet40 reference trigger
           trigmu = [item[2] for item in arrays["hltResult"]] #mu reference trigger
+        if era == 16:
+          tright = [item[3] for item in arrays["hltResult"]]
+          trigcalo = [item[1] for item in arrays["hltResult"]] #calojet40 reference trigger
+          trigmu = [item[1] for item in arrays["hltResult"]] #no mu reference trigger
         else:
           tright = [item[5] for item in arrays["hltResult"]]
           trigcalo = [item[3] for item in arrays["hltResult"]] #calojet40 reference trigger
@@ -128,6 +132,12 @@ def load_vals(arrays,dataset,era):
         #HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v15
         #HLT Trigger DST_HT250_CaloScouting_v10
         #HLT Trigger DST_HT410_PFScouting_v16
+#2016 doesn't have a muon trigger? 
+#HLT Trigger DST_L1HTT_CaloScouting_PFScouting_v4 0 3 DST_L1HTT_CaloScouting_PFScouting_v*
+#HLT Trigger DST_CaloJet40_CaloScouting_PFScouting_v4 0 4 DST_CaloJet40_CaloScouting_PFScouting_v*
+#HLT Trigger DST_HT250_CaloScouting_v3 1 5 DST_HT250_CaloScouting_v*
+#HLT Trigger DST_HT410_PFScouting_v4 1 6 DST_HT410_PFScouting_v*
+#HLT Trigger DST_HT450_PFScouting_v4 1 7 DST_HT450_PFScouting_v*
         if dataset == "Trigger":
           vals0 = ak.zip({
                'n_pfcand': arrays["n_pfcand"],

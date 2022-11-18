@@ -19,7 +19,8 @@ ak.behavior.update(candidate.behavior)
 
 def correctJets(vals_jet0,cache,era=18,datatype="MC",Run=""):
         if datatype == "Trigger":
-          #datatype = "DATA"
+          return vals_jet0
+        if datatype == "MC" and era==16:
           return vals_jet0
         ext_ak4 = extractor()
         if era==18:
@@ -33,8 +34,15 @@ def correctJets(vals_jet0,cache,era=18,datatype="MC",Run=""):
           jecdir = "Fall17_17Nov2017%s_V32_%s"%(Run,datatype)
           jerdir = "Summer19UL17_JRV3_%s"%(datatype)
         elif era==16:
+          if Run =="B" or Run =="C" or Run=="D":
+            Run = "BCD"
+          if Run =="E" or Run =="F":
+            Run = "EF"
+          if Run =="G" or Run =="H":
+            Run = "GH"
           jecdir = "Summer16_07Aug2017%s_V11_%s"%(Run,datatype)
-          jerdir = "Summer20UL16_JRV3_%s"%(datatype)
+          jerdir = "Summer16_25nsV1b_MC"
+          #jerdir = "Summer20UL16_JRV3_%s"%(datatype)
         else:
           jerdir = "Summer19UL%s_JRV3_%s"%(era,datatype)
         jecpath = "jetscale_corrections/20%s/"%(era)+jecdir
@@ -169,7 +177,7 @@ def higgs_reweight(gen_pt,higgsSystematics):
     if higgsSystematics == 1:
          higgs_weight = higgs_weights_up[gen_bin]
     elif higgsSystematics == 2:
-         higgs_weight = higgs_weights_up[gen_bin]
+         higgs_weight = higgs_weights_down[gen_bin]
     else:
          higgs_weight = higgs_weights[gen_bin]
     #print(higgs_weight)
@@ -192,6 +200,14 @@ def gettrigweights(htarray,systematics=0,era=18):
     else:
        scaleFactor = scaleFactorNom
     return scaleFactor
+def prefire_weight(array,systematics=0):
+	if systematics == 1:
+		prefire = array["prefireup"]
+	elif systematics == 2:
+		prefire = array["prefiredown"]
+	else:
+		prefire = array["prefire"]
+	return prefire
 def killTracks(tracks_cut0):
         np.random.seed(2022) #random seed to get repeatable results
         probs = ak.where(ak.flatten(tracks_cut0["pt"]) < 20,0.05,0.02) #5% if pt < 1, otherwise 2%.

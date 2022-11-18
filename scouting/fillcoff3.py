@@ -37,6 +37,7 @@ AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 PUSystematics = 0 #0: nominal, 1: up err, 2: down err
 PSSystematics = 0 #0: nominal, 1: up err, 2: down err
+PrefireSystematics = 0 #0: nominal, 1: up err, 2: down err
 higgsSystematics = 0
 killTrks = False
 era=18
@@ -919,10 +920,14 @@ class MyProcessor(processor.ProcessorABC):
 
         ####Weights#######
         if "DATA" not in datatype and "Trigger" not in datatype:
-        	vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
+        	if era==16:
+        		vals0["trigwgt"] =1
+        	else: 
+        		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
         	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)
        		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
-        	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]
+       		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
+        	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]*vals0["Prefirewgt"]
         else:
                 vals0["wgt"] = 1
                 vals0["PUwgt"] = 1
@@ -1238,7 +1243,7 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 fin = "HT2000"
 batch = 0
 signal=False
-runInteractive=False
+runInteractive=True#False
 systematicType =0
 Run=""
 if len(sys.argv) >= 2:
@@ -1263,8 +1268,8 @@ if "HT" in fin:
     fs=fs[start:end]
   fileset = {
            #fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
-           fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
-           #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv2/HT2000/4C832A72-AF24-D045-ACE7-67DFC5D01F90.root']
+           #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
+           fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2016/HT700/test.root']
   }
 elif "Run" in fin:
   datatype="DATA"
@@ -1278,6 +1283,11 @@ elif "Run" in fin:
     fileset = {
      #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
+    }
+  elif(era==16):
+    fileset = {
+     #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
     }
   else:  
     fileset = {
@@ -1329,14 +1339,20 @@ if systematicType ==7:
 	appendname = "PUdown"
 if systematicType ==8:
 	PSSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "PSdown"
+	appendname = "PSup"
 if systematicType ==9:
 	PSSystematics = 2 #0: nominal, 1: up err, 2: down err
 	appendname = "PSdown"
 if systematicType ==10:
+	PrefireSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "Prefireup"
+if systematicType ==11:
+	PrefireSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "Prefiredown"
+if systematicType ==12:
 	higgsSystematics = 1 #0: nominal, 1: up err, 2: down err
 	appendname = "higgsup"
-if systematicType ==11:
+if systematicType ==13:
 	higgsSystematics = 2 #0: nominal, 1: up err, 2: down err
 	appendname = "higgsdown"
 	
