@@ -60,7 +60,7 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   elif sample == "Data":
      h1 = datafullscaled[SR].integrate("axis",slice(0,1))
   else:
-    h1 = (sigcaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
+    h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
   low1 =0
   low2 = 30
   high1x = 300
@@ -603,8 +603,8 @@ def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   ratio_err = ratio * np.sqrt(np.square(observed_err/observed)+np.square(dobserved_err/dobserved))
   print(ratio)
   print(ratio_err)
-  ax.errorbar(range(9),observed,yerr=observed_err,xerr=0.5,color="black",label="QCD",ls='none',marker=".")
-  ax.errorbar(range(9),dobserved,yerr=dobserved_err,xerr=0.5,color="red",label="Data",ls='none',marker=".")
+  ax.errorbar(range(9),observed,yerr=observed_err,xerr=0.5,color="black",label=labels["QCD"],ls='none',marker=".")
+  ax.errorbar(range(9),dobserved,yerr=dobserved_err,xerr=0.5,color="red",label=labels["Data"],ls='none',marker=".")
   ax1.errorbar(range(9),ratio,yerr=ratio_err,color="black",ls='none',marker="+")
   plt.xticks(range(9),points)#, rotation="-45")
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)

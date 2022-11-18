@@ -125,6 +125,8 @@ def make_dists(sample):
   skip = []
   if "QCD" in sample:
     scaled = qcdscaled
+  elif "RunA" in sample:
+    scaled = datascaled
   else:
     scaled = sigscaled[sample]
   for name, h in scaled.items():
@@ -194,7 +196,7 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
     s_err = np.sqrt(h2_scale[1])
     xbin = xbins(s[1])
     ## append an extra point at the end because the post doesn't work without it for the last bin. it needs to know where to go next
-    ax.fill_between(s[1],np.append(s[0],s[0][-1]),color=sigcolors["QCD"],alpha=0.8,label="QCD",zorder=0,linestyle="-",step="post")#,)
+    ax.fill_between(s[1],np.append(s[0],s[0][-1]),color=sigcolors["QCD"],alpha=0.8,label=labels["QCD"],zorder=0,linestyle="-",step="post")#,)
     ax.errorbar(s[1],np.append(s[0],s[0][-1]),yerr=np.append(s_err,0),color=sigcolors["QCD"],zorder=1,ls='none')
     if(make_ratio):
       hist.plotratio(
