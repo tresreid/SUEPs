@@ -38,8 +38,8 @@ from closure import *
 #######
 ###################################### HT Trigger
 ########### HT Distributions
-make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
-make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
 ######## Trigger Efficiency
 #print("running trigger studies")
 #make_datatrigs(["Data"])
@@ -291,7 +291,7 @@ make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA"
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
 #makeCombineHistograms(["sig400"],"SR1_suep",3)
-#make_limits()
+make_limits()
 #make_limits(scan=0)
 #make_limits(scan=2)
 #make_limits(scan=3)
