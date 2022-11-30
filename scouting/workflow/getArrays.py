@@ -217,3 +217,16 @@ def load_vals(arrays,dataset,era):
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
         return vals0
+def load_offline(arrays,dataset,era):
+        vals0 = ak.zip({
+               'pt': arrays["offlineTrack_pt"],
+               'eta': arrays["offlineTrack_eta"],
+               'phi': arrays["offlineTrack_phi"],
+               'm': arrays["offlineTrack_m"],
+               'scouting_q': arrays["offlineTrack_PFcandq"],
+               'scouting_vertex': arrays["offlineTrack_PFcandpv"],
+               'scouting_pt': arrays["offlineTrack_PFcandpt"],
+               'scouting_eta': arrays["offlineTrack_PFcandeta"],
+          },with_name="Momentum4D")
+        print(vals0)
+        return vals0

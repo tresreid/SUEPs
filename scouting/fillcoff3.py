@@ -917,6 +917,7 @@ class MyProcessor(processor.ProcessorABC):
         vals_nsub0 = load_nsub(arrays) 
         vals_tracks0 = load_tracks(arrays,signal) 
         calculateHT(vals0,corrected_jets,AK4sys)
+        #vals_offline0 = load_offline(arrays,datatype,era) 
 
         ####Weights#######
         if "DATA" not in datatype and "Trigger" not in datatype:
@@ -959,6 +960,10 @@ class MyProcessor(processor.ProcessorABC):
         else:
 
           track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
+          #track_cutsoffline = ((arrays["offlineTrack_PFcandq"] != 0) & (arrays["offlineTrack_PFcandpv"] ==0) & (abs(arrays["offlineTrack_PFcandeta"]) < 2.4) & (arrays["offlineTrack_PFcandpt"]>=0.75))
+          #vals_offline0["wgt"] = vals0["wgt"]
+          #vals_offline0["PUwgt"] = vals0["PUwgt"]
+          #tracks_cut0 = vals_offline0[track_cutsoffline]
           tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
@@ -1260,17 +1265,21 @@ if "HT" in fin:
   #datatype="Trigger"
   fs = np.loadtxt("rootfiles/20%s/%sv4.txt"%(era,fin),dtype=str)
   batch = int(batch)
-  start = 100*batch
-  end = 100*(batch+1)
-  if (end > len(fs)):
-    fs = fs[start:]
+  if(batch == -1): #test
+  	fileset = {
+  	         fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/test.root'%(era,fin)]
+  	}
   else:
-    fs=fs[start:end]
-  fileset = {
-           #fin : ["root://xrootd.cmsaf.mit.edu://store/user/paus/nanosc/E03/%s"%(f) for f in fs],
-           #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
-           fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2016/HT700/test.root']
-  }
+  	start = 100*batch
+  	end = 100*(batch+1)
+  	if (end > len(fs)):
+  	  fs = fs[start:]
+  	else:
+  	  fs=fs[start:end]
+  	fileset = {
+  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
+  	         #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2018/HT1000/test.root']
+  	}
 elif "Run" in fin:
   datatype="DATA"
   Run = fin[3:]
@@ -1418,6 +1427,8 @@ if __name__ == "__main__":
 
     if signal:
       datatype = "SIG"
+    if batch == -1:
+      batch = "test"
     with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
