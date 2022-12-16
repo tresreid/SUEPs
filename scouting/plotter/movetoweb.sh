@@ -9,8 +9,8 @@ do
   python3 $dir/../make_html_listing.py $d
 done
 #outdir=/publicweb/m/mreid/SUEPs/tests_data16compare #_withoffselection
-outdir=/publicweb/m/mreid/SUEPs/tests_2dcompare #_withoffselection
-#outdir=/publicweb/m/mreid/SUEPs/tests_qcdoffline #_withoffselection
+#outdir=/publicweb/m/mreid/SUEPs/tests_2dcompare #_withoffselection
+outdir=/publicweb/m/mreid/SUEPs/tests_qcdofflinedrop_newdatatestold #_withoffselection
 #outdir=/publicweb/m/mreid/SUEPs/suepJet_darkPho
 rm -r $outdir
 mkdir $outdir

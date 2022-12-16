@@ -7,8 +7,8 @@ import awkward as ak
 
 from utils import *
 
-pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
-eta_bins = np.array(range(-250,250,25))/100.
+pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
+eta_bins = np.array(range(-250,275,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
 
 xsecs = {"HT200":1551000.0,"HT300":323400.0,"HT500":30140.0,"HT700":6344.0,"HT1000":1092.0,"HT1500":99.76,"HT2000":20.35}
@@ -116,8 +116,10 @@ dfht7, dfoff7,dfon7 = openfile("2000")
 dfht  = pd.concat([dfht1,dfht2,dfht3,dfht4,dfht5,dfht6,dfht7])
 dfoff = pd.concat([dfoff1,dfoff2,dfoff3,dfoff4,dfoff5,dfoff6,dfoff7])
 dfon  = pd.concat([dfon1,dfon2,dfon3,dfon4,dfon5,dfon6,dfon7])
-dfoff = dfoff[(dfoff["offlineTrack_pt"] >= 0.75) & (dfoff["offlineTrack_quality"] == 1) & (abs(dfoff["offlineTrack_eta"]) <=2.4)]
-df2off = dfoff[(dfoff["offlineTrack_paired"] == 1) & (dfoff["offlineTrack_PFcandpt"] >= 0.75)& (abs(dfoff["offlineTrack_PFcandeta"]) <= 2.4) & (dfoff["offlineTrack_PFcandpv"] == 0) & (abs(dfoff["offlineTrack_PFcandq"]) == 1)]
+#dfoff = dfoff[(dfoff["offlineTrack_pt"] >= 0.75) & (dfoff["offlineTrack_quality"] == 1) & (abs(dfoff["offlineTrack_eta"]) <=2.4)]
+#df2off = dfoff[(dfoff["offlineTrack_paired"] == 1)]
+df2off = dfoff[(dfoff["offlineTrack_paired"] == 1) & (dfoff["offlineTrack_PFcandpt"] >= 0.75)& (abs(dfoff["offlineTrack_PFcandeta"]) <= 2.4) & (abs(dfoff["offlineTrack_PFcandq"]) == 1)]
+#df2off = dfoff[(dfoff["offlineTrack_paired"] == 1) & (dfoff["offlineTrack_PFcandpt"] >= 0.75)& (abs(dfoff["offlineTrack_PFcandeta"]) <= 2.4) & (dfoff["offlineTrack_PFcandpv"] == 0) & (abs(dfoff["offlineTrack_PFcandq"]) == 1)]
 df2on = dfon[dfon["onlineTrack_paired"] == 1]
 #print(df2)
 
@@ -331,6 +333,8 @@ def make_hist2d(var1,var2,version=0):
   print(h1)
   print(h2)
   print(h2[0]/h1[0])
+  print(h2[1])
+  print(h2[2])
   #h3 = ax3.hist2d(df2["%s%s"%(v1,var1)] ,df2["%s%s"%(v1,var2)] ,bins=[xbin,ybin],weights=df2["wgt"])
   #h2 = ax2.hist2d(df2["%s%s"%(v1,var)],bins=xbin,weights=df2["wgt"],color="blue",label="Paired %s Tracks"%v3)
 
@@ -340,36 +344,37 @@ def make_hist2d(var1,var2,version=0):
   #print(h2)
   #ax1.legend()
   #ax.legend()
+  print(len(data),len(data[0]),len(data[5]))
   np.savetxt("../systematics/triggers/track_drop_%s.txt"%(year),np.nan_to_num(data), delimiter=",")
   fig1.savefig("Plots/trackhist2d_%s_%s_%s.png"%(var1,var2,version))
   fig2.savefig("Plots/trackhist2dpaired_%s_%s_%s.png"%(var1,var2,version))
   fig3.savefig("Plots/trackhist2dratio_%s_%s_%s.png"%(var1,var2,version))
   plt.close()
 
-#make_scatter("pt")
-#make_scatter("eta")
-#make_scatter("phi")
-#make_scatter("ht",2)
-#make_scatter("dz")
-#make_hist("pvnum")
-#make_hist("pt")
-#make_hist("eta")
-#make_hist("phi")
-#make_hist("quality")
-##make_hist("dz")
-##make_hist("dxy")
-##make_hist("chi2")
-#make_hist("dzError")
-##make_hist("ptError")
+make_scatter("pt")
+make_scatter("eta")
+make_scatter("phi")
+make_scatter("ht",2)
+make_scatter("dz")
+make_hist("pvnum")
+make_hist("pt")
+make_hist("eta")
+make_hist("phi")
+make_hist("quality")
+#make_hist("dz")
+#make_hist("dxy")
+#make_hist("chi2")
+make_hist("dzError")
+#make_hist("ptError")
 #
-#
-#make_scatter("pt",1)
-#make_scatter("eta",1)
-#make_scatter("phi",1)
-##make_scatter("dz",1)
-#make_hist("pt",1)
-#make_hist("eta",1)
-#make_hist("phi",1)
-##make_hist("dz",1)
+
+make_scatter("pt",1)
+make_scatter("eta",1)
+make_scatter("phi",1)
+#make_scatter("dz",1)
+make_hist("pt",1)
+make_hist("eta",1)
+make_hist("phi",1)
+#make_hist("dz",1)
 
 make_hist2d("pt","eta")
