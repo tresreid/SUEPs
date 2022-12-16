@@ -31,20 +31,23 @@ def getvals(arr,ind,drss,iss,jss,issx):
   ind1 = np.delete(ind,xs,0)
   return getvals(arr1,ind1,drss,iss,jss,issx)
 
-def openfile_off(HT="1000"):
+def openfile_off():
   #directory = uproot.open("../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_%s_numEvent5.root"%HT)
-  datasets ={ 
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_200_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_300_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_500_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_700_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1000_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1500_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_2000_numEvent500.root": "mmtree/tree"
-  }
+  datasets = {}
+  with open("../rootfiles/monitor/monitor_offline.txt") as f:
+    for line in f:
+       key = line.split()[0]
+       datasets["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Monitor/ParkingScoutingMonitor+Run2018A-PromptReco-v1+MINIAOD/%s"%key] = "mmtree/tree"
+  #datasets ={ 
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_200_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_300_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_500_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_700_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1000_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1500_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_2000_numEvent500.root": "mmtree/tree"
+  #}
   tree = uproot.lazy(datasets)
-  #tree = directory["mmtree/tree"]
-  #wgt = 1 #xsecs["HT%s"%1000]/len(tree["ht"].array()) 
   offlineTrack_dR        = ak.flatten(tree["offlineTrack_dR"])#.array())
   offlineTrack_pt        = ak.flatten(tree["offlineTrack_pt"])#.array())
   offlineTrack_eta       = ak.flatten(tree["offlineTrack_eta"])#.array())
@@ -68,48 +71,25 @@ def openfile_off(HT="1000"):
   wgts = []
   for i,event in enumerate(tree["event"]):
     events.append(np.repeat(event,counts[i]))
-    if i <500:
-      xsec = xsecs["HT200"]
-    elif i <1000:
-      xsec = xsecs["HT300"]
-    elif i <1500:
-      xsec = xsecs["HT500"]
-    elif i <2000:
-      xsec = xsecs["HT700"]
-    elif i <2500:
-      xsec = xsecs["HT1000"]
-    elif i <3000:
-      xsec = xsecs["HT1500"]
-    else:
-      xsec = xsecs["HT2000"]
-
+    #if i <500:
+    #  xsec = xsecs["HT200"]
+    #elif i <1000:
+    #  xsec = xsecs["HT300"]
+    #elif i <1500:
+    #  xsec = xsecs["HT500"]
+    #elif i <2000:
+    #  xsec = xsecs["HT700"]
+    #elif i <2500:
+    #  xsec = xsecs["HT1000"]
+    #elif i <3000:
+    #  xsec = xsecs["HT1500"]
+    #else:
+    #  xsec = xsecs["HT2000"]
+    xsec = 1
     wgts.append(np.repeat(xsec/500,counts[i]))
   event = ak.flatten(events)
   wgt = ak.flatten(wgts)
   
-
-  #event = ak.flatten(ak.zip([ak.local_index(tree["offlineTrack_pt"], tree["event"][i]) for i in range(tree["offlineTrack_pt"].ndim)]))
-  #print(event)
-  #print(len(offlineTrack_pt),len(event))
-  #offlineTrack_ht        = tree["htoff"]#.array()
-#  offlineTrack_PFcandht  = tree["ht"]#.array()
-  
-#  onlineTrack_dR         = ak.flatten(tree["onlineTrack_dR"])#.array())
-#  onlineTrack_pt         = ak.flatten(tree["PFcand_pt"])#.array())
-#  onlineTrack_eta        = ak.flatten(tree["PFcand_eta"])#.array())
-#  onlineTrack_phi        = ak.flatten(tree["PFcand_phi"])#.array())
-#  onlineTrack_q          = ak.flatten(tree["PFcand_q"])#.array())
-#  #onlineTrack_dz         = ak.flatten(tree["PFcand_dz"].array())
-#  onlineTrack_offlinept  = ak.flatten(tree["onlineTrack_offlinept"])#.array())
-#  onlineTrack_offlineeta = ak.flatten(tree["onlineTrack_offlineeta"])#.array())
-#  onlineTrack_offlinephi = ak.flatten(tree["onlineTrack_offlinephi"])#.array())
-#  #onlineTrack_offlinedz  = ak.flatten(tree["onlineTrack_offlinedz"].array())
-#  onlineTrack_paired     = ak.flatten(tree["onlineTrack_paired"])#.array())
-  
-  #dfht = pd.DataFrame({
-  #'offlineTrack_ht': offlineTrack_ht, 
-# # 'offlineTrack_PFcandht':offlineTrack_PFcandht, 
-  #})
   dfoff = pd.DataFrame({
   'wgt': wgt,
   'event':event, 
@@ -121,147 +101,56 @@ def openfile_off(HT="1000"):
   'offlineTrack_dz': offlineTrack_dz, 
 #  'offlineTrack_dxy': offlineTrack_dxy, 
   'offlineTrack_dzError': offlineTrack_dzError, 
-#  'offlineTrack_ptError': offlineTrack_ptError, 
-#  'offlineTrack_chi2': offlineTrack_chi2, 
-#  'offlineTrack_PFcandpt':offlineTrack_PFcandpt, 
-#  'offlineTrack_PFcandeta':offlineTrack_PFcandeta, 
-#  'offlineTrack_PFcandphi':offlineTrack_PFcandphi, 
-#  'offlineTrack_PFcanddz':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcanddzError':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandptError':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandchi2':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandq':offlineTrack_PFcandq, 
-#  'offlineTrack_PFcandpv':offlineTrack_PFcandpv, 
-#  'offlineTrack_paired':offlineTrack_paired, 
   })
-#  dfon = pd.DataFrame({
-#  'onlineTrack_dR':onlineTrack_dR, 
-#  'onlineTrack_pt':onlineTrack_pt, 
-#  'onlineTrack_eta':onlineTrack_eta, 
-#  'onlineTrack_phi':onlineTrack_phi, 
-#  'onlineTrack_q':onlineTrack_q, 
-#  #'onlineTrack_dz':onlineTrack_dz, 
-#  'onlineTrack_offlinept': onlineTrack_offlinept, 
-#  'onlineTrack_offlineeta':onlineTrack_offlineeta, 
-#  'onlineTrack_offlinephi':onlineTrack_offlinephi, 
-#  #'onlineTrack_offlinedz':onlineTrack_offlinedz, 
-#  'onlineTrack_paired':onlineTrack_paired, 
-#  })
-  #mapping = {item:i for i, item in enumerate(dfoff["offlineTrack_dz"].unique())}
   dfoff["offlineTrack_pvnum"] = np.digitize(dfoff["offlineTrack_dz"],np.array(range(-960,960,1))/32)#.apply(lambda x: mapping[x])
-  #dfoff.groupby(["offlineTrack_event"])["offlineTrack_pvsum"] = dfoff.groupby(["offlineTrack_event","offlineTrack_pvnum"])["offlineTrack_pt"].sum()
-  #dfoff["offlineTrack_pvnum"] = (
-  #  dfoff.groupby(["offlineTrack_event","offlineTrack_dz"].transform('nunique'))
-  #dfoff["offlineTrack_pvnum"] = dfoff.groupby(["offlineTrack_event","offlineTrack_dz"])['offlineTrack_pt'].sum()
-
-  #dfht["wgt"] = wgt
-  #dfoff["wgt"] = wgt
-  #dfoff["event"] = event
-#  dfon["wgt"] = wgt
-#  dfon = dfon[dfon["onlineTrack_q"] != 0]
   return dfoff#,dfon
-def openfile_on(HT="1000"):
+def openfile_on():
   #directory = uproot.open("../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_%s_numEvent5.root"%HT)
-  datasets ={ 
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_200_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_300_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_500_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_700_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1000_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1500_numEvent500.root": "mmtree/tree",
-  "../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_2000_numEvent500.root": "mmtree/tree"
-  }
+  datasets = {}
+  with open("../rootfiles/monitor/monitor_scouting.txt") as f:
+    for line in f:
+       key = line.split()[0]
+       datasets["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Monitor/ParkingScoutingMonitor+Run2018A-v1+RAW/%s"%key] = "mmtree/tree"
+  #datasets ={ 
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_200_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_300_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_500_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_700_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1000_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_1500_numEvent500.root": "mmtree/tree",
+  #"../../../test2/CMSSW_10_6_26/src/PhysicsTools/qcdtest_2000_numEvent500.root": "mmtree/tree"
+  #}
   tree = uproot.lazy(datasets)
-  #tree = directory["mmtree/tree"]
-  #wgt = 1 #xsecs["HT%s"%1000]/len(tree["ht"].array()) 
-#  offlineTrack_dR        = ak.flatten(tree["offlineTrack_dR"])#.array())
-#  offlineTrack_pt        = ak.flatten(tree["offlineTrack_pt"])#.array())
-#  offlineTrack_eta       = ak.flatten(tree["offlineTrack_eta"])#.array())
-#  offlineTrack_phi       = ak.flatten(tree["offlineTrack_phi"])#.array())
-#  offlineTrack_dz        = ak.flatten(tree["offlineTrack_dz"])#.array())
-#  offlineTrack_quality   = ak.flatten(tree["offlineTrack_quality"])#.array())
-##  offlineTrack_dxy       = ak.flatten(tree["offlineTrack_dxy"].array())
-#  offlineTrack_dzError   = ak.flatten(tree["offlineTrack_dzError"])#.array())
-#  offlineTrack_ptError   = ak.flatten(tree["offlineTrack_ptError"].array())
-#  offlineTrack_chi2      = ak.flatten(tree["offlineTrack_chi2"].array())
-#  offlineTrack_PFcandpt  = ak.flatten(tree["offlineTrack_PFcandpt"])#.array())
-#  offlineTrack_PFcandeta = ak.flatten(tree["offlineTrack_PFcandeta"])#.array())
-#  offlineTrack_PFcandphi = ak.flatten(tree["offlineTrack_PFcandphi"])#.array())
-#  offlineTrack_PFcanddz  = ak.flatten(tree["offlineTrack_PFcanddz"])#.array())
-#  offlineTrack_PFcandq   = ak.flatten(tree["offlineTrack_PFcandq"])#.array())
-#  offlineTrack_PFcandpv  = ak.flatten(tree["offlineTrack_PFcandpv"])#.array())
-#  offlineTrack_paired    = ak.flatten(tree["offlineTrack_paired"])#.array())
-  #event    = tree["event"]#.array())
   event    = ak.flatten(ak.broadcast_arrays(tree["event"][:,np.newaxis],tree["PFcand_pt"]))#.array())
   offlineTrack_ht        = tree["htoff"]#.array()
-#  offlineTrack_PFcandht  = tree["ht"]#.array()
-  
-#  onlineTrack_dR         = ak.flatten(tree["onlineTrack_dR"])#.array())
   onlineTrack_pt         = ak.flatten(tree["PFcand_pt"])#.array())
   onlineTrack_eta        = ak.flatten(tree["PFcand_eta"])#.array())
   onlineTrack_phi        = ak.flatten(tree["PFcand_phi"])#.array())
   onlineTrack_q          = ak.flatten(tree["PFcand_q"])#.array())
-#  #onlineTrack_dz         = ak.flatten(tree["PFcand_dz"].array())
-#  onlineTrack_offlinept  = ak.flatten(tree["onlineTrack_offlinept"])#.array())
-#  onlineTrack_offlineeta = ak.flatten(tree["onlineTrack_offlineeta"])#.array())
-#  onlineTrack_offlinephi = ak.flatten(tree["onlineTrack_offlinephi"])#.array())
-#  #onlineTrack_offlinedz  = ak.flatten(tree["onlineTrack_offlinedz"].array())
-#  onlineTrack_paired     = ak.flatten(tree["onlineTrack_paired"])#.array())
   counts = ak.count(tree["PFcand_pt"],axis=-1)
   events = []
   wgts = []
   for i,event in enumerate(tree["event"]):
     events.append(np.repeat(event,counts[i]))
-    if i <500:
-      xsec = xsecs["HT200"]
-    elif i <1000:
-      xsec = xsecs["HT300"]
-    elif i <1500:
-      xsec = xsecs["HT500"]
-    elif i <2000:
-      xsec = xsecs["HT700"]
-    elif i <2500:
-      xsec = xsecs["HT1000"]
-    elif i <3000:
-      xsec = xsecs["HT1500"]
-    else:
-      xsec = xsecs["HT2000"]
-
+    #if i <500:
+    #  xsec = xsecs["HT200"]
+    #elif i <1000:
+    #  xsec = xsecs["HT300"]
+    #elif i <1500:
+    #  xsec = xsecs["HT500"]
+    #elif i <2000:
+    #  xsec = xsecs["HT700"]
+    #elif i <2500:
+    #  xsec = xsecs["HT1000"]
+    #elif i <3000:
+    #  xsec = xsecs["HT1500"]
+    #else:
+    #  xsec = xsecs["HT2000"]
+    xsec =1
     wgts.append(np.repeat(xsec,counts[i]))
   event = ak.flatten(events)
   wgt = ak.flatten(wgts)
 
-  #event = ak.flatten(ak.zip([ak.local_index(tree["offlineTrack_pt"], tree["event"][i]) for i in range(tree["offlineTrack_pt"].ndim)]))
-  #print(event)
-  #print(len(onlineTrack_pt),len(event))
-  
-  #dfht = pd.DataFrame({
-  #'offlineTrack_ht': offlineTrack_ht, 
-# # 'offlineTrack_PFcandht':offlineTrack_PFcandht, 
-  #})
-#  dfoff = pd.DataFrame({
-#  'offlineTrack_dR':offlineTrack_dR, 
-#  'offlineTrack_pt':offlineTrack_pt, 
-#  'offlineTrack_eta':offlineTrack_eta, 
-#  'offlineTrack_phi':offlineTrack_phi, 
-#  'offlineTrack_quality': offlineTrack_quality, 
-#  'offlineTrack_dz': offlineTrack_dz, 
-#  'offlineTrack_event': offlineTrack_event, 
-##  'offlineTrack_dxy': offlineTrack_dxy, 
-#  'offlineTrack_dzError': offlineTrack_dzError, 
-##  'offlineTrack_ptError': offlineTrack_ptError, 
-##  'offlineTrack_chi2': offlineTrack_chi2, 
-#  'offlineTrack_PFcandpt':offlineTrack_PFcandpt, 
-#  'offlineTrack_PFcandeta':offlineTrack_PFcandeta, 
-#  'offlineTrack_PFcandphi':offlineTrack_PFcandphi, 
-#  'offlineTrack_PFcanddz':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcanddzError':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandptError':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandchi2':offlineTrack_PFcanddz, 
-#  'offlineTrack_PFcandq':offlineTrack_PFcandq, 
-#  'offlineTrack_PFcandpv':offlineTrack_PFcandpv, 
-#  'offlineTrack_paired':offlineTrack_paired, 
-  #})
   dfon = pd.DataFrame({
   'wgt': wgt,
   'event':event, 
@@ -270,29 +159,11 @@ def openfile_on(HT="1000"):
   'onlineTrack_eta':onlineTrack_eta, 
   'onlineTrack_phi':onlineTrack_phi, 
   'onlineTrack_q':onlineTrack_q, 
-  #'onlineTrack_dz':onlineTrack_dz, 
-  #'onlineTrack_offlinept': onlineTrack_offlinept, 
-  #'onlineTrack_offlineeta':onlineTrack_offlineeta, 
-  #'onlineTrack_offlinephi':onlineTrack_offlinephi, 
-  #'onlineTrack_offlinedz':onlineTrack_offlinedz, 
-  #'onlineTrack_paired':onlineTrack_paired, 
   })
-  #mapping = {item:i for i, item in enumerate(dfoff["offlineTrack_dz"].unique())}
-#  dfoff["offlineTrack_pvnum"] = np.digitize(dfoff["offlineTrack_dz"],np.array(range(-960,960,1))/32)#.apply(lambda x: mapping[x])
-  #dfoff.groupby(["offlineTrack_event"])["offlineTrack_pvsum"] = dfoff.groupby(["offlineTrack_event","offlineTrack_pvnum"])["offlineTrack_pt"].sum()
-  #dfoff["offlineTrack_pvnum"] = (
-  #  dfoff.groupby(["offlineTrack_event","offlineTrack_dz"].transform('nunique'))
-  #dfoff["offlineTrack_pvnum"] = dfoff.groupby(["offlineTrack_event","offlineTrack_dz"])['offlineTrack_pt'].sum()
-
-  #dfht["wgt"] = wgt
-  #dfoff["wgt"] = wgt
-  #dfon["event"] = event
-#  dfon["wgt"] = wgt
-#  dfon = dfon[dfon["onlineTrack_q"] != 0]
   return dfon#,dfon
 
-dfoff1 = openfile_off("1000")
-dfoff2 = openfile_on("1000")
+dfoff1 = openfile_off()
+dfoff2 = openfile_on()
 dfoff2 = dfoff2[(dfoff2["onlineTrack_pt"] >= 0.75)& (abs(dfoff2["onlineTrack_eta"]) <= 2.4) & (abs(dfoff2["onlineTrack_q"]) == 1)]
 
 dfoff1["offlineTrack_paired"] =0
@@ -305,7 +176,8 @@ grouped2 = dfoff2.groupby("event")
 def matching(grouped1, grouped2):
   issx0 = []
   for i,(x, group) in enumerate(grouped1):
-    #print(i)
+    if (i%100 ==0):
+      print(i)
     #if (i>50):
     #  break
     dR= []
@@ -328,14 +200,6 @@ def matching(grouped1, grouped2):
       dR.append(dr_row)
     #print(dR)
     dR= np.array(dR)
-    #xwr = np.array([[1,2,3],[3,2,5],[9,0,2]])
-    #print(dR)
-    #print(find_min_idx(xwr))
-    #mindr = dR.argmin()
-    #ww = np.where(x == np.min(dR))
-    #min_i,min_j = divmod(mindr,dR.shape[1])
-    
-    #print(xwr.min(),divmod(xwr.argmin(),xwr.shape[1])) 
     mindrs, iss, jss,issx = getvals(dR,ind,[],[],[],[])
     issx0.append(issx)
   return issx0
@@ -356,22 +220,6 @@ dfoff1["offlineTrack_paired"].iloc[issx] = 1
   #print(2,dfoff2[dfoff2["offlineTrack_event"] == x])
 
   
-#dfht1, dfoff1,dfon1 = openfile("1000")
-#dfht  = pd.concat([dfht1])
-#dfoff = pd.concat([dfoff1])
-#dfon  = pd.concat([dfon1])
-#print(dfoff1[["offlineTrack_event","offlineTrack_dz","offlineTrack_pvnum"]])
-#dfht1, dfoff1,dfon1 = openfile("200")
-#dfht2, dfoff2,dfon2 = openfile("300")
-#dfht3, dfoff3,dfon3 = openfile("500")
-#dfht4, dfoff4,dfon4 = openfile("700")
-#dfht5, dfoff5,dfon5 = openfile("1000")
-#dfht6, dfoff6,dfon6 = openfile("1500")
-#dfht7, dfoff7,dfon7 = openfile("2000")
-#dfht  = pd.concat([dfht1,dfht2,dfht3,dfht4,dfht5,dfht6,dfht7])
-#dfoff = pd.concat([dfoff1,dfoff2,dfoff3,dfoff4,dfoff5,dfoff6,dfoff7])
-#dfon  = pd.concat([dfon1,dfon2,dfon3,dfon4,dfon5,dfon6,dfon7])
-
 #dfoff = dfoff[(dfoff["offlineTrack_pt"] >= 0.75) & (dfoff["offlineTrack_quality"] == 1) & (abs(dfoff["offlineTrack_eta"]) <=2.4)]
 dfoff = dfoff1
 df2off = dfoff[(dfoff["offlineTrack_paired"] == 1)]# & (dfoff["offlineTrack_PFcandpt"] >= 0.75)& (abs(dfoff["offlineTrack_PFcandeta"]) <= 2.4) & (dfoff["offlineTrack_PFcandpv"] == 0) & (abs(dfoff["offlineTrack_PFcandq"]) == 1)]
