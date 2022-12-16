@@ -223,10 +223,12 @@ def load_offline(arrays,dataset,era):
                'eta': arrays["offlineTrack_eta"],
                'phi': arrays["offlineTrack_phi"],
                'm': arrays["offlineTrack_m"],
-               'scouting_q': arrays["offlineTrack_PFcandq"],
-               'scouting_vertex': arrays["offlineTrack_PFcandpv"],
-               'scouting_pt': arrays["offlineTrack_PFcandpt"],
-               'scouting_eta': arrays["offlineTrack_PFcandeta"],
+               'quality':arrays["offlineTrack_quality"],
+               'dzError':arrays["offlineTrack_dzError"],
+#'scouting_q': arrays["offlineTrack_PFcandq"],
+               #'scouting_vertex': arrays["offlineTrack_PFcandpv"],
+               #'scouting_pt': arrays["offlineTrack_PFcandpt"],
+               #'scouting_eta': arrays["offlineTrack_PFcandeta"],
           },with_name="Momentum4D")
         print(vals0)
         return vals0

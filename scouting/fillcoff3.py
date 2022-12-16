@@ -553,7 +553,7 @@ class MyProcessor(processor.ProcessorABC):
             "dist_Jet_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","Jet_pt",100,0,300)
+                      hist.Bin("v1","Jet_pt",100,0,1000)
             ),
             "dist_Jet_eta": hist.Hist(
                       "Events",
@@ -568,7 +568,7 @@ class MyProcessor(processor.ProcessorABC):
             "dist_FatJet_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","FatJet_pt",100,0,500)
+                      hist.Bin("v1","FatJet_pt",100,0,1000)
             ),
             "dist_FatJet_eta": hist.Hist(
                       "Events",
@@ -917,7 +917,7 @@ class MyProcessor(processor.ProcessorABC):
         vals_nsub0 = load_nsub(arrays) 
         vals_tracks0 = load_tracks(arrays,signal) 
         calculateHT(vals0,corrected_jets,AK4sys)
-        #vals_offline0 = load_offline(arrays,datatype,era) 
+        vals_offline0 = load_offline(arrays,datatype,era) 
 
         ####Weights#######
         if "DATA" not in datatype and "Trigger" not in datatype:
@@ -960,11 +960,14 @@ class MyProcessor(processor.ProcessorABC):
         else:
 
           track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
+          track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
+          #track_cutsoffline = ((arrays["offlineTrack_dzError"] < 0.02) & (arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
           #track_cutsoffline = ((arrays["offlineTrack_PFcandq"] != 0) & (arrays["offlineTrack_PFcandpv"] ==0) & (abs(arrays["offlineTrack_PFcandeta"]) < 2.4) & (arrays["offlineTrack_PFcandpt"]>=0.75))
-          #vals_offline0["wgt"] = vals0["wgt"]
-          #vals_offline0["PUwgt"] = vals0["PUwgt"]
-          #tracks_cut0 = vals_offline0[track_cutsoffline]
-          tracks_cut0 = vals_tracks0[track_cuts]
+          vals_offline0["wgt"] = vals0["wgt"]
+          vals_offline0["PUwgt"] = vals0["PUwgt"]
+          tracks_cut0 = vals_offline0[track_cutsoffline]
+          tracks_cut0 = killTracksOffline(tracks_cut0)
+          #tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
