@@ -21,13 +21,13 @@ import ROOT
 #from ROOT import TFile
 #from rootpy.plotting import Hist2D
 
-from utils import *
-from trigplots import *
-from dists import *
-from signalregion import *
-from cutflow import *
-from trk import *
-from closure import *
+from utils.utils import *
+from utils.trigplots import *
+from utils.dists import *
+from utils.signalregion import *
+from utils.cutflow import *
+from utils.trk import *
+from utils.closure import *
 
 
 
@@ -285,6 +285,9 @@ make_overlapdists(["QCD","RunA"],"sphere1_suep",2,"sphericity 1")
 
 ################Distributions
 #make_dists("QCD")
+#make_offlinerat("pt")
+#make_offlinerat("eta")
+#make_offlinerat("phi")
 #make_dists("RunA")
 #make_dists("sig400")
 ######################### CUTFLOW TABLES

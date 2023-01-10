@@ -41,15 +41,32 @@ if year == "Run3":
   lumi = 96.43*1000 #lumi for 2018+2017 scouting #
   #lumi = 131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
-xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
-#xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
-colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
-cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
-sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
-#labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
-labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
-#labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
 
+standard = True
+colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
+sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
+cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
+xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
+set_lumi = None
+if standard:
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
+  file_data     = "myhistos_Data_%s"%(year)  
+  file_data1    = "myhistos_Data1_%s"%(year) 
+  file_mctrig   = "myhistos_QCD_%s"%(year) 
+  file_datatrig = "myhistos_Trigger_%s"%(year) 
+  file_qcd      = "myhistos_QCD_%s"%(year) 
+else:
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
+  file_data     = "myhistos_Data_%s"%(year)  
+  file_data1    = "myhistos_Data1_%s"%(year) 
+  file_mctrig   = "myhistos_QCD_%s"%(year) 
+  file_datatrig = "myhistos_Trigger_%s"%(year) 
+  file_qcd      = "myhistos_Data_2016" 
+  set_lumi = 1
+
+#xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>560 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>560 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
 
 region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
@@ -74,30 +91,32 @@ def load_all(year):
   if year == 2016:
     lumi = 35.48*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
   #lumi=1 #for data2016 compare
+  if set_lumi:
+    lumi = set_lumi
+  with open(directory+"%s.p"%(file_data), "rb") as pkl_file:
   #with open(directory+"myhistos_Data_%s.p"%year, "rb") as pkl_file:
-  with open(directory+"myhistos_QCDtestofflinedrop_%s.p"%year, "rb") as pkl_file:
+  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           datafullscaled[name] = h.copy()
       h1 = datafullscaled["dist_ht"].integrate("cut",slice(2,3))
       datafulllumi = sum(h1.values(sumw2=True)[()][0])
-  #with open(directory+"myhistos_Data1_%s.p"%year, "rb") as pkl_file:
-  with open(directory+"myhistos_QCDtestofflinedrop_%s.p"%year, "rb") as pkl_file:
+  with open(directory+"%s.p"%(file_data1), "rb") as pkl_file:
+  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           datascaled[name] = h.copy()
       h1 = datascaled["dist_ht"].integrate("cut",slice(2,3))
       datalumi = sum(h1.values(sumw2=True)[()][0])
-  #with open(directory+"myhistos_MCTrigger_%s.p"%year, "rb") as pkl_file:
-  with open(directory+"myhistos_QCD_%s.p"%year, "rb") as pkl_file:
+  with open(directory+"%s.p"%(file_mctrig), "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           qcdtrigscaled[name] = h.copy()
           qcdtrigscaled[name].scale(lumi)
-  with open(directory+"myhistos_Trigger_%s.p"%year, "rb") as pkl_file:
+  with open(directory+"%s.p"%(file_datatrig), "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
@@ -105,8 +124,9 @@ def load_all(year):
           trigscaled[name].scale(lumi)
   #with open(directory+"myhistos_HT2000_0.p", "rb") as pkl_file:
   #with open(directory+"myhistos_Data_2016.p", "rb") as pkl_file:
-  with open(directory+"myhistos_QCDtestscouting_%s.p"%year, "rb") as pkl_file:
-  #with open(directory+"myhistos_QCD_%s.p"%year, "rb") as pkl_file:
+  #with open(directory+"myhistos_QCDtestscouting_%s.p"%year, "rb") as pkl_file:
+  with open(directory+"%s.p"%(file_qcd), "rb") as pkl_file:
+  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       h1 = out["dist_ht"].integrate("cut",slice(2,3))
       qcdlumi = sum(h1.values(sumw2=True)[()][0])

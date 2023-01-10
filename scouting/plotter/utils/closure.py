@@ -1,4 +1,4 @@
-from utils import *
+from utils.utils import *
 
 def make_correlation(SR,cut):
   if cut==0 or cut==1:

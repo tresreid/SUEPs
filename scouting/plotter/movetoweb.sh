@@ -10,8 +10,8 @@ do
 done
 #outdir=/publicweb/m/mreid/SUEPs/tests_data16compare #_withoffselection
 #outdir=/publicweb/m/mreid/SUEPs/tests_2dcompare #_withoffselection
-outdir=/publicweb/m/mreid/SUEPs/tests_qcdofflinedrop_newdatatestold #_withoffselection
-#outdir=/publicweb/m/mreid/SUEPs/suepJet_darkPho
+#outdir=/publicweb/m/mreid/SUEPs/tests_dataonlineofflinecompare_offlinetest #_withoffselection
+outdir=/publicweb/m/mreid/SUEPs/test
 rm -r $outdir
 mkdir $outdir
 cp -r $dir/* $outdir

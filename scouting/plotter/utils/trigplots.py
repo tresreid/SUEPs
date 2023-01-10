@@ -19,8 +19,106 @@ from matplotlib.colors import LogNorm
 from root_numpy import array2hist, hist2array
 import ROOT
 
-from utils import *
+from utils.utils import *
 
+def make_offlinerat(var="pt",systematics =False):
+  fig, (ax,ax1) = plt.subplots(
+  nrows=2,
+  ncols=1,
+  figsize=(7,7),
+  gridspec_kw={"height_ratios": (3, 1)},
+  sharex=True
+  )
+  #if(var=="event_sphericity"):
+  #  xs = np.linspace(0,1,100)
+  #  ax1.set_xlabel("Event Sphericity (unbooosted)")
+  #elif(var=="FatJet_nconst"):
+  #  xs = np.linspace(0,300,100)
+  #  ax1.set_xlabel("SUEP Jet Track Multiplicity")
+  #else:
+  #  xs = np.linspace(0,1500,100)
+  #  ax1.set_xlabel("Ht [GeV]")
+  if(var=="pt"):
+    ax1.set_xlabel("pt [GeV]")
+  else:
+    ax1.set_xlabel(var)
+  fig.subplots_adjust(hspace=.07)
+
+
+  b = qcdscaled["dist_offline_trk_%s"%var].integrate("cut",slice(1,2))#.to_hist().to_numpy()
+  b0 = qcdscaled["dist_offline_trk_%s"%var].integrate("cut",slice(0,1))#.to_hist().to_numpy()
+  #if("ht" in var):
+  #  b = b.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
+  #  b0 = b0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
+  b1 = b.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+  b2 = b0.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+  b1_err = np.sqrt(b.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+  b2_err = np.sqrt(b0.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+
+  print(b1)
+  print(b2)
+  ratti = np.divide(b1, b2, out=np.zeros_like(b1), where=b2!=0)
+  points2 = np.nan_to_num(ratti)
+  #popt2, pcov2 = curve_fit(func,xbins(b.to_hist().to_numpy()[1]),points2,p0=[0.5,500,100,0.5])
+  #p98bkg = 1.65*popt2[2]+popt2[1]
+  #p90bkg = 1.163*popt2[2]+popt2[1]
+
+  #d = trigscaled["dist_%s"%var].integrate("cut",slice(5,6))#.to_hist().to_numpy()
+  #d0 = trigscaled["dist_%s"%var].integrate("cut",slice(4,5))#.to_hist().to_numpy()
+  #if("ht" in var):
+  #  d = d.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
+  #  d0 = d0.rebin("v1",hist.Bin("v1","ht",[*range(0,700,20)]+[700,800,1000,1200,1500]))
+  #d1 = d.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+  #d2 = d0.values(sumw2=True)[()][0]#.to_hist().to_numpy()[0]
+  #d1_err = np.sqrt(d.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+  #d2_err = np.sqrt(d0.values(sumw2=True)[()][1])#.to_hist().to_numpy()[0]
+  #fig, ax1 = plt.subplots()
+  hx = hist.plot1d(
+      qcdscaled["dist_offline_trk_%s"%var],
+      ax=ax,
+      overlay="cut",
+      stack=False,
+      fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
+  )
+  hx1 = hist.plotratio(
+      b,b0,
+      ax=ax1,
+      error_opts={'color': 'r', 'marker': '.'},
+      unc='clopper-pearson'
+  )
+  #hx2 = hist.plotratio(
+  #    d,d0,
+  #    ax=ax,
+  #    clear=False,
+  #    error_opts={'color': 'k', 'marker': '.'},
+  #    unc='clopper-pearson'
+  #)
+  #points3 = np.nan_to_num(d1/d2)
+  #popt3, pcov3 = curve_fit(func,xbins(d.to_hist().to_numpy()[1]),points3,p0=[0.5,500,100,0.5])
+  #p98dat = 1.65*popt3[2]+popt3[1]
+  #p90dat = 1.163*popt3[2]+popt3[1]
+  #ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label=labels["Trigger"])#: 90:%d 98:%d"%(p90dat,p98dat))
+  #ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
+  #ax.axvline(x=560,color="grey",ls="--")
+
+  #xbin = xbins(b.to_hist().to_numpy()[1])
+  #ratio = (b1/b2)/(d1/d2)
+  #ratio_err = ratio*np.sqrt( (b1_err/b1)**2 +(b2_err/b2)**2+(d1_err/d1)**2+(d2_err/d2)**2)
+  #hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err)
+  #if systematics:
+  #  np.savetxt("../systematics/triggers/trigger_systematics_%s.txt"%(year),(b.to_hist().to_numpy()[1][1:],np.nan_to_num(ratio),ratio_err), delimiter=",")
+
+  ax1.axhline(y=1,color="grey",ls="--")
+  #ax.set_ylim(0,1.1)
+  ax1.set_ylabel("ratio")
+  ax1.set_ylim(0.0,1.0)
+  ax.set_xlabel("")
+  ax.set_ylabel("AU")
+  ax.legend(loc="lower right")
+  #fig.suptitle("HT Trigger Efficiency DoubleMu3 Reference: Data")
+  hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
+  fig.savefig("Plots/offtrig%s_%s.%s"%(var,year,ext))
+  plt.close()
 def make_datatrigs(samples,var="ht",systematics =False):
   fig, (ax,ax1) = plt.subplots(
   nrows=2,

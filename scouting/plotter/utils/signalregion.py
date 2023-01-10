@@ -1,4 +1,4 @@
-from utils import *
+from utils.utils import *
 
 def makeSR(sample,var,cut,lines=0,SR=0):
       # get colormap

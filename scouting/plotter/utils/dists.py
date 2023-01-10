@@ -1,5 +1,5 @@
 
-from utils import *
+from utils.utils import *
 
 def make_threshold(samples,allmaxpoints,xs,xlab):
   fig, (ax1) = plt.subplots(
@@ -122,7 +122,8 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
 
 def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
-  skip = []
+  skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
+  run = ["dist_offline_trk_pt","dist_offline_trk_eta","dist_offline_trk_phi"]
   if "QCD" in sample:
     scaled = qcdscaled
   elif "RunA" in sample:
@@ -133,6 +134,8 @@ def make_dists(sample):
     if "SR1" in name or "trkID" in name or "2d" in name:
           continue
     if name in skip:
+          continue
+    if name not in run:
           continue
     print(name)
 
@@ -145,10 +148,10 @@ def make_dists(sample):
         fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
     )
     hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
-    if "trkID" not in name:
+    if "trkID" not in name and "offline_trk" not in name:
       ax1.set_yscale("log")
       ax1.autoscale(axis='y', tight=True)
-    if "_pt" in name and "res" not in name and "Dispersion" not in name:
+    if "_pt" in name and "res" not in name and "Dispersion" not in name and "offline" not in name:
       ax1.set_xscale("log")
       ax1.set_xlim([20,200])
       if "PFcand" in name or "gen" in name:
