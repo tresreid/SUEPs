@@ -42,6 +42,7 @@ higgsSystematics = 0
 killTrks = False
 era=18
 datatype= "MC"
+runoffline=True
 
 ########################
 eventDisplay_knob= False#True
@@ -655,6 +656,33 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","FatJet_ncount300",11,-0.5,10.5)
             ),
+            "dist_offlinetrk_pt_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offlinetrk_pt",pt_bins),
+                      hist.Bin("v2","offlinetrk_eta",eta_bins)
+            ),
+            "dist_offlinetrk_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offlinetrk_pt",pt_bins)
+            ),
+            "dist_offlinetrk_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offlinetrk_eta",eta_bins)
+            ),
+            "dist_offlinetrk_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offlinetrk_phi",phi_bins)
+            ),
+            "dist_PFcand_pt_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","PFcand_pt",pt_bins),
+                      hist.Bin("v2","PFcand_eta",eta_bins)
+            ),
             "dist_PFcand_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -960,14 +988,18 @@ class MyProcessor(processor.ProcessorABC):
         else:
 
           track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
-          track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
-          #track_cutsoffline = ((arrays["offlineTrack_dzError"] < 0.02) & (arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
-          #track_cutsoffline = ((arrays["offlineTrack_PFcandq"] != 0) & (arrays["offlineTrack_PFcandpv"] ==0) & (abs(arrays["offlineTrack_PFcandeta"]) < 2.4) & (arrays["offlineTrack_PFcandpt"]>=0.75))
-          vals_offline0["wgt"] = vals0["wgt"]
-          vals_offline0["PUwgt"] = vals0["PUwgt"]
-          tracks_cut0 = vals_offline0[track_cutsoffline]
-          tracks_cut0 = killTracksOffline(tracks_cut0)
-          #tracks_cut0 = vals_tracks0[track_cuts]
+          if(runoffline):
+            vals_offline0 = load_offline(arrays) 
+            track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
+            #track_cutsoffline = ((arrays["offlineTrack_dzError"] < 0.02) & (arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
+            #track_cutsoffline = ((arrays["offlineTrack_PFcandq"] != 0) & (arrays["offlineTrack_PFcandpv"] ==0) & (abs(arrays["offlineTrack_PFcandeta"]) < 2.4) & (arrays["offlineTrack_PFcandpt"]>=0.75))
+            vals_offline0["wgt"] = vals0["wgt"]
+            vals_offline0["PUwgt"] = vals0["PUwgt"]
+            offline_cut0 = vals_offline0[track_cutsoffline]
+            #tracks_cut0 = vals_offline0[track_cutsoffline]
+            #tracks_cut0 = killTracksOffline(tracks_cut0)
+          #else:
+          tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
@@ -1222,6 +1254,14 @@ class MyProcessor(processor.ProcessorABC):
           valsx = [vals0,vals1,vals2,vals3,vals4x]
           vals_tracks = [vals_tracks0,vals_tracks1,vals_tracks2,vals_tracks3,vals_tracks4]
 
+          if(runoffline):
+            vals_offtracks1 = offline_cut0[vals0.triggerHt >= 1]
+            vals_offtracks2 = vals_offtracks1[vals1.ht >= 560]
+            vals_offtracks3 = vals_offtracks2[vals2.FatJet_ncount50 >= 2]
+            vals_offtracks4 = vals_offtracks3[vals3.FatJet_nconst >= 70]
+
+            vals_offtracks = [offline_cut0,vals_offtracks1,vals_offtracks2,vals_offtracks3,vals_offtracks4]
+            output = fill_offtracks(output,vals_offtracks)
 
 
           #fill hists

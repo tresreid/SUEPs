@@ -66,6 +66,16 @@ def packtrkID(output,vals,var,var2,var3,prefix=""):
         output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 6: PFcand_pt > 0.9",       v1=ak.flatten(vals[6][var]), v2=ak.flatten(vals[6][var2]), v3=ak.flatten(vals[6][var3]),weight=ak.flatten(vals[6]["wgt"]))
         output["dist_trkID_%s%s"%(prefix,var)].fill(cut="cut 7: PFcand_pt > 1.0",       v1=ak.flatten(vals[7][var]), v2=ak.flatten(vals[7][var2]), v3=ak.flatten(vals[7][var3]),weight=ak.flatten(vals[7]["wgt"]))
         return output
+def packdistflat2D(output,vals,var1,var2,prefix=""):
+        output["dist_%s%s_%s"%(prefix,var1,var2)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var1]),v2 = ak.flatten(vals[0][var2]),weight=ak.flatten(vals[0]["wgt"]))
+        output["dist_%s%s_%s"%(prefix,var1,var2)].fill(cut="cut 1:HT Trig",      v1=ak.flatten(vals[1][var1]),v2 = ak.flatten(vals[1][var2]),weight=ak.flatten(vals[1]["wgt"]))
+        output["dist_%s%s_%s"%(prefix,var1,var2)].fill(cut="cut 2:Ht>=560",      v1=ak.flatten(vals[2][var1]),v2 = ak.flatten(vals[2][var2]),weight=ak.flatten(vals[2]["wgt"]))
+        output["dist_%s%s_%s"%(prefix,var1,var2)].fill(cut="cut 3:fj>=2",        v1=ak.flatten(vals[3][var1]),v2 = ak.flatten(vals[3][var2]),weight=ak.flatten(vals[3]["wgt"]))
+        output["dist_%s%s_%s"%(prefix,var1,var2)].fill(cut="cut 4:nPFCand(SUEP)>=70", v1=ak.flatten(vals[4][var1]),v2 = ak.flatten(vals[4][var2]),weight=ak.flatten(vals[4]["wgt"]))
+        #if(len(vals)>=6):
+        #  output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:Pre + nPVs < 30", v1=ak.flatten(vals[5][var]))
+        #  output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:Pre + nPVs >=30", v1=ak.flatten(vals[6][var]))
+        return output
 def packdistflat(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(vals[0][var]),weight=ak.flatten(vals[0]["wgt"]))
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 1:HT Trig",      v1=ak.flatten(vals[1][var]),weight=ak.flatten(vals[1]["wgt"]))
@@ -292,14 +302,19 @@ def fill_vals(output, vals):
         output = packdist(output,vals,"FatJet_ncount250")
         output = packdist(output,vals,"FatJet_ncount300")
         return output
+def fill_offtracks(output,vals_offtracks):
+        print("filling cutflows trk")
+
+        output = packdistflat(output,vals_offtracks,"pt","offlinetrk_")
+        output = packdistflat(output,vals_offtracks,"eta","offlinetrk_")
+        output = packdistflat(output,vals_offtracks,"phi","offlinetrk_")
+        output = packdistflat2D(output,vals_offtracks,"pt","eta","offlinetrk_")
+        return output
 def fill_tracks(output,vals_tracks):
         print("filling cutflows trk")
-        #vals_tracks1 = tracks_cut0[vals[0].triggerHt >= 1]
-        #vals_tracks2 = vals_tracks1[vals[1].ht >= 560]
-        #vals_tracks3 = vals_tracks2[vals[2].FatJet_ncount50 >= 2]
-        #vals_tracks4 = vals_tracks3[vals[3].FatJet_nconst >= 70]
 
         output = packdistflat(output,vals_tracks,"pt","PFcand_")
         output = packdistflat(output,vals_tracks,"eta","PFcand_")
         output = packdistflat(output,vals_tracks,"phi","PFcand_")
+        output = packdistflat2D(output,vals_tracks,"pt","eta","PFcand_")
         return output

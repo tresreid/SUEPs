@@ -232,3 +232,28 @@ def load_offline(arrays,dataset,era):
           },with_name="Momentum4D")
         print(vals0)
         return vals0
+def load_electrons(arrays):
+	vals_electrons0 = ak.zip({
+		'pt' : arrays["Electron_pt"], 
+		'eta': arrays["Electron_eta"], 
+		'phi': arrays["Electron_phi"], 
+		'm': arrays["Electron_m"], 
+		'dxy': arrays["Electron_d0"], 
+		'dz': arrays["Electron_dz"], 
+		'electron_ID': arrays["Electron_ID"], 
+          },with_name="momentum4d")
+	#print(vals_electrons0)
+	return vals_electrons0
+def load_muons(arrays):
+	vals_muons0 = ak.zip({
+		'pt' : arrays["Muon_pt"], 
+		'eta': arrays["Muon_eta"], 
+		'phi': arrays["Muon_phi"], 
+		'm': arrays["Muon_m"], 
+		'dxy': arrays["Muon_dxy"], 
+		'dz': arrays["Muon_dz"], 
+		'muon_global': arrays["Muon_isGlobalMuon"], 
+		'muon_tracker': arrays["Muon_isTrackerMuon"], 
+          },with_name="momentum4d")
+	#print(vals_muons0)
+	return vals_muons0
