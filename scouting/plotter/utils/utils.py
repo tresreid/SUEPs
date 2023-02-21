@@ -42,7 +42,7 @@ if year == "Run3":
   #lumi = 131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
 
-standard = True
+standard = False #True
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
 sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
 cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
@@ -59,11 +59,14 @@ else:
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
   labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
-  file_data     = "myhistos_Data_%s"%(year)  
-  file_data1    = "myhistos_Data1_%s"%(year) 
+  #file_data     = "myhistos_Data_%s"%(year)  
+  file_data     = "myhistos_QCD_2018_offline_nodrop"#%(year)  
+  file_data1    = "myhistos_QCD_2018_offline_nodrop"#%(year) 
+  #file_data1    = "myhistos_Data1_%s"%(year) 
   file_mctrig   = "myhistos_QCD_%s"%(year) 
   file_datatrig = "myhistos_Trigger_%s"%(year) 
-  file_qcd      = "myhistos_Data_2016" 
+  file_qcd      = "myhistos_QCD_2018_offline_scouting1" 
+  #file_qcd      = "myhistos_Data_2016" 
   set_lumi = 1
 
 #xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200

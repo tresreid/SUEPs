@@ -449,11 +449,11 @@ def make_limits(scan=0):
     if scan == 0:
       xsec1 = xsecs["sig%s"%sig]
       f = ROOT.TFile.Open(dirx+"higgsCombineTest.AsymptoticLimits.mH%s.root"%sig)
-      txt = "$M_{\phi}$ = 2 GeV\n T= 2 GeV"
+      txt = "$m_{\phi}$ = 2 GeV\n T= 2 GeV"
     else:
       xsec1 = xsecs["sig400"]
       f = ROOT.TFile.Open(dirx+"higgsCombineTest.AsymptoticLimits.%s.root"%sig)
-      txt = "$M_s$ = 400 GeV\n $M_{\phi}$ = %s GeV"%scan
+      txt = "$m_s$ = 400 GeV\n $m_{\phi}$ = %s GeV"%scan
     xsec.append(xsec1)
     tree = f.Get("limit")
     for i in range(0,6):
