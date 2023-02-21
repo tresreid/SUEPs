@@ -945,7 +945,7 @@ class MyProcessor(processor.ProcessorABC):
         vals_nsub0 = load_nsub(arrays) 
         vals_tracks0 = load_tracks(arrays,signal) 
         calculateHT(vals0,corrected_jets,AK4sys)
-        vals_offline0 = load_offline(arrays,datatype,era) 
+        vals_offline0 = load_offline(arrays) 
 
         ####Weights#######
         if "DATA" not in datatype and "Trigger" not in datatype:
@@ -997,9 +997,9 @@ class MyProcessor(processor.ProcessorABC):
             vals_offline0["PUwgt"] = vals0["PUwgt"]
             offline_cut0 = vals_offline0[track_cutsoffline]
             #tracks_cut0 = vals_offline0[track_cutsoffline]
-            #tracks_cut0 = killTracksOffline(tracks_cut0)
-          #else:
-          tracks_cut0 = vals_tracks0[track_cuts]
+            tracks_cut0 = killTracksOffline(offline_cut0)
+          else:
+            tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
@@ -1306,7 +1306,7 @@ if len(sys.argv) >= 5:
 if "HT" in fin:
   datatype="MC"
   #datatype="Trigger"
-  fs = np.loadtxt("rootfiles/20%s/%sv4.txt"%(era,fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/%sv7.txt"%(era,fin),dtype=str)
   batch = int(batch)
   if(batch == -1): #test
   	fileset = {
@@ -1319,8 +1319,10 @@ if "HT" in fin:
   	  fs = fs[start:]
   	else:
   	  fs=fs[start:end]
+  	htslices = {"HT200":"200to300","HT300":"300to500","HT500":"500to700","HT700":"700to1000","HT1000":"1000to1500","HT1500":"1500to2000","HT2000":"2000toInf"}
+  	htslice = htslices[fin]
   	fileset = {
-  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/%s"%(era,fin,f) for f in fs],
+  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/%s/QCD_HT%s_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2+AODSIM/%s"%(era,fin,htslice,f) for f in fs],
   	         #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2018/HT1000/test.root']
   	}
 elif "Run" in fin:

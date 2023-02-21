@@ -216,23 +216,26 @@ def killTracks(tracks_cut0):
         tracks_cut0 = tracks_cut0[trk_killer]
         return tracks_cut0
 def killTracksOffline(tracks_cut0,era=18):
+    #pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
+    #eta_bins = np.array(range(-250,275,25))/100.
     pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
-    eta_bins = np.array(range(-250,275,25))/100.
-    trackwgts = np.loadtxt("systematics/triggers/track_drop_20%s.txt"%(era), delimiter=",")#.flatten()
-    #print("Track wgt len:", len(trackwgts),len(trackwgts[7]))
+    eta_bins = np.array([-2.25,-2.,-1.75,-1.5,-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25]) #np.array(range(-250,250,25))/100.
+    trackwgts = np.loadtxt("systematics/triggers/track_drop_full_20%s.txt"%(era), delimiter=",")#.flatten()
+    print("Track wgt len:", len(trackwgts),len(trackwgts[7]))
     trackwgts = np.vstack((trackwgts,trackwgts[-1])) #repeat last bin for overflow
-    #trackwgts = np.vstack((trackwgts,[1]*len(trackwgts[0])))
-    #print("Track wgt len 2:",len(trackwgts),len(trackwgts[7]))
+    #trackwgts = np.vstack((trackwgts,trackwgts[-1],trackwgts[-1])) #repeat last bin for overflow
+    print("Track wgt len 2:",len(trackwgts),len(trackwgts[7]))
     trackwgts = trackwgts.flatten()
     #print(trackwgts)
     ptbin = np.digitize(ak.flatten(tracks_cut0["pt"]),pt_bins)-1
     #print(list(ptbin))
-    #print(pt_bins,eta_bins)
+    print(pt_bins,eta_bins)
     etabin = np.digitize(ak.flatten(tracks_cut0["eta"]),eta_bins)-1
     bins = np.add((ptbin)*(len(eta_bins)-1),etabin)
+    #bins = np.add((ptbin)*(len(eta_bins)),etabin)
     #print("bins:",bins)
     probs = np.take(trackwgts,bins)
-    #print(probs)
+    print(probs)
     rands = np.random.rand(len(probs)) < probs # keep track is less than probability
     trk_killer = ak.Array(ak.layout.ListOffsetArray64(tracks_cut0.layout.offsets, ak.layout.NumpyArray(rands)))
     tracks_cut0 = tracks_cut0[trk_killer]
