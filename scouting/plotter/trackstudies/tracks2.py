@@ -436,26 +436,13 @@ def make_hist2d(var1,var2,version=0):
       ybin = np.array(range(800,1400,1))
     else:
       ybin = np.array(range(0,100,1))/100 
-  #ax1.set_ylabel("Ratio" )
-  #ax.set_ylabel("nTracks")
   
   h1 = ax1.hist2d(df["%s%s"%(v1,var1)] ,df["%s%s"%(v1,var2)] ,bins=[xbin,ybin],weights=df["wgt"])
   h2 = ax2.hist2d(df2["%s%s"%(v1,var1)] ,df2["%s%s"%(v1,var2)] ,bins=[xbin,ybin],weights=df2["wgt"])
-  #h3 = ax3.hist2d(h2[0]/h1[0] ,bins=[xbin,ybin])
-  #ax3.imshow((h2[0]/h1[0]).T,origin='lower')
   X,Y = np.meshgrid(h2[2],h2[1])
   data = h2[0]/h1[0]
   h3 = ax3.pcolor(X,Y,data)
   print(data)
-  #for yi,y in enumerate(h2[2]):
-  #  for xi,x in enumerate(h2[1]):
-  #      print(x,y)
-  #      print(xi,yi)
-  #      print(data[xi,yi])
-  #      ax3.text(x + 0.5, y + 0.5, '%.4f' % data[xi, yi],
-  #               horizontalalignment='center',
-  #               verticalalignment='center',
-  #               )
 
   fig3.colorbar(h3)
   fig2.colorbar(h2[3])
@@ -465,15 +452,6 @@ def make_hist2d(var1,var2,version=0):
   print(h2[0]/h1[0])
   print(h2[1])
   print(h2[2])
-  #h3 = ax3.hist2d(df2["%s%s"%(v1,var1)] ,df2["%s%s"%(v1,var2)] ,bins=[xbin,ybin],weights=df2["wgt"])
-  #h2 = ax2.hist2d(df2["%s%s"%(v1,var)],bins=xbin,weights=df2["wgt"],color="blue",label="Paired %s Tracks"%v3)
-
-  
-  #ax1.errorbar(xbins(h1[1]),h2[0]/h1[0],yerr=0.1,xerr=xbins_err(h1[1]),marker="+",ls="none")
-  #print(h1)
-  #print(h2)
-  #ax1.legend()
-  #ax.legend()
   print(len(data),len(data[0]),len(data[5]))
   np.savetxt("../systematics/triggers/track_drop_%s.txt"%(year),np.nan_to_num(data), delimiter=",")
   fig1.savefig("Plots/trackhist2d_%s_%s_%s.png"%(var1,var2,version))
