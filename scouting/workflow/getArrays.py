@@ -254,6 +254,7 @@ def load_muons(arrays):
 		'dz': arrays["Muon_dz"], 
 		'muon_global': arrays["Muon_isGlobalMuon"], 
 		'muon_tracker': arrays["Muon_isTrackerMuon"], 
+		'muon_trkiso': arrays["Muon_trkiso"], 
           },with_name="momentum4d")
 	#print(vals_muons0)
 	return vals_muons0

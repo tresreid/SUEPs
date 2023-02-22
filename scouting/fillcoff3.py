@@ -43,6 +43,8 @@ killTrks = False
 era=18
 datatype= "MC"
 runoffline=True
+HEM_veto = True
+lepton_veto = True
 
 ########################
 eventDisplay_knob= False#True
@@ -51,6 +53,8 @@ redoISRRM = True
 
 pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins = np.array(range(-250,250,25))/100.
+pt_bins2 = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
+eta_bins2 = np.array(range(-250,275,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
 class MyProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -659,18 +663,18 @@ class MyProcessor(processor.ProcessorABC):
             "dist_offlinetrk_pt_eta": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","offlinetrk_pt",pt_bins),
-                      hist.Bin("v2","offlinetrk_eta",eta_bins)
+                      hist.Bin("v1","offlinetrk_pt",pt_bins2),
+                      hist.Bin("v2","offlinetrk_eta",eta_bins2)
             ),
             "dist_offlinetrk_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","offlinetrk_pt",pt_bins)
+                      hist.Bin("v1","offlinetrk_pt",pt_bins2)
             ),
             "dist_offlinetrk_eta": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","offlinetrk_eta",eta_bins)
+                      hist.Bin("v1","offlinetrk_eta",eta_bins2)
             ),
             "dist_offlinetrk_phi": hist.Hist(
                       "Events",
@@ -680,13 +684,13 @@ class MyProcessor(processor.ProcessorABC):
             "dist_PFcand_pt_eta": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_pt",pt_bins),
-                      hist.Bin("v2","PFcand_eta",eta_bins)
+                      hist.Bin("v1","PFcand_pt",pt_bins2),
+                      hist.Bin("v2","PFcand_eta",eta_bins2)
             ),
             "dist_PFcand_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_pt",pt_bins)
+                      hist.Bin("v1","PFcand_pt",pt_bins2)
             ),
             "dist_PFcand_eta": hist.Hist(
                       "Events",
@@ -941,25 +945,48 @@ class MyProcessor(processor.ProcessorABC):
         vals_vertex0 = load_vertex(arrays) 
         vals_jet0 = load_jets(arrays,datatype) 
         corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
+        if HEM_veto:
+          corrected_jets = corrected_jets[ (corrected_jets["eta"] < -3.0) | (corrected_jets["eta"] > -1.3) | (corrected_jets["phi"] < -1.57) | (corrected_jets["phi"] > -0.87)]
+
 
         vals_nsub0 = load_nsub(arrays) 
         vals_tracks0 = load_tracks(arrays,signal) 
         calculateHT(vals0,corrected_jets,AK4sys)
         vals_offline0 = load_offline(arrays) 
 
+        vals_electron0 = load_electrons(arrays)
+        vals_muon0 = load_muons(arrays)
+        vals0["selected_electrons"] = ak.count(vals_electron0["pt"][(vals_electron0["electron_ID"] == 1 )
+        & (vals_electron0["pt"] >= 15 )
+        & (abs(vals_electron0["dxy"]) < 0.05 + 0.05*(abs(vals_electron0["eta"])> 1.479))
+        & (abs(vals_electron0["dz"]) < 0.10 + 0.1*(abs(vals_electron0["eta"])> 1.479) )
+        & ((abs(vals_electron0["eta"]) < 1.444 ) | (abs(vals_electron0["eta"]) > 1.566 ))
+        & (abs(vals_electron0["eta"]) < 2.5)
+        ],axis=-1)
+
+        vals0["selected_muons"] = ak.count(vals_muon0["pt"][(vals_muon0["pt"] >=10) 
+	& (abs(vals_muon0["dxy"]) <= 0.02)
+	& (abs(vals_muon0["dz"]) <= 0.1)
+	& (abs(vals_muon0["muon_trkiso"]) < 0.10 )
+	& (abs(vals_muon0["eta"]) < 2.4 )
+	& ((vals_muon0["muon_global"] ==1) | (vals_muon0["muon_tracker"]==1))
+	],axis =-1)
+
+        vals0["lepton_veto"] = (vals0["selected_electrons"] == 0) & (vals0["selected_muons"] ==0)
         ####Weights#######
+
         if "DATA" not in datatype and "Trigger" not in datatype:
         	if era==16:
         		vals0["trigwgt"] =1
         	else: 
         		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
-        	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)
+        	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)*vals0["lepton_veto"]
        		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
        		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
         	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]*vals0["Prefirewgt"]
         else:
-                vals0["wgt"] = 1
-                vals0["PUwgt"] = 1
+                vals0["wgt"] = 1*vals0["lepton_veto"]
+                vals0["PUwgt"] = 1*vals0["lepton_veto"]
         if(signal):
           vals_gen0 = load_gen(arrays) 
           scalar0  = load_scalar(arrays)
@@ -996,10 +1023,9 @@ class MyProcessor(processor.ProcessorABC):
             vals_offline0["wgt"] = vals0["wgt"]
             vals_offline0["PUwgt"] = vals0["PUwgt"]
             offline_cut0 = vals_offline0[track_cutsoffline]
-            #tracks_cut0 = vals_offline0[track_cutsoffline]
-            tracks_cut0 = killTracksOffline(offline_cut0)
-          else:
-            tracks_cut0 = vals_tracks0[track_cuts]
+            #tracks_cut0 = killTracksOffline(offline_cut0)
+          #else:
+          tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
@@ -1291,7 +1317,7 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 fin = "HT2000"
 batch = 0
 signal=False
-runInteractive=True#False
+runInteractive=True # False
 systematicType =0
 Run=""
 if len(sys.argv) >= 2:
@@ -1306,7 +1332,7 @@ if len(sys.argv) >= 5:
 if "HT" in fin:
   datatype="MC"
   #datatype="Trigger"
-  fs = np.loadtxt("rootfiles/20%s/%sv7.txt"%(era,fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/new_files/%sv7.txt"%(era,fin),dtype=str)
   batch = int(batch)
   if(batch == -1): #test
   	fileset = {
