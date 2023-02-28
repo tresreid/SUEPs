@@ -162,7 +162,7 @@ def make_dists(sample):
     fig.savefig("Plots/proccess_%s_%s_%s.%s"%(sample,name,year,ext))
     plt.close()
 
-def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift_leg=False):
+def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift_leg=False,save_ratio=False):
   if make_ratio:
     fig, (ax,ax1) = plt.subplots(
         nrows=2,
@@ -248,9 +248,14 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
   ax.set_ylabel("Events")
   if make_ratio:
     ax1.set_xlabel(xlab)
-    ax1.set_ylim(0.5,1.5)
+    #ax1.set_ylim(0.5,1.5)
+    ax1.set_ylim(0.0,1.5)
     ax1.set_ylabel("Data/QCD")
     ax1.axhline(y=1,color="grey",ls="--")
+    if save_ratio:
+      rat_vals = np.divide(h1.to_hist().to_numpy()[0],h2.to_hist().to_numpy()[0])
+      print(rat_vals)
+      np.savetxt("../systematics/triggers/track_multiplicity_ratio_2018.txt",np.nan_to_num(rat_vals), delimiter=",") 
   else:
     ax.set_xlabel(xlab)
   if "res" in var:

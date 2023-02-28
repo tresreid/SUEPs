@@ -52,15 +52,15 @@ def make_plots(var="ht"):
   gridspec_kw={"height_ratios": (3, 1)},
   sharex=True
   )
-  if(var=="event_sphericity"):
-    xs = np.linspace(0,1,100)
-    ax1.set_xlabel("Event Sphericity (unbooosted)")
-  elif(var=="FatJet_nconst"):
-    xs = np.linspace(0,300,100)
-    ax1.set_xlabel("SUEP Jet Track Multiplicity")
+  if(var=="eta"):
+    #xs = np.linspace(0,1,100)
+    ax1.set_xlabel("Eta")
+  elif(var=="phi"):
+    #xs = np.linspace(0,300,100)
+    ax1.set_xlabel("Phi")
   else:
-    xs = np.linspace(0,1500,100)
-    ax1.set_xlabel("Ht [GeV]")
+    #xs = np.linspace(0,1500,100)
+    ax1.set_xlabel("pt [GeV]")
   fig.subplots_adjust(hspace=.07)
 
 
@@ -127,6 +127,6 @@ def make_plots2d(var1="pt",var2="eta"):
 
 
 make_plots("pt")
-make_plots("eta")
+#make_plots("eta")
 make_plots("phi")
 make_plots2d("pt","eta")

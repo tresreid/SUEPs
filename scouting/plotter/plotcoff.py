@@ -89,8 +89,8 @@ make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoint
 
 make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=[0.02])
 make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
-make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
 make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
 
 
@@ -159,7 +159,7 @@ makeSRSignif("sig1000","SR1_suep",3,xline=region_cuts_tracks[3],yline=region_cut
 make_closure("qcd","SR1_suep",3,yrange=0)
 make_closure_correction6("qcd","SR1_suep",3)
 make_closure_correction9("qcd","SR1_suep",3)
-makeSRSignig9("QCD","SR1_suep",3) # error plot
+#makeSRSignig9("QCD","SR1_suep",3) # error plot
 ######signal Injection closure
 make_closure_correction9("sig125","SR1_suep",3, point=1,yrange=0)
 make_closure_correction9("sig200","SR1_suep",3, point=1,yrange=0)
@@ -272,7 +272,7 @@ make_closure_correction_binnedFull(["QCD","sig1000"],"SR1_suep",3,gap=2,zoom=1)
 
 
 ###############Distributions
-#make_dists("QCD")
+make_dists("QCD")
 #make_dists("sig400")
 ######################### CUTFLOW TABLES
 #make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
@@ -291,7 +291,7 @@ make_closure_correction_binnedFull(["QCD","sig1000"],"SR1_suep",3,gap=2,zoom=1)
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
 #makeCombineHistograms(["sig400"],"SR1_suep",3)
-make_limits()
+#make_limits()
 #make_limits(scan=0)
 #make_limits(scan=2)
 #make_limits(scan=3)

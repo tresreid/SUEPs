@@ -11,7 +11,9 @@ done
 #outdir=/publicweb/m/mreid/SUEPs/tests_data16compare #_withoffselection
 #outdir=/publicweb/m/mreid/SUEPs/tests_2dcompare #_withoffselection
 #outdir=/publicweb/m/mreid/SUEPs/tests_dataonlineofflinecompare_offlinetest #_withoffselection
-outdir=/publicweb/m/mreid/SUEPs/qcd_scouting_full_ratiotest2 #_withoutdrop
+outdir=/publicweb/m/mreid/SUEPs/fullplotstest_offline_scouting_compare #_withoutdrop
+#outdir=/publicweb/m/mreid/SUEPs/fullplotstest_16compare18 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
+#outdir=/publicweb/m/mreid/SUEPs/fullplots_161718 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
 rm -r $outdir
 mkdir $outdir
 cp -r $dir/* $outdir

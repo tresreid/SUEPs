@@ -20,7 +20,7 @@ from root_numpy import array2hist, hist2array
 import ROOT
 
 year = 2018
-#year = "Run3"
+#year = "Run2"
 #year = 2016
 ext="png"
 #ext="pdf"
@@ -37,9 +37,9 @@ if year == 2017:
   lumi = 36.74*1000 #lumi for 2017 scouting #
 if year == 2016:
   lumi = 35.48*1000 #lumi for 2016 scouting #
-if year == "Run3":
-  lumi = 96.43*1000 #lumi for 2018+2017 scouting #
-  #lumi = 131.91*1000 #lumi for 2018+2017 scouting #
+if year == "Run2":
+  #lumi = 96.43*1000 #lumi for 2018+2017 scouting #
+  lumi = 131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
 
 standard = False #True
@@ -49,23 +49,29 @@ cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
 set_lumi = None
 if standard:
-  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
-  file_data     = "myhistos_Data_%s"%(year)  
-  file_data1    = "myhistos_Data1_%s"%(year) 
-  file_mctrig   = "myhistos_QCD_%s"%(year) 
-  file_datatrig = "myhistos_Trigger_%s"%(year) 
-  file_qcd      = "myhistos_QCD_%s"%(year) 
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
+  file_data     = "myhistos_Data_"#_%s"%(year)  
+  file_data1    = "myhistos_Data1_"#_%s"%(year) 
+  file_mctrig   = "myhistos_QCD_"#_%s"%(year) 
+  file_datatrig = "myhistos_Trigger_"#_%s"%(year) 
+  file_qcd      = "myhistos_QCD_"#_%s"%(year) 
 else:
+  #year=""
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
-  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD 2016","QCD":"QCD 2018","Data":"QCD 2016","Trigger":"Trigger Data (100%)"}
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD offline","QCD":"QCD scouting","Data":"QCD offline","Trigger":"Trigger Data (100%)"}
   #file_data     = "myhistos_Data_%s"%(year)  
-  file_data     = "myhistos_QCD_2018_offline_nodrop"#%(year)  
-  file_data1    = "myhistos_QCD_2018_offline_nodrop"#%(year) 
+  #file_data     = "myhistos_QCD_2016"#%(year)  
+  #file_data1    = "myhistos_QCD_2016"#%(year) 
+  file_data     = "myhistos_QCD_2018_offline"#%(year)  
+  file_data1    = "myhistos_QCD_2018_offline"#%(year) 
   #file_data1    = "myhistos_Data1_%s"%(year) 
-  file_mctrig   = "myhistos_QCD_%s"%(year) 
-  file_datatrig = "myhistos_Trigger_%s"%(year) 
-  file_qcd      = "myhistos_QCD_2018_offline_scouting1" 
+  file_mctrig   = "myhistos_QCD_2018"#_%s"%(year) 
+  file_datatrig = "myhistos_Trigger_2018"#_%s"%(year) 
+  file_qcd      = "myhistos_QCD_2018" 
+  #file_qcd      = "myhistos_QCD_2018_offline_scouting3" 
   #file_qcd      = "myhistos_Data_2016" 
   set_lumi = 1
 
@@ -79,6 +85,8 @@ inner_sphere = 38
 
 directory = "../outhists/"
 def load_all(year):
+  if not standard:
+    year=""
   qcdscaled = {}
   qcddatascaled = {}
   qcddatafullscaled = {}
@@ -96,7 +104,7 @@ def load_all(year):
   #lumi=1 #for data2016 compare
   if set_lumi:
     lumi = set_lumi
-  with open(directory+"%s.p"%(file_data), "rb") as pkl_file:
+  with open(directory+"%s%s.p"%(file_data,year), "rb") as pkl_file:
   #with open(directory+"myhistos_Data_%s.p"%year, "rb") as pkl_file:
   #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
@@ -105,7 +113,7 @@ def load_all(year):
           datafullscaled[name] = h.copy()
       h1 = datafullscaled["dist_ht"].integrate("cut",slice(2,3))
       datafulllumi = sum(h1.values(sumw2=True)[()][0])
-  with open(directory+"%s.p"%(file_data1), "rb") as pkl_file:
+  with open(directory+"%s%s.p"%(file_data1,year), "rb") as pkl_file:
   #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
@@ -113,13 +121,13 @@ def load_all(year):
           datascaled[name] = h.copy()
       h1 = datascaled["dist_ht"].integrate("cut",slice(2,3))
       datalumi = sum(h1.values(sumw2=True)[()][0])
-  with open(directory+"%s.p"%(file_mctrig), "rb") as pkl_file:
+  with open(directory+"%s%s.p"%(file_mctrig,year), "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
           qcdtrigscaled[name] = h.copy()
           qcdtrigscaled[name].scale(lumi)
-  with open(directory+"%s.p"%(file_datatrig), "rb") as pkl_file:
+  with open(directory+"%s%s.p"%(file_datatrig,year), "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
@@ -128,7 +136,7 @@ def load_all(year):
   #with open(directory+"myhistos_HT2000_0.p", "rb") as pkl_file:
   #with open(directory+"myhistos_Data_2016.p", "rb") as pkl_file:
   #with open(directory+"myhistos_QCDtestscouting_%s.p"%year, "rb") as pkl_file:
-  with open(directory+"%s.p"%(file_qcd), "rb") as pkl_file:
+  with open(directory+"%s%s.p"%(file_qcd,year), "rb") as pkl_file:
   #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       h1 = out["dist_ht"].integrate("cut",slice(2,3))
@@ -177,6 +185,9 @@ def load_samples(sample,year,systematic=""):
 def merge_years(dic1,dic2):
   dic3 = {}
   for key in dic1:
+    print(key)
+    #if "dist_PFcand_pt" in key or "dist_PFcand_eta" in key:# or "offlinetrk_eta" in key:
+    #  continue
     dic3[key] = dic1[key]
     dic3[key].add(dic2[key])
   return dic3
@@ -188,17 +199,18 @@ sig300scaled_sys = {}
 sig400scaled_sys = {}
 sig700scaled_sys = {}
 sig1000scaled_sys = {}
-if year == "Run3":
+if year == "Run2":
   qcdscaled_18, qcddatascaled_18,qcddatafullscaled_18,datascaled_18,datafullscaled_18,trigscaled_18,qcdtrigscaled_18 = load_all(2018)
   qcdscaled_17, qcddatascaled_17,qcddatafullscaled_17,datascaled_17,datafullscaled_17,trigscaled_17,qcdtrigscaled_17 = load_all(2017)
+  qcdscaled_16, qcddatascaled_16,qcddatafullscaled_16,datascaled_16,datafullscaled_16,trigscaled_16,qcdtrigscaled_16 = load_all(2016)
 
-  qcdscaled = merge_years(qcdscaled_18,qcdscaled_17) 
-  qcddatascaled = merge_years(qcddatascaled_18,qcddatascaled_17) 
-  qcddatafullscaled = merge_years(qcddatafullscaled_18,qcddatafullscaled_17) 
-  datascaled = merge_years(datascaled_18,datascaled_17) 
-  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17) 
-  trigscaled = merge_years(trigscaled_18,trigscaled_17) 
-  qcdtrigscaled = merge_years(qcdtrigscaled_18,qcdtrigscaled_17) 
+  qcdscaled = merge_years(qcdscaled_18,qcdscaled_17,qcdscaled_16) 
+  qcddatascaled = merge_years(qcddatascaled_18,qcddatascaled_17,qcddatascaled_16) 
+  qcddatafullscaled = merge_years(qcddatafullscaled_18,qcddatafullscaled_17,qcddatafullscaled_16) 
+  datascaled = merge_years(datascaled_18,datascaled_17,datascaled_16) 
+  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17,datafullscaled_16) 
+  trigscaled = merge_years(trigscaled_18,trigscaled_17,trigscaled_16) 
+  qcdtrigscaled = merge_years(qcdtrigscaled_18,qcdtrigscaled_17,qcdtrigscaled_16) 
 
   sig125scaled_18 =   load_samples("sig125_2",2018)
   sig200scaled_18 =   load_samples("sig200_2",2018)
@@ -211,14 +223,20 @@ if year == "Run3":
   sig300scaled_17 =   load_samples("sig300_2",2017)
   sig400scaled_17 =   load_samples("sig400_2",2017)
   sig700scaled_17 =   load_samples("sig700_2",2017)
-  sig1000scaled_17 =  load_samples("sig1000_2",2017)
+  sig1000scaled_16 =  load_samples("sig1000_2",2017)
+  sig125scaled_16 =   load_samples("sig125_2",2016)
+  sig200scaled_16 =   load_samples("sig200_2",2016)
+  sig300scaled_16 =   load_samples("sig300_2",2016)
+  sig400scaled_16 =   load_samples("sig400_2",2016)
+  sig700scaled_16 =   load_samples("sig700_2",2016)
+  sig1000scaled_16 =  load_samples("sig1000_2",2016)
 
-  sig125scaled = merge_years(sig125scaled_18,sig125scaled_17)  
-  sig200scaled = merge_years(sig200scaled_18,sig200scaled_17)  
-  sig300scaled = merge_years(sig300scaled_18,sig300scaled_17)  
-  sig400scaled = merge_years(sig400scaled_18,sig400scaled_17)  
-  sig700scaled = merge_years(sig700scaled_18,sig700scaled_17)  
-  sig1000scaled = merge_years(sig1000scaled_18,sig1000scaled_17)  
+  sig125scaled = merge_years(sig125scaled_18,sig125scaled_17,sig125scaled_16)  
+  sig200scaled = merge_years(sig200scaled_18,sig200scaled_17,sig200scaled_16)  
+  sig300scaled = merge_years(sig300scaled_18,sig300scaled_17,sig300scaled_16)  
+  sig400scaled = merge_years(sig400scaled_18,sig400scaled_17,sig400scaled_16)  
+  sig700scaled = merge_years(sig700scaled_18,sig700scaled_17,sig700scaled_16)  
+  sig1000scaled = merge_years(sig1000scaled_18,sig1000scaled_17,sig1000scaled_16)  
   for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
     sig125scaled_sys_18=   load_samples("sig125_2",2018,sys)
     sig200scaled_sys_18=   load_samples("sig200_2",2018,sys)
@@ -232,19 +250,27 @@ if year == "Run3":
     sig400scaled_sys_17=   load_samples("sig400_2",2017,sys)
     sig700scaled_sys_17=   load_samples("sig700_2",2017,sys)
     sig1000scaled_sys_17 =  load_samples("sig1000_2",2017,sys)
+    sig125scaled_sys_16=   load_samples("sig125_2",2016,sys)
+    sig200scaled_sys_16=   load_samples("sig200_2",2016,sys)
+    sig300scaled_sys_16=   load_samples("sig300_2",2016,sys)
+    sig400scaled_sys_16=   load_samples("sig400_2",2016,sys)
+    sig700scaled_sys_16=   load_samples("sig700_2",2016,sys)
+    sig1000scaled_sys_16 =  load_samples("sig1000_2",2016,sys)
 
-    sig125scaled_sys[sys] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17) 
-    sig200scaled_sys[sys] =  merge_years(sig200scaled_sys_18,sig200scaled_sys_17) 
-    sig300scaled_sys[sys] =  merge_years(sig300scaled_sys_18,sig300scaled_sys_17) 
-    sig400scaled_sys[sys] =  merge_years(sig400scaled_sys_18,sig400scaled_sys_17) 
-    sig700scaled_sys[sys] =  merge_years(sig700scaled_sys_18,sig700scaled_sys_17) 
-    sig1000scaled_sys[sys] = merge_years(sig1000scaled_sys_18,sig1000scaled_sys_17) 
+    sig125scaled_sys[sys] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17,sig125scaled_sys_16) 
+    sig200scaled_sys[sys] =  merge_years(sig200scaled_sys_18,sig200scaled_sys_17,sig200scaled_sys_16) 
+    sig300scaled_sys[sys] =  merge_years(sig300scaled_sys_18,sig300scaled_sys_17,sig300scaled_sys_16) 
+    sig400scaled_sys[sys] =  merge_years(sig400scaled_sys_18,sig400scaled_sys_17,sig400scaled_sys_16) 
+    sig700scaled_sys[sys] =  merge_years(sig700scaled_sys_18,sig700scaled_sys_17,sig700scaled_sys_16) 
+    sig1000scaled_sys[sys] = merge_years(sig1000scaled_sys_18,sig1000scaled_sys_17,sig1000scaled_sys_16) 
   sig125scaled_sys_18=   load_samples("sig125_2",2018,"higgsup")
   sig125scaled_sys_17=   load_samples("sig125_2",2017,"higgsup")
-  sig125scaled_sys["higgsup"] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17) 
+  sig125scaled_sys_16=   load_samples("sig125_2",2016,"higgsup")
+  sig125scaled_sys["higgsup"] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17,sig125scaled_sys_16) 
   sig125scaled_sys_181=   load_samples("sig125_2",2018,"higgsdown")
   sig125scaled_sys_171=   load_samples("sig125_2",2017,"higgsdown")
-  sig125scaled_sys["higgsdown"] =  merge_years(sig125scaled_sys_181,sig125scaled_sys_171) 
+  sig125scaled_sys_161=   load_samples("sig125_2",2016,"higgsdown")
+  sig125scaled_sys["higgsdown"] =  merge_years(sig125scaled_sys_181,sig125scaled_sys_171,sig125scaled_sys_161) 
 else:
   qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled,qcdtrigscaled = load_all(year)
   sig125scaled =   load_samples("sig125_2",year)
