@@ -15,9 +15,9 @@ done
 #for i in $(seq 0  20); do
 #python fillcoff3.py HT1000 ${i} 18
 #done
-#for i in $(seq 0  16); do
-#python fillcoff3.py HT1500 ${i} 18
-#done
-for i in $(seq 0  9); do
-python fillcoff3.py HT2000 ${i} 18
+for i in $(seq 0  16); do
+python fillcoff3.py HT1500 ${i} 18
 done
+#for i in $(seq 0  9); do
+#python fillcoff3.py HT2000 ${i} 18
+#done

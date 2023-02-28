@@ -45,6 +45,7 @@ datatype= "MC"
 runoffline=True
 HEM_veto = True
 lepton_veto = True
+makefromoffline = False
 
 ########################
 eventDisplay_knob= False#True
@@ -695,7 +696,7 @@ class MyProcessor(processor.ProcessorABC):
             "dist_PFcand_eta": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
-                      hist.Bin("v1","PFcand_eta",eta_bins)
+                      hist.Bin("v1","PFcand_eta",eta_bins2)
             ),
             "dist_PFcand_phi": hist.Hist(
                       "Events",
@@ -943,7 +944,8 @@ class MyProcessor(processor.ProcessorABC):
 
         vals0 = load_vals(arrays,datatype,era) 
         vals_vertex0 = load_vertex(arrays) 
-        vals_jet0 = load_jets(arrays,datatype) 
+        vals_jet0 = load_jets(arrays,datatype,era) 
+        #print(vals_jet0)
         corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
         if HEM_veto:
           corrected_jets = corrected_jets[ (corrected_jets["eta"] < -3.0) | (corrected_jets["eta"] > -1.3) | (corrected_jets["phi"] < -1.57) | (corrected_jets["phi"] > -0.87)]
@@ -978,11 +980,12 @@ class MyProcessor(processor.ProcessorABC):
         if "DATA" not in datatype and "Trigger" not in datatype:
         	if era==16:
         		vals0["trigwgt"] =1
+        		vals0["Prefirewgt"] =1
         	else: 
         		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
+       			vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
         	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)*vals0["lepton_veto"]
        		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
-       		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
         	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]*vals0["Prefirewgt"]
         else:
                 vals0["wgt"] = 1*vals0["lepton_veto"]
@@ -1018,14 +1021,13 @@ class MyProcessor(processor.ProcessorABC):
           if(runoffline):
             vals_offline0 = load_offline(arrays) 
             track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
-            #track_cutsoffline = ((arrays["offlineTrack_dzError"] < 0.02) & (arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
-            #track_cutsoffline = ((arrays["offlineTrack_PFcandq"] != 0) & (arrays["offlineTrack_PFcandpv"] ==0) & (abs(arrays["offlineTrack_PFcandeta"]) < 2.4) & (arrays["offlineTrack_PFcandpt"]>=0.75))
             vals_offline0["wgt"] = vals0["wgt"]
             vals_offline0["PUwgt"] = vals0["PUwgt"]
             offline_cut0 = vals_offline0[track_cutsoffline]
-            #tracks_cut0 = killTracksOffline(offline_cut0)
-          #else:
-          tracks_cut0 = vals_tracks0[track_cuts]
+          if(makefromoffline):
+            tracks_cut0 = killTracksOffline(offline_cut0)
+          else:
+            tracks_cut0 = vals_tracks0[track_cuts]
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
@@ -1271,6 +1273,8 @@ class MyProcessor(processor.ProcessorABC):
 
           
           #print("filling cutflows trk") 
+          #print(tracks_cut0)
+          #print("HT: ",vals0["ht"])
           vals_tracks1 = tracks_cut0[vals0.triggerHt >= 1]
           vals_tracks2 = vals_tracks1[vals1.ht >= 560]
           vals_tracks3 = vals_tracks2[vals2.FatJet_ncount50 >= 2]
@@ -1326,14 +1330,24 @@ if len(sys.argv) >= 2:
 if len(sys.argv) >= 3:
   batch = sys.argv[2]
 if len(sys.argv) >= 4:
-  era = int(sys.argv[3])
+  era1 = sys.argv[3]
+  if(era1 == "16apv"):
+    era= 16
+  else:
+    era = int(era1)
 if len(sys.argv) >= 5:
   systematicType = int(sys.argv[4])
 if "HT" in fin:
   datatype="MC"
   #datatype="Trigger"
-  fs = np.loadtxt("rootfiles/20%s/new_files/%sv7.txt"%(era,fin),dtype=str)
+  if "apv" in era1:
+    fs = np.loadtxt("rootfiles/20%s/new_files_apv/%s_v7.txt"%(era,fin),dtype=str)
+  else:
+    fs = np.loadtxt("rootfiles/20%s/new_files/%s_v7.txt"%(era,fin),dtype=str)
   batch = int(batch)
+  if era == 16:
+    makefromoffline=True
+  #print(makefromoffline)
   if(batch == -1): #test
   	fileset = {
   	         fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/test.root'%(era,fin)]
@@ -1346,10 +1360,17 @@ if "HT" in fin:
   	else:
   	  fs=fs[start:end]
   	htslices = {"HT200":"200to300","HT300":"300to500","HT500":"500to700","HT700":"700to1000","HT1000":"1000to1500","HT1500":"1500to2000","HT2000":"2000toInf"}
-  	htslice = htslices[fin]
-  	fileset = {
-  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/%s/QCD_HT%s_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2+AODSIM/%s"%(era,fin,htslice,f) for f in fs],
-  	         #fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/2018/HT1000/test.root']
+#  	htslice = htslices[fin]
+  	yearslice = {"16":"_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8+RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v1+AODSIM","16apv":"_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8+RunIISummer20UL16RECOAPV-106X_mcRun2_asymptotic_preVFP_v8-v1+AODSIM","17":"_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2+AODSIM","18":"_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2+AODSIM"}
+  	if era == 18:
+  	  fileset = {
+  	         #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/QCD_HT%s%s/%s"%(era,htslices[fin],yearslice["%s"%era1],f) for f in fs],
+  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/%s/QCD_HT%s%s/%s"%(era,fin,htslices[fin],yearslice["%s"%era],f) for f in fs],
+  	}
+  	else:
+  	  fileset = {
+  	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/QCD_HT%s%s/%s"%(era,htslices[fin],yearslice["%s"%era1],f) for f in fs],
+  	         #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/%s/QCD_HT%s%s/%s"%(era,fin,htslices[fin],yearslice["%s"%era],f) for f in fs],
   	}
 elif "Run" in fin:
   datatype="DATA"
@@ -1500,6 +1521,6 @@ if __name__ == "__main__":
       datatype = "SIG"
     if batch == -1:
       batch = "test"
-    with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era), "wb") as pkl_file:
+    with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)

@@ -12,23 +12,37 @@ def load_vertex(arrays):
         })
 	return vals_vertex
 
-def load_jets(arrays,datatype):
+def load_jets(arrays,datatype,era):
 	print("Loading Jets")
-	vals_jet0 = ak.zip({
-                       'pt' : arrays["Jet_pt"],
-                       'eta': arrays["Jet_eta"],
-                       'phi': arrays["Jet_phi"],
-                       'mass': arrays["Jet_m"],
-                       'area': arrays["Jet_area"],
-                       'mass_raw': arrays["Jet_m"], # I think there should be another factor here?
-                       'pt_raw': arrays["Jet_pt"],
-                       'passId': arrays["Jet_passId"],
-                       'ptGen': ak.values_astype(ak.without_parameters(ak.zeros_like(arrays["Jet_pt"])),np.float32)
-        },with_name="Momentum4D")
+	if era == 16:
+		vals_jet0 = ak.zip({
+        	               'pt' : arrays["OffJet_pt"],
+        	               'eta': arrays["OffJet_eta"],
+        	               'phi': arrays["OffJet_phi"],
+        	               'mass': arrays["OffJet_m"],
+        	               'area': arrays["OffJet_area"],
+        	               'mass_raw': arrays["OffJet_m"], # I think there should be another factor here?
+        	               'pt_raw': arrays["OffJet_pt"],
+        	               'passId': arrays["OffJet_passId"],
+        	               'ptGen': ak.values_astype(ak.without_parameters(ak.zeros_like(arrays["OffJet_pt"])),np.float32)
+        	},with_name="Momentum4D")
+	else:
+		vals_jet0 = ak.zip({
+        	               'pt' : arrays["Jet_pt"],
+        	               'eta': arrays["Jet_eta"],
+        	               'phi': arrays["Jet_phi"],
+        	               'mass': arrays["Jet_m"],
+        	               'area': arrays["Jet_area"],
+        	               'mass_raw': arrays["Jet_m"], # I think there should be another factor here?
+        	               'pt_raw': arrays["Jet_pt"],
+        	               'passId': arrays["Jet_passId"],
+        	               'ptGen': ak.values_astype(ak.without_parameters(ak.zeros_like(arrays["Jet_pt"])),np.float32)
+        	},with_name="Momentum4D")
 	if datatype == "Trigger":
 		vals_jet0['rho'] = vals_jet0["pt"]/vals_jet0["area"] #ak.broadcast_arrays(arrays["rho"], vals_jet0["pt"])[0]
 	else:
 		vals_jet0['rho'] = ak.broadcast_arrays(arrays["rho"], vals_jet0["pt"])[0]
+	#print(vals_jet0)
 	return vals_jet0
 def load_gen(arrays):
 	print("Loading Gen")
@@ -148,33 +162,9 @@ def load_vals(arrays,dataset,era):
                'n_pfMu': arrays["n_pfMu"],
                'n_pfEl': arrays["n_pfEl"],
                'n_pvs': arrays["n_pvs"],
-               #'PU': arrays["PU_num"],
-               #'nPVs_good0': ak.count(arrays["Vertex_isValidVtx"],axis=-1),
-               #'nPVs_good1': ak.count(arrays["Vertex_isValidVtx"][(arrays["Vertex_isValidVtx"] == 1)],axis=-1),
-               #'nPVs_good2': ak.count(arrays["Vertex_isValidVtx"][(abs(arrays["Vertex_z"]) <24 ) & (arrays["Vertex_isValidVtx"] == 1)],axis=-1),
-               #'nPVs_good3': ak.count(arrays["Vertex_isValidVtx"][(abs(arrays["Vertex_z"]) < 24) & (arrays["Vertex_ndof"]> 4 ) & (arrays["Vertex_isValidVtx"] == 1)],axis=-1),
-               #'Vertex_tracksSize0': ak.max(arrays["Vertex_tracksSize"],axis=-1),
-               #'nPVs_good4': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >3],axis=-1),
-               #'nPVs_good5': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >5],axis=-1),
-               #'nPVs_good6': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >7],axis=-1),
-               #'nPVs_good7': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >10],axis=-1),
-               #'nPVs_good8': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >15],axis=-1),
-               #'nPVs_good9': ak.count(arrays["Vertex_tracksSize"][arrays["Vertex_tracksSize"] >25],axis=-1),
-               #'Vertex_minZ' : ak.min(abs(np.subtract(ak.firsts(arrays["Vertex_z"]),arrays["Vertex_z"][:,1:])),axis=-1,mask_identity=False),
                'triggerHt': tright,
                'triggerMu': trigmu,
                'triggerCalo': trigcalo,
-               #'PFcand_ncount0' :  ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.0 )],axis=-1),
-               #'PFcand_ncount50' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.50)],axis=-1),
-               #'PFcand_ncount60' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.60)],axis=-1),
-               #'PFcand_ncount70' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.70)],axis=-1),
-               #'PFcand_ncount75' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.75)],axis=-1),
-               #'PFcand_ncount80' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.80)],axis=-1),
-               #'PFcand_ncount90' : ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>0.90)],axis=-1),
-               #'PFcand_ncount100': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>1.0 )],axis=-1),
-               #'PFcand_ncount150': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>1.5 )],axis=-1),
-               #'PFcand_ncount200': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>2   )],axis=-1),
-               #'PFcand_ncount300': ak.count(arrays["PFcand_pt"][(arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>3   )],axis=-1),
                'FatJet_nconst' : ak.max(arrays["FatJet_nconst"],axis=-1,mask_identity=False),
         })
         else:
