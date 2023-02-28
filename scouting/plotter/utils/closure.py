@@ -47,8 +47,16 @@ def make_correlation(SR,cut):
     ax1.autoscale(axis='y', tight=True)
     fig.savefig("Plots/correlation_PFcand_%s_cut%s_%s.%s"%(SR,cut,year,ext))
     plt.close()
+def chisqr(obs, exp, error):
+    print(obs)
+    print(exp)
+    print(error)
+    chisqr = 0
+    for i in range(len(obs)):
+        chisqr = chisqr + ((obs[i]-exp[i])**2)/(error[i]**2)
+    return chisqr/(len(obs)-1)
 
-def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
+def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
   high1 = region_cuts_tracks[point]
   high2 = region_cuts_sphere[point]
   var = "nPFCand"
@@ -123,8 +131,16 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   xbin = xbins(h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).to_hist().to_numpy()[1])
   b_rat1, b_err1 = h1.integrate("eventBoostedSphericity",slice(high2/100,high2x/100)).values(sumw2=True)[()]
   b_rat2, b_err2 = h2.integrate("eventBoostedSphericity",slice(low2/100,high2/100)).values(sumw2=True)[()]
+  print(xbin)
   ratio = (b_rat1/b_rat2)
   ratio_err = ratio*np.sqrt( np.divide(b_err1,np.square(b_rat1)) +np.divide(b_err2,np.square(b_rat2)) + rel_err)#+(d1_err/d1)**2+(d2_err/d2)**2)
+  if chi:
+    select_ratio = np.nan_to_num(ratio)[int(high1/2):]
+    select_err = np.nan_to_num(ratio_err)[int(high1/2):]
+    reduced_chi = chisqr(select_ratio[select_err !=0],[1]*len(select_ratio[select_err != 0]),select_err[select_err !=0])
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)\n $\chi^{2}$/N = %.2f"%(high1,high2/100.,reduced_chi),loc="center right",prop=dict(size=12)))
+  else:
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(high1,high2/100.),loc="center right",prop=dict(size=12)))
   hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
@@ -140,7 +156,6 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       ax1.set_xlabel("Suep Jet Track Multiplcity")
     else:
       ax1.set_xlabel("Event Tracks")
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(high1,high2/100.),loc="center right",prop=dict(size=12)))
   ax1.axhline(y=1,color="gray",ls="--")
   ax.set_xlabel("")
   ax1.set_ylabel("Observed/Predicted")
@@ -148,7 +163,7 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   fig.savefig("Plots/closure_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
+def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1,chi=False):
   highx1 = inner_tracks #region_cuts_tracks[0]
   highx2 = region_cuts_tracks[point]
   highy1 = region_cuts_sphere[point]
@@ -218,9 +233,6 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
       stack=False,
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy1/100.),loc="center right",prop=dict(size=12)))
-  leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*cbinx,err)]
-  ax.legend(leg)
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
@@ -240,6 +252,15 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+  if chi:
+    select_ratio = np.nan_to_num(ratio)[int(highx2/2):]
+    select_err = np.nan_to_num(ratio_err)[int(highx2/2):]
+    reduced_chi = chisqr(select_ratio[select_err !=0],[1]*len(select_ratio[select_err != 0]),select_err[select_err !=0])
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)\n $\chi^{2}$/N = %.2f"%(highx2,highy1/100.,reduced_chi),loc="center right",prop=dict(size=12)))
+  else:
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy1/100.),loc="center right",prop=dict(size=12)))
+  leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*cbinx,err)]
+  ax.legend(leg)
 
   ax1.set_xlim(highx2,125)
   if yrange:
@@ -258,7 +279,7 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1):
   fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1):
+def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,chi=False):
   highx1 = inner_tracks #region_cuts_tracks[0]#20
   highy1 = inner_sphere #region_cuts_sphere[0]#38
   highx2 = region_cuts_tracks[point]
@@ -368,9 +389,6 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yran
       #unc='num',
       fill_opts={'alpha': .5, 'edgecolor': (0,0,0,0.3),"color":"red"}
   )
-  ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy2/100.),loc="center right",prop=dict(size=12)))
-  leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
-  ax.legend(leg)
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   ax.set_yscale("log")
   ax.autoscale(axis='y', tight=True)
@@ -390,6 +408,15 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yran
   hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+  if (chi):
+    select_ratio = np.nan_to_num(ratio)[int(highx2/2):]
+    select_err = np.nan_to_num(ratio_err)[int(highx2/2):]
+    reduced_chi = chisqr(select_ratio[select_err !=0],[1]*len(select_ratio[select_err != 0]),select_err[select_err !=0])
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)\n $\chi^{2}$/N = %.2f"%(highx2,highy2/100.,reduced_chi),loc="center right",prop=dict(size=12)))
+  else:
+    ax.add_artist(AnchoredText("Boundary: (%s,%s)"%(highx2,highy2/100.),loc="center right",prop=dict(size=12)))
+  leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
+  ax.legend(leg)
 ######
   ax1.set_xlim(highx2,125)
   if yrange:

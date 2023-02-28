@@ -156,10 +156,10 @@ makeSRSignif("sig400","SR1_suep",3,xline=region_cuts_tracks[2],yline=region_cuts
 makeSRSignif("sig700","SR1_suep",3,xline=region_cuts_tracks[3],yline=region_cuts_sphere[3])
 makeSRSignif("sig1000","SR1_suep",3,xline=region_cuts_tracks[3],yline=region_cuts_sphere[3])
 #####closure
-make_closure("qcd","SR1_suep",3,yrange=0)
-make_closure_correction6("qcd","SR1_suep",3)
-make_closure_correction9("qcd","SR1_suep",3)
-#makeSRSignig9("QCD","SR1_suep",3) # error plot
+make_closure("qcd","SR1_suep",3,yrange=0,chi=True)
+make_closure_correction6("qcd","SR1_suep",3,chi=True)
+make_closure_correction9("qcd","SR1_suep",3,chi=True)
+makeSRSignig9("QCD","SR1_suep",3) # error plot
 ######signal Injection closure
 make_closure_correction9("sig125","SR1_suep",3, point=1,yrange=0)
 make_closure_correction9("sig200","SR1_suep",3, point=1,yrange=0)
@@ -174,13 +174,13 @@ make_closure_correction9("sig400","SR1_suep",3, point=2,gap=1,yrange=0)
 make_closure_correction9("sig700","SR1_suep",3, point=3,gap=1,yrange=0)
 make_closure_correction9("sig1000","SR1_suep",3,point=3,gap=1,yrange=0)
 
-##data validation
-make_closure("RunA","SR1_suep",3)
-make_closure_correction6("RunA","SR1_suep",3)
-make_closure_correction9("RunA","SR1_suep",3)
-make_closure("Data","SR1_isrsuep",3)
-make_closure_correction6("Data","SR1_isrsuep",3)
-make_closure_correction9("Data","SR1_isrsuep",3)
+#data validation
+make_closure("RunA","SR1_suep",3,chi=True)
+make_closure_correction6("RunA","SR1_suep",3,chi=True)
+make_closure_correction9("RunA","SR1_suep",3,chi=True)
+make_closure("Data","SR1_isrsuep",3,chi=True)
+make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
+make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
 make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
 make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
 make_closure_correction_binnedFull(["QCD","sig125"],"SR1_suep",3,gap=2,zoom=0)
@@ -272,7 +272,7 @@ make_closure_correction_binnedFull(["QCD","sig1000"],"SR1_suep",3,gap=2,zoom=1)
 
 
 ###############Distributions
-make_dists("QCD")
+#make_dists("QCD")
 #make_dists("sig400")
 ######################### CUTFLOW TABLES
 #make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")

@@ -248,8 +248,8 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
   ax.set_ylabel("Events")
   if make_ratio:
     ax1.set_xlabel(xlab)
-    #ax1.set_ylim(0.5,1.5)
-    ax1.set_ylim(0.0,1.5)
+    ax1.set_ylim(0.5,1.5)
+    #ax1.set_ylim(0.0,1.5)
     ax1.set_ylabel("Data/QCD")
     ax1.axhline(y=1,color="grey",ls="--")
     if save_ratio:

@@ -35,7 +35,7 @@ lumi = 1
 #       if isinstance(h, hist.Hist):
 #         offline[name] = h.copy()
 #         offline[name].scale(lumi)
-with open(directory+"%s.p"%("myhistos_QCD_2018_offline"), "rb") as pkl_file:
+with open(directory+"%s.p"%("myhistos_QCD_2018"), "rb") as pkl_file:
      out = pickle.load(pkl_file)
      for name, h in out.items():
        if isinstance(h, hist.Hist):
@@ -53,13 +53,10 @@ def make_plots(var="ht"):
   sharex=True
   )
   if(var=="eta"):
-    #xs = np.linspace(0,1,100)
     ax1.set_xlabel("Eta")
   elif(var=="phi"):
-    #xs = np.linspace(0,300,100)
     ax1.set_xlabel("Phi")
   else:
-    #xs = np.linspace(0,1500,100)
     ax1.set_xlabel("pt [GeV]")
   fig.subplots_adjust(hspace=.07)
 
@@ -67,21 +64,47 @@ def make_plots(var="ht"):
   b = scouting["dist_offlinetrk_%s"%var].integrate("cut",slice(2,3))#.to_hist().to_numpy()
 
   d = scouting["dist_PFcand_%s"%var].integrate("cut",slice(2,3))#.to_hist().to_numpy()
+
   hx1 = hist.plotratio(
       d,b,
-      ax=ax,
+      ax=ax1,
       error_opts={'color': 'r', 'marker': '.'},
       unc='clopper-pearson'
   )
 
+  #fig.savefig("Plots/offline_scouting_compare_%s.%s"%(var,ext))
+  #plt.close()
+  #fig, ax1 = plt.subplots()
+  hx = hist.plot1d(
+        b,
+        ax=ax,
+        #overlay="cut",
+        stack=False,
+        fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
+    )
+  #fig.savefig("Plots/offline_scouting_pfcand_%s.%s"%(var,ext))
+  #plt.close()
+  #fig, ax1 = plt.subplots()
+  hx = hist.plot1d(
+        d,
+        ax=ax,
+        #overlay="cut",
+        stack=False,
+        clear=False,
+        fill_opts={'alpha': .9, 'edgecolor': (0,0,0,0.3)}
+    )
+  label_list=[]
+  for t in ax.get_legend_handles_labels():
+    label_list.append(t)
+
+  ax.legend(handles=label_list[0], labels=["Offline","Scouting"])
+  #ax.legend(labels=["Offline","Scouting"])
   ax1.axhline(y=1,color="grey",ls="--")
-  ax.set_ylim(0,1.1)
-  ax1.set_ylabel("Data/QCD")
-  ax1.set_ylim(0.5,1.5)
+  #ax.set_ylim(0,1.1)
+  ax1.set_ylabel("Scouting/Offline")
+  ax1.set_ylim(0.0,1.1)
   ax.set_xlabel("")
-  ax.set_ylabel("Efficiency")
-  ax.legend(loc="lower right")
-  fig.suptitle("HT Trigger Efficiency DoubleMu3 Reference: Data")
+  fig.suptitle("Offline vs Scouting: %s"%(var))
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
   fig.savefig("Plots/offline_scouting_compare_%s.%s"%(var,ext))
   plt.close()
@@ -104,29 +127,17 @@ def make_plots2d(var1="pt",var2="eta"):
   print(scout_vals)
   print(rat_vals)
 
-  #X,Y = np.meshgrid(pt_bins,eta_bins)
   X,Y = np.meshgrid(off.to_hist().to_numpy()[2],off.to_hist().to_numpy()[1])
   h3 = ax.pcolor(X,Y,rat_vals)
-  #print(data)
 
   fig.colorbar(h3)
-  #fig2.colorbar(h2[3])
-  #fig1.colorbar(h1[3])
-  #print(h1)
-  #print(h2)
-  #print(h2[0]/h1[0])
-  #print(h2[1])
-  #print(h2[2])
-  #print(len(data),len(data[0]),len(data[5]))
-  #np.savetxt("../systematics/triggers/track_drop_%s.txt"%(year),np.nan_to_num(data), delimiter=",")
-  #fig1.savefig("Plots/trackhist2d_%s_%s_%s.png"%(var1,var2,version))
-  #fig2.savefig("Plots/trackhist2dpaired_%s_%s_%s.png"%(var1,var2,version))
+  fig.suptitle("Offline vs Scouting Track Ratio Map")
   np.savetxt("../systematics/triggers/track_drop_full_2018.txt",np.nan_to_num(rat_vals), delimiter=",")
   fig.savefig("Plots/trackhist2dratio_%s_%s.png"%(var1,var2))
   plt.close()
 
 
 make_plots("pt")
-#make_plots("eta")
+make_plots("eta")
 make_plots("phi")
 make_plots2d("pt","eta")

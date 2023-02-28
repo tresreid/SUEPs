@@ -105,8 +105,6 @@ def load_all(year):
   if set_lumi:
     lumi = set_lumi
   with open(directory+"%s%s.p"%(file_data,year), "rb") as pkl_file:
-  #with open(directory+"myhistos_Data_%s.p"%year, "rb") as pkl_file:
-  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
@@ -114,7 +112,6 @@ def load_all(year):
       h1 = datafullscaled["dist_ht"].integrate("cut",slice(2,3))
       datafulllumi = sum(h1.values(sumw2=True)[()][0])
   with open(directory+"%s%s.p"%(file_data1,year), "rb") as pkl_file:
-  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       for name, h in out.items():
         if isinstance(h, hist.Hist):
@@ -133,11 +130,7 @@ def load_all(year):
         if isinstance(h, hist.Hist):
           trigscaled[name] = h.copy()
           trigscaled[name].scale(lumi)
-  #with open(directory+"myhistos_HT2000_0.p", "rb") as pkl_file:
-  #with open(directory+"myhistos_Data_2016.p", "rb") as pkl_file:
-  #with open(directory+"myhistos_QCDtestscouting_%s.p"%year, "rb") as pkl_file:
   with open(directory+"%s%s.p"%(file_qcd,year), "rb") as pkl_file:
-  #with open(directory+"myhistos_QCDtestofflinenew_%s.p"%year, "rb") as pkl_file:
       out = pickle.load(pkl_file)
       h1 = out["dist_ht"].integrate("cut",slice(2,3))
       qcdlumi = sum(h1.values(sumw2=True)[()][0])
@@ -186,8 +179,6 @@ def merge_years(dic1,dic2):
   dic3 = {}
   for key in dic1:
     print(key)
-    #if "dist_PFcand_pt" in key or "dist_PFcand_eta" in key:# or "offlinetrk_eta" in key:
-    #  continue
     dic3[key] = dic1[key]
     dic3[key].add(dic2[key])
   return dic3
