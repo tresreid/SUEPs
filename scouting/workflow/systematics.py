@@ -210,17 +210,28 @@ def prefire_weight(array,systematics=0):
 	return prefire
 def killTracks(tracks_cut0):
         np.random.seed(2022) #random seed to get repeatable results
-        probs = ak.where(ak.flatten(tracks_cut0["pt"]) < 20,0.05,0.02) #5% if pt < 1, otherwise 2%.
+        pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
+        datascale =  np.loadtxt("systematics/triggers/track_datascaling_full_2018_pt.txt", delimiter=",")
+        qcdscale =  np.loadtxt("systematics/triggers/track_offlinescaling_full_2018_pt.txt", delimiter=",")
+        # if 5% chance to not reconstruct MC track in real data, then MC_off/Data_off = 1.05 -> more MC than DATA. Then ratio in scouting = (MC_off/Data_off)* (MC_s/MC_off)*(Data_off/Data_s) = 1.05 * QCDscale/datascale
+        scaling = np.divide(qcdscale,datascale)
+        scaling = np.append(scaling,scaling[-1])
+        trackbin = np.digitize(ak.flatten(tracks_cut0["pt"]),pt_bins)-1
+        #print(scaling)
+        #print(trackbin)
+        scale = np.take(scaling,trackbin)
+        probs = ak.where(ak.flatten(tracks_cut0["pt"]) < 20,0.025*scale,0.01*scale) #5% if pt < 1, otherwise 2%.
+        #probs = ak.where(ak.flatten(tracks_cut0["pt"]) < 20,0.05*scale,0.02*scale) #5% if pt < 1, otherwise 2%.
+        #print(probs)
+        #probs = ak.where(ak.flatten(tracks_cut0["pt"]) < 20,0.05,0.02) #5% if pt < 1, otherwise 2%.
         rands = np.random.rand(len(probs)) > probs
         trk_killer = ak.Array(ak.layout.ListOffsetArray64(tracks_cut0.layout.offsets, ak.layout.NumpyArray(rands)))
         tracks_cut0 = tracks_cut0[trk_killer]
         return tracks_cut0
-def killTracksOffline(tracks_cut0,era=18):
+def killTracksOffline(tracks_cut0):
     pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
     eta_bins = np.array(range(-250,275,25))/100.
-    #pt_bins = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
-    #eta_bins = np.array([-2.25,-2.,-1.75,-1.5,-1.25,-1.,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25]) #np.array(range(-250,250,25))/100.
-    trackwgts = np.loadtxt("systematics/triggers/track_drop_full_20%s.txt"%(era), delimiter=",")#.flatten()
+    trackwgts = np.loadtxt("systematics/triggers/track_drop_full_2018.txt", delimiter=",")#.flatten()
     #print("Track wgt len:", len(trackwgts),len(trackwgts[7]))
     trackwgts = np.vstack((trackwgts,trackwgts[-1])) #repeat last bin for overflow
     #print("Track wgt len 2:",len(trackwgts),len(trackwgts[7]))
@@ -240,6 +251,30 @@ def killTracksOffline(tracks_cut0,era=18):
     trk_killer = ak.Array(ak.layout.ListOffsetArray64(tracks_cut0.layout.offsets, ak.layout.NumpyArray(rands)))
     tracks_cut0 = tracks_cut0[trk_killer]
     return tracks_cut0
+def scaleTracksOffline(spherex):
+    track_bins= np.array([  0.,   6.,  12.,  18.,  24.,  30.,  36.,  42.,  48.,  54.,  60.,
+        66.,  72.,  78.,  84.,  90.,  96., 102., 108., 114., 120., 126.,
+       132., 138., 144., 150., 156., 162., 168., 174., 180., 186., 192.,
+       198., 204., 210., 216., 222., 228., 234., 240., 246., 252., 258.,
+       264., 270., 276., 282., 288., 294., 300.])
+    trackwgts = np.loadtxt("systematics/triggers/track_multiplicity_ratio_2018.txt", delimiter=",")#.flatten()
+    #print(trackwgts)
+    trackwgts[trackwgts == 0] = 0.12907325
+    #trackwgts = np.vstack((trackwgts,trackwgts[-1])) #repeat last bin for overflow
+    #trackwgts = trackwgts.flatten()
+    trackbin = np.digitize(spherex["FatJet_nconst"],track_bins)-1
+    #etabin = np.digitize(ak.flatten(tracks_cut0["eta"]),eta_bins)-1
+    #bins = np.add((ptbin)*(len(eta_bins)-1),etabin)
+    probs = np.take(trackwgts,trackbin)
+    #print(trackbin)
+    #print(spherex["FatJet_nconst"])
+    
+    #print(probs)
+    #rands = np.random.rand(len(probs)) < probs # keep track is less than probability
+    #trk_killer = ak.Array(ak.layout.ListOffsetArray64(tracks_cut0.layout.offsets, ak.layout.NumpyArray(rands)))
+    #tracks_cut0 = tracks_cut0[trk_killer]
+    spherex["wgt"] = spherex["wgt"] * 1/probs
+    return spherex
 def calculateHT(vals0,corrected_jets,AK4sys):
         print("calculating HT with systematic %s"%AK4sys)
         if AK4sys ==1 :

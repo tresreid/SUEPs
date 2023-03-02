@@ -938,6 +938,7 @@ class MyProcessor(processor.ProcessorABC):
         vector.register_awkward()
         output = self.accumulator.identity()
         dataset = arrays.metadata['dataset']
+        print(dataset)
         output["sumw"][dataset] += len(arrays) # get number of events
         if "DATA" in datatype:
           arrays = applyGoldenJSON(era,arrays)
@@ -1088,6 +1089,8 @@ class MyProcessor(processor.ProcessorABC):
 
             spherex0 = vals0[vals0["FatJet_ncount30"] >= 2]
             spherex0["FatJet_nconst"] = SUEP_cand["FatJet_nconst"]
+            if(makefromoffline):
+              scaleTracksOffline(spherex0)
             spherex0["SUEP_pt"] = SUEP_cand["pt"]
             spherex0["SUEP_eta"] = SUEP_cand["eta"]
             spherex0["SUEP_phi"] = SUEP_cand["phi"]
@@ -1321,7 +1324,7 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 fin = "HT2000"
 batch = 0
 signal=False
-runInteractive=False
+runInteractive=True#False
 systematicType =0
 Run=""
 if len(sys.argv) >= 2:
@@ -1410,11 +1413,14 @@ elif "Trigger" in fin:
 else:
   datatype="MC"
   signal=True
-  runInteractive=True
+  #runInteractive=True
+  fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
   decays = {"0":"darkPho","1":"darkPhoHad","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/%s_%s_PU.root"%(fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            #fin:["root://xrootd.cmsaf.mit.edu://store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
   }  
 appendname=""
 if systematicType ==1:
@@ -1519,6 +1525,7 @@ if __name__ == "__main__":
 
     if signal:
       datatype = "SIG"
+      fin = "sig%s"%fin
     if batch == -1:
       batch = "test"
     with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:

@@ -1,4 +1,4 @@
 #1/bin/bash
-for i in $(seq 313  400); do
+for i in $(seq 300  400); do
 python fillcoff3.py RunA ${i}
 done
