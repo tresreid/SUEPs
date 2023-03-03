@@ -21,11 +21,11 @@ def packdistnowgt(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 2:Ht>=560", v1=vals[2][var],weight=vals[2]["PUwgt"])
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 3:fj>=2", v1=vals[3][var],weight=vals[3]["PUwgt"])
         if("PFcand_n" in var):
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var])
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:eventBoosted Sphericity >=0.6", v1=vals[4][var],weight=vals[4]["PUwgt"])
         else:
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var])
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 4:nPFcand(SUEP)>=70", v1=vals[4][var],weight=vals[4]["PUwgt"])
         if(len(vals)>=6):
-          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var])
+          output["dist_%s%s"%(prefix,var)].fill(cut="cut 5:eventBoosted Sphericity > 0.7", v1=vals[5][var],weight=vals[5]["PUwgt"])
         return output
 def packdist(output,vals,var,prefix=""):
         output["dist_%s%s"%(prefix,var)].fill(cut="cut 0:No cut", v1=vals[0][var],weight=vals[0]["wgt"])

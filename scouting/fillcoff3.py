@@ -976,6 +976,7 @@ class MyProcessor(processor.ProcessorABC):
 	],axis =-1)
 
         vals0["lepton_veto"] = (vals0["selected_electrons"] == 0) & (vals0["selected_muons"] ==0)
+        #print(vals0["lepton_veto"])
         ####Weights#######
 
         if "DATA" not in datatype and "Trigger" not in datatype:
@@ -989,6 +990,10 @@ class MyProcessor(processor.ProcessorABC):
        		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
         	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]*vals0["Prefirewgt"]
         else:
+                
+                vals0["trigwgt"] = 1#*vals0["lepton_veto"]
+                vals0["Prefirewgt"] = 1#*vals0["lepton_veto"]
+                vals0["PSwgt"] = 1#*vals0["lepton_veto"]
                 vals0["wgt"] = 1*vals0["lepton_veto"]
                 vals0["PUwgt"] = 1*vals0["lepton_veto"]
         if(signal):
@@ -1379,23 +1384,25 @@ elif "Run" in fin:
   datatype="DATA"
   Run = fin[3:]
   print("Run",Run)
+  runoffline = False
   #Runs = ["RunA","RunB","RunC"]
-  fs = np.loadtxt("rootfiles/20%s/Data_%s.txt"%(era,fin),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/Data_%s_v6.txt"%(era,fin),dtype=str)
   batch = int(batch)
   fs=fs[5*batch:5*(batch+1)]
-  if(era==18):
+  if(era==16 and ((Run != "F") and (Run != "G") and (Run != "H"))):
     fileset = {
      #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,fin,era,Run,f) for f in fs]
     }
-  elif(era==16):
-    fileset = {
-     #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
-    }
+  #elif(era==16):
+  #  fileset = {
+  #   #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+  #          fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
+  #  }
   else:  
     fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
     }  
 elif "Trigger" in fin:

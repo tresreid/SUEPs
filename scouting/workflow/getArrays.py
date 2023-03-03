@@ -129,7 +129,7 @@ def load_vals(arrays,dataset,era):
           tright = [item[7] for item in arrays["hltResult"]]
           trigcalo = [item[5] for item in arrays["hltResult"]] #calojet40 reference trigger
           trigmu = [item[2] for item in arrays["hltResult"]] #mu reference trigger
-        if era == 16:
+        elif era == 16:
           tright = [item[3] for item in arrays["hltResult"]]
           trigcalo = [item[1] for item in arrays["hltResult"]] #calojet40 reference trigger
           trigmu = [item[1] for item in arrays["hltResult"]] #no mu reference trigger
