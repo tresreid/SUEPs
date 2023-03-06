@@ -21,7 +21,6 @@ import ROOT
 
 year = 2018
 #year = "Run2"
-#year = 2016
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -42,7 +41,7 @@ if year == "Run2":
   lumi = 131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
 
-standard = False #True
+standard = True
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
 sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
 cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
@@ -60,13 +59,13 @@ else:
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
-  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD 2016","QCD":"QCD 2018","Data":"QCD 2016","Trigger":"Trigger Data (100%)"}
-  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD offline","QCD":"QCD scouting","Data":"QCD offline","Trigger":"Trigger Data (100%)"}
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD 2016","QCD":"QCD 2018","Data":"QCD 2016","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD offline","QCD":"QCD scouting","Data":"QCD offline","Trigger":"Trigger Data (100%)"}
   #file_data     = "myhistos_Data_%s"%(year)  
   #file_data     = "myhistos_QCD_2016"#%(year)  
   #file_data1    = "myhistos_QCD_2016"#%(year) 
-  file_data     = "myhistos_QCD_2018_offline"#%(year)  
-  file_data1    = "myhistos_QCD_2018_offline"#%(year) 
+  file_data     = "myhistos_QCD_2016" #_offline"#%(year)  
+  file_data1    = "myhistos_QCD_2016"#_offline"#%(year) 
   #file_data1    = "myhistos_Data1_%s"%(year) 
   file_mctrig   = "myhistos_QCD_2018"#_%s"%(year) 
   file_datatrig = "myhistos_Trigger_2018"#_%s"%(year) 
@@ -158,11 +157,16 @@ def load_samples(sample,year,systematic=""):
       with open(directory+"myhistos_%s%s_%s.p"%(sample,systematic,year), "rb") as pkl_file:
           out = pickle.load(pkl_file)
           sample = sample.split("_")[0]
+          #print(sample[3:])
+          #print(out["sumw"])
           xsec = xsecs[sample.split("_")[0]]
           if xsec ==0:
             scale = 1
           else:
-            scale= lumi*xsec/out["sumw"][sample]
+            if year == 2016:
+              scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
+            else:
+              scale= lumi*xsec/out["sumw"][sample[3:]]
           for name, h in out.items():
             if isinstance(h,hist.Hist):
               sigscaled[name] = h.copy()
@@ -175,13 +179,16 @@ def load_samples(sample,year,systematic=""):
 
 
 
-def merge_years(dic1,dic2):
-  dic3 = {}
+def merge_years(dic1,dic2,dic3):
+  dicx = {}
   for key in dic1:
     print(key)
-    dic3[key] = dic1[key]
-    dic3[key].add(dic2[key])
-  return dic3
+    if "dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key:
+      continue
+    dicx[key] = dic1[key]
+    dicx[key].add(dic2[key])
+    dicx[key].add(dic3[key])
+  return dicx
 
 
 sig125scaled_sys = {} 
@@ -214,7 +221,7 @@ if year == "Run2":
   sig300scaled_17 =   load_samples("sig300_2",2017)
   sig400scaled_17 =   load_samples("sig400_2",2017)
   sig700scaled_17 =   load_samples("sig700_2",2017)
-  sig1000scaled_16 =  load_samples("sig1000_2",2017)
+  sig1000scaled_17 =  load_samples("sig1000_2",2017)
   sig125scaled_16 =   load_samples("sig125_2",2016)
   sig200scaled_16 =   load_samples("sig200_2",2016)
   sig300scaled_16 =   load_samples("sig300_2",2016)

@@ -41,7 +41,7 @@ def getvals(arr,ind,drss,iss,jss,issx):
 
 def openfile_off():
   datasets ={} 
-  with open("reco_lums.txt") as f:
+  with open("trackstudies/reco_lums.txt") as f:
     for i,line in enumerate(f):
       if i < i_min or i > i_max:
         continue
@@ -103,7 +103,7 @@ def openfile_off():
   return dfoff#,dfon
 def openfile_on():
   datasets ={} 
-  with open("scouting_lums.txt") as f:
+  with open("trackstudies/scouting_lums.txt") as f:
     for i,line in enumerate(f):
       if i< i_min or i > i_max:
         continue
@@ -365,8 +365,8 @@ def make_hist(var,version=0):
   ax1.set_ylim([0,1])
   ax1.legend()
   ax.legend()
-  np.savetxt("hists/num_%s_%d_%d.txt"%(var,i_min,i_max),h2[0])
-  np.savetxt("hists/denom_%s_%d_%d.txt"%(var,i_min,i_max),h1[0])
+  np.savetxt("trackstudies/hists/num_%s_%d_%d.txt"%(var,i_min,i_max),h2[0])
+  np.savetxt("trackstudies/hists/denom_%s_%d_%d.txt"%(var,i_min,i_max),h1[0])
   fig.savefig("Plots/trackhist_%s_%s.png"%(var,version))
   plt.close()
 def make_hist2d(var1,var2,version=0):
@@ -453,7 +453,7 @@ def make_hist2d(var1,var2,version=0):
   print(h2[1])
   print(h2[2])
   print(len(data),len(data[0]),len(data[5]))
-  np.savetxt("../systematics/triggers/track_drop_%s.txt"%(year),np.nan_to_num(data), delimiter=",")
+  #np.savetxt("../systematics/triggers/track_drop_%s.txt"%(year),np.nan_to_num(data), delimiter=",")
   fig1.savefig("Plots/trackhist2d_%s_%s_%s.png"%(var1,var2,version))
   fig2.savefig("Plots/trackhist2dpaired_%s_%s_%s.png"%(var1,var2,version))
   fig3.savefig("Plots/trackhist2dratio_%s_%s_%s.png"%(var1,var2,version))
@@ -465,14 +465,14 @@ def make_hist2d(var1,var2,version=0):
 #make_scatter("ht",2)
 #make_scatter("dz")
 #make_hist("pvnum")
-make_hist("pt")
-make_hist("eta")
-make_hist("phi")
-make_hist("quality")
+#make_hist("pt")
+#make_hist("eta")
+#make_hist("phi")
+#make_hist("quality")
 ##make_hist("dz")
 ##make_hist("dxy")
 ##make_hist("chi2")
-make_hist("dzError")
+#make_hist("dzError")
 ##make_hist("ptError")
 ##
 #
@@ -526,8 +526,8 @@ def make_hist_total(var,version=0):
   for i1,i2 in zip(range(0,1600,25),range(25,1625,25)):
     if i1 in skip:
       continue
-    n2 = np.loadtxt("hists/num_%s_%d_%d.txt"%(var,i1,i2))
-    n1 = np.loadtxt("hists/denom_%s_%d_%d.txt"%(var,i1,i2))
+    n2 = np.loadtxt("trackstudies/hists/num_%s_%d_%d.txt"%(var,i1,i2))
+    n1 = np.loadtxt("trackstudies/hists/denom_%s_%d_%d.txt"%(var,i1,i2))
     print("n2: ",n2)
     print("n1: ",n1)
     n2_tot = np.add(n2_tot,n2)
@@ -545,8 +545,9 @@ def make_hist_total(var,version=0):
   ax1.set_ylim([0,1])
   ax1.legend()
   ax.legend()
-  np.savetxt("hists/num_%s_tot.txt"%(var),h2[0])
-  np.savetxt("hists/denom_%s_tot.txt"%(var),h1[0])
+  np.savetxt("trackstudies/hists/num_%s_tot.txt"%(var),h2[0])
+  np.savetxt("trackstudies/hists/denom_%s_tot.txt"%(var),h1[0])
+  np.savetxt("../systematics/triggers/track_datascaling_full_2018_%s.txt"%var,np.nan_to_num(h2[0]/h1[0]), delimiter=",")
   fig.savefig("Plots/trackhist_tot_%s_%s.png"%(var,version))
   plt.close()
 make_hist_total("pt")

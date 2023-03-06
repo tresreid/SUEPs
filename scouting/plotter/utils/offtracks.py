@@ -106,6 +106,10 @@ def make_plots(var="ht"):
   ax.set_xlabel("")
   fig.suptitle("Offline vs Scouting: %s"%(var))
   hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
+  #print(d.to_hist().to_numpy())
+  #print(b.to_hist().to_numpy())
+  new_ratio = d.to_hist().to_numpy()[0]/b.to_hist().to_numpy()[0]
+  np.savetxt("../systematics/triggers/track_offlinescaling_full_2018_%s.txt"%var,np.nan_to_num(new_ratio), delimiter=",")
   fig.savefig("Plots/offline_scouting_compare_%s.%s"%(var,ext))
   plt.close()
 def make_plots2d(var1="pt",var2="eta"):
