@@ -193,10 +193,11 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
 def makeCombineHistograms(samples,var,cut):
   f = ROOT.TFile.Open("combineInput_%s.root"%year,"RECREATE")
   #makeQCD = True
-  systematics_list1 = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]#,"JESup","JESdown"]#,"killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
+  #systematics_list1 = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]#,"JESup","JESdown"]#,"killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
+  systematics_list1 = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]
   for sample in samples:
     if "125" in sample:
-      systematics_list = systematics_list1 +["higgsup","higgsdown"] 
+      systematics_list = systematics_list1 +["_higgs_weights_up","_higgs_weights_down"]
     else:
       systematics_list = systematics_list1
     #for systematic in ["m2t0p5", "m2t1", "m2t2", "m2t3", "m2t4", "m3t1p5", "m3t3", "m3t6", "m5t1", "m5t5", "m5t10"]:
@@ -317,27 +318,28 @@ def makeCombineHistograms(samples,var,cut):
 def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
   f = ROOT.TFile.Open("combineHist/%s_%s.root"%(samplename,year),"RECREATE")
   #makeQCD = True
-  systematic_names = {"":"","killtrk":"_track_up","AK4up":"_JER_up","AK4down":"_JER_down","trigup":"_trigSF_up","trigdown":"_trigSF_down","PUup":"_puweights_up","PUdown":"_puweights_down","PSup":"_PSWeight_ISR_up","PSdown":"_PSWeight_ISR_down","PSup2":"_PSWeight_FSR_up","PSdown2":"_PSWeight_FSR_down","Prefireup":"_prefire_up","Prefiredown":"_prefire_down","higgsup":"_higgs_weights_up","higgsdown":"_higgs_weights_down","JESup":"_JES_up","JESdown":"_JES_down","killtrk2":"_track_down"}
+  #systematic_names = {"":"","killtrk":"_track_up","AK4up":"_JER_up","AK4down":"_JER_down","trigup":"_trigSF_up","trigdown":"_trigSF_down","PUup":"_puweights_up","PUdown":"_puweights_down","PSup":"_PSWeight_ISR_up","PSdown":"_PSWeight_ISR_down","PSup2":"_PSWeight_FSR_up","PSdown2":"_PSWeight_FSR_down","Prefireup":"_prefire_up","Prefiredown":"_prefire_down","higgsup":"_higgs_weights_up","higgsdown":"_higgs_weights_down","JESup":"_JES_up","JESdown":"_JES_down","killtrk2":"_track_down"}
   if samplename == "QCD" or samplename == "Data":
     systematics_list = [""]
   else:
-    systematics_list = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown","JESup","JESdown","killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
+    #systematics_list = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown","JESup","JESdown","killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
+    systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]
   for sample in samples:
     for systematic in systematics_list:
       if samplename == "QCD":
         scaled = qcdscaled#.to_hist().to_numpy()
       elif samplename == "Data":
-        scaled = datascaled#.to_hist().to_numpy()
-        #scaled = datafullscaled#.to_hist().to_numpy()
+        #scaled = datascaled#.to_hist().to_numpy()
+        scaled = datafullscaled#.to_hist().to_numpy()
       else:
-        if "higgs" in systematic or "killtrk2" in systematic or "JES" in systematic:
-          scaled = sigscaled_sys[sample][""]
-        elif "PSup2" in systematic: 
-          scaled = sigscaled_sys[sample]["PSup"]
-        elif "PSdown2" in systematic:
-          scaled = sigscaled_sys[sample]["PSdown"]
-        else:
-          scaled = sigscaled_sys[sample][systematic]
+        #if "higgs" in systematic or "killtrk2" in systematic or "JES" in systematic:
+        #  scaled = sigscaled_sys[sample][""]
+        #elif "PSup2" in systematic: 
+        #  scaled = sigscaled_sys[sample]["PSup"]
+        #elif "PSdown2" in systematic:
+        #  scaled = sigscaled_sys[sample]["PSdown"]
+        #else:
+        scaled = sigscaled_sys[sample][systematic]
       name = var+"_%s"%cut
       xvar = "SUEP Jet Track Multiplicity"
       s = scaled[name].to_hist().to_numpy()

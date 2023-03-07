@@ -46,6 +46,7 @@ colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown
 sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
 cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
 xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
+genfilter_T2_phi2 = {"sig1000":0.4929149897230587,"sig700":0.2816894976779231,"sig400":0.12259774967384872,"sig300":0.08115244345939307,"sig200":0.045499775471722015,"sig125":0.022561693317296093} 
 set_lumi = None
 if standard:
   labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
@@ -159,7 +160,7 @@ def load_samples(sample,year,systematic=""):
           sample = sample.split("_")[0]
           #print(sample[3:])
           #print(out["sumw"])
-          xsec = xsecs[sample.split("_")[0]]
+          xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
           if xsec ==0:
             scale = 1
           else:
@@ -278,15 +279,18 @@ else:
   sig700scaled =   load_samples("sig700_2",year)
   sig1000scaled =  load_samples("sig1000_2",year)
 
-  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
+  for sys in ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]:
+  #for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
     sig125scaled_sys[sys] =   load_samples("sig125_2",year,sys)
     sig200scaled_sys[sys] =   load_samples("sig200_2",year,sys)
     sig300scaled_sys[sys] =   load_samples("sig300_2",year,sys)
     sig400scaled_sys[sys] =   load_samples("sig400_2",year,sys)
     sig700scaled_sys[sys] =   load_samples("sig700_2",year,sys)
     sig1000scaled_sys[sys] =  load_samples("sig1000_2",year,sys)
-  sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"higgsup")
-  sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"higgsdown")
+  #sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"higgsup")
+  #sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"higgsdown")
+  sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"_higgs_weights_up")
+  sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"_higgs_weights_down")
 
 sigscaled = {"sig125":sig125scaled,"sig200":sig200scaled,"sig300":sig300scaled,"sig400":sig400scaled,"sig700":sig700scaled,"sig1000":sig1000scaled}
 sigscaled_sys = {"sig125":sig125scaled_sys,"sig200":sig200scaled_sys,"sig300":sig300scaled_sys,"sig400":sig400scaled_sys,"sig700":sig700scaled_sys,"sig1000":sig1000scaled_sys}
