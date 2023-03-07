@@ -137,10 +137,15 @@ def pileup_weight(puarray,systematics=0,era=18):
     else:
       return np.take(weights,puarray)
 def PS_weight(array,PSSystematics):
-	if(PSSystematics==1):
-		pswgt = array["PSweights"][:,2] * array["PSweights"][:,3]
-	elif(PSSystematics==2):
-		pswgt = array["PSweights"][:,4] * array["PSweights"][:,5]
+	# central value (0 and 1 repeat) then isr hi, fsr hig isr low fsr low for reduced, then default then conservative. Take default values        
+	if(PSSystematics==1): #isr hi
+		pswgt = array["PSweights"][:,0] * array["PSweights"][:,6]
+	elif(PSSystematics==2): # fsr hi
+		pswgt = array["PSweights"][:,0] * array["PSweights"][:,7]
+	if(PSSystematics==3): # isr low
+		pswgt = array["PSweights"][:,0] * array["PSweights"][:,8]
+	elif(PSSystematics==4): #fsr low
+		pswgt = array["PSweights"][:,0] * array["PSweights"][:,9]
 	else:
 		pswgt =1 
 	return pswgt
@@ -287,6 +292,16 @@ def calculateHT(vals0,corrected_jets,AK4sys):
                 vals0['ht30'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 30)],axis=-1)
                 vals0['ht40'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 40)],axis=-1)
                 vals0['ht50'] = ak.sum(corrected_jets.JES_jes.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JES_jes.down["pt"] > 50)],axis=-1)
+        elif AK4sys ==3 :
+                vals0['ht20'] = ak.sum(corrected_jets.JER.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.up["pt"] > 20)],axis=-1)
+                vals0['ht30'] = ak.sum(corrected_jets.JER.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.up["pt"] > 30)],axis=-1)
+                vals0['ht40'] = ak.sum(corrected_jets.JER.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.up["pt"] > 40)],axis=-1)
+                vals0['ht50'] = ak.sum(corrected_jets.JER.up["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.up["pt"] > 50)],axis=-1)
+        elif AK4sys ==4 :
+                vals0['ht20'] = ak.sum(corrected_jets.JER.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.down["pt"] > 20)],axis=-1)
+                vals0['ht30'] = ak.sum(corrected_jets.JER.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.down["pt"] > 30)],axis=-1)
+                vals0['ht40'] = ak.sum(corrected_jets.JER.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.down["pt"] > 40)],axis=-1)
+                vals0['ht50'] = ak.sum(corrected_jets.JER.down["pt"][(corrected_jets["passId"] ==1) & (corrected_jets.JER.down["pt"] > 50)],axis=-1)
         else:
                 vals0['ht20'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 20)],axis=-1)
                 vals0['ht30'] = ak.sum(corrected_jets["pt"][(corrected_jets["passId"] ==1) & (corrected_jets["pt"] > 30)],axis=-1)

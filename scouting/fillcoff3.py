@@ -36,7 +36,7 @@ trigSystematics = 0 #0: nominal, 1: up err, 2: down err
 AK4sys = 0 #o: nominal, 1: err up, 2 err dowm
 AK15sys = 0 #o: nominal, 1: err up, 2 err dowm
 PUSystematics = 0 #0: nominal, 1: up err, 2: down err
-PSSystematics = 0 #0: nominal, 1: up err, 2: down err
+PSSystematics = 0 #0: nominal, 1:  isr up err, 2: fsr up err 3: isr down 4: fsr down
 PrefireSystematics = 0 #0: nominal, 1: up err, 2: down err
 higgsSystematics = 0
 killTrks = False
@@ -1329,7 +1329,7 @@ uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRoot
 fin = "HT2000"
 batch = 0
 signal=False
-runInteractive=True#False
+runInteractive=False
 systematicType =0
 Run=""
 if len(sys.argv) >= 2:
@@ -1347,7 +1347,6 @@ if len(sys.argv) >= 5:
   systematicType = int(sys.argv[4])
 if "HT" in fin:
   datatype="MC"
-  #datatype="Trigger"
   if "apv" in era1:
     fs = np.loadtxt("rootfiles/20%s/new_files_apv/%s_v7.txt"%(era,fin),dtype=str)
   else:
@@ -1355,7 +1354,6 @@ if "HT" in fin:
   batch = int(batch)
   if era == 16:
     makefromoffline=True
-  #print(makefromoffline)
   if(batch == -1): #test
   	fileset = {
   	         fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/test.root'%(era,fin)]
@@ -1379,6 +1377,26 @@ if "HT" in fin:
   	  fileset = {
   	         fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/QCD_HT%s%s/%s"%(era,htslices[fin],yearslice["%s"%era1],f) for f in fs],
   	         #fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv7/20%s/%s/QCD_HT%s%s/%s"%(era,fin,htslices[fin],yearslice["%s"%era],f) for f in fs],
+  	}
+elif "TTBar" in fin:
+  datatype="MC"
+  fs = np.loadtxt("rootfiles/20%s/new_files/TTbar.txt"%(era),dtype=str)
+  batch = int(batch)
+  #if era == 16:
+  #  makefromoffline=True
+  if(batch == -1): #test
+  	fileset = {
+  	         fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/test.root'%(era,fin)]
+  	}
+  else:
+  	start = 100*batch
+  	end = 100*(batch+1)
+  	if (end > len(fs)):
+  	  fs = fs[start:]
+  	else:
+  	  fs=fs[start:end]
+  	fileset = {
+  	       fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/TTBar/20%s/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2+AODSIM/%s"%(era,f) for f in fs]
   	}
 elif "Run" in fin:
   datatype="DATA"
@@ -1432,43 +1450,55 @@ else:
 appendname=""
 if systematicType ==1:
 	killTrks = True
-	appendname = "killtrk"
+	appendname = "_track_up"
 if systematicType ==2:
 	AK4sys = 1 #o: nominal, 1: err up, 2 err dowm
-	appendname = "AK4up"
+	appendname = "_JES_up"
 if systematicType ==3:
 	AK4sys = 2 #o: nominal, 1: err up, 2 err dowm
-	appendname = "AK4down"
+	appendname = "_JES_down"
 if systematicType ==4:
-	trigSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "trigup"
+	AK4sys = 3 #o: nominal, 1: err up, 2 err dowm
+	appendname = "_JER_up"
 if systematicType ==5:
-	trigSystematics = 2 #0: nominal, 1: up err, 2: down err
-	appendname = "trigdown"
+	AK4sys = 4 #o: nominal, 1: err up, 2 err dowm
+	appendname = "_JER_down"
 if systematicType ==6:
-	PUSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "PUup"
+	trigSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "_trigSF_up"
 if systematicType ==7:
-	PUSystematics = 2 #0: nominal, 1: up err, 2: down err
-	appendname = "PUdown"
+	trigSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "_trigSF_down"
 if systematicType ==8:
-	PSSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "PSup"
+	PUSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "_puweights_up"
 if systematicType ==9:
-	PSSystematics = 2 #0: nominal, 1: up err, 2: down err
-	appendname = "PSdown"
+	PUSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "_puweights_down"
 if systematicType ==10:
-	PrefireSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "Prefireup"
+	PSSystematics = 1 
+	appendname = "_PSWeight_ISR_up"
 if systematicType ==11:
-	PrefireSystematics = 2 #0: nominal, 1: up err, 2: down err
-	appendname = "Prefiredown"
+	PSSystematics = 2 
+	appendname = "_PSWeight_FSR_up"
 if systematicType ==12:
-	higgsSystematics = 1 #0: nominal, 1: up err, 2: down err
-	appendname = "higgsup"
+	PSSystematics = 3 
+	appendname = "_PSWeight_ISR_down"
 if systematicType ==13:
+	PSSystematics = 4 
+	appendname = "_PSWeight_FSR_down"
+if systematicType ==14:
+	PrefireSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "_prefire_up"
+if systematicType ==15:
+	PrefireSystematics = 2 #0: nominal, 1: up err, 2: down err
+	appendname = "_prefire_down"
+if systematicType ==16:
+	higgsSystematics = 1 #0: nominal, 1: up err, 2: down err
+	appendname = "_higgs_weights_up"
+if systematicType ==17:
 	higgsSystematics = 2 #0: nominal, 1: up err, 2: down err
-	appendname = "higgsdown"
+	appendname = "_higgs_weights_down"
 	
 
 if __name__ == "__main__":
