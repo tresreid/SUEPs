@@ -945,7 +945,7 @@ class MyProcessor(processor.ProcessorABC):
 
         vals0 = load_vals(arrays,datatype,era) 
         vals_vertex0 = load_vertex(arrays) 
-        vals_jet0 = load_jets(arrays,datatype,era) 
+        vals_jet0 = load_jets(arrays,datatype,era,signal) 
         #print(vals_jet0)
         corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
         if HEM_veto:
@@ -1438,10 +1438,18 @@ elif "Trigger" in fin:
 else:
   datatype="MC"
   signal=True
-  #runInteractive=True
-  fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
   decays = {"0":"darkPho","1":"darkPhoHad","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
-  fileset = {
+  if era==16:
+    runInteractive=True
+    fileset = {
+            #fin:["root://cmseos.fnal.gov//mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            #fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            #fin:["root://xrootd.cmsaf.mit.edu://store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
+  }  
+  else:
+    fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
+    fileset = {
             #fin:["root://cmseos.fnal.gov//mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
             fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
             #fin:["root://xrootd.cmsaf.mit.edu://store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
@@ -1560,11 +1568,10 @@ if __name__ == "__main__":
       print(f"Finished in {elapsed:.1f}s")
       print(f"Events/s: {metrics['entries'] / elapsed:.0f}")
 
-    if signal:
-      datatype = "SIG"
-      fin = "sig%s"%fin
     if batch == -1:
       batch = "test"
+    if signal:
+      datatype = "SIG"
     with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)

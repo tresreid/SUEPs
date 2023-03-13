@@ -12,9 +12,9 @@ def load_vertex(arrays):
         })
 	return vals_vertex
 
-def load_jets(arrays,datatype,era):
+def load_jets(arrays,datatype,era,signal=False):
 	print("Loading Jets")
-	if era == 16:
+	if (datatype=="MC") and not signal and (era == 16):
 		vals_jet0 = ak.zip({
         	               'pt' : arrays["OffJet_pt"],
         	               'eta': arrays["OffJet_eta"],
