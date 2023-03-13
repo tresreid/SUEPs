@@ -44,8 +44,8 @@ def makeSR(sample,var,cut,lines=0,SR=0):
           xvar,
           ax=ax1,
       )
-      fig.suptitle("SR: QCD")
-      hep.cms.label('',data=False,lumi=59.74,year=year,loc=2)
+      fig.suptitle("SR: %s"%labels["QCD"])
+      hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
       fig.savefig("Plots/%s_bkg_%s_%s.%s"%(var,cut,year,ext))
       plt.close()
 
@@ -77,9 +77,9 @@ def makeSR(sample,var,cut,lines=0,SR=0):
         ax1.axhspan(0,0.3, hatch="/", color="grey",alpha=0.3)
         ax1.axvline(x=xline,color="red",ls="--")
         ax1.axhline(y=yline,color="red",ls="--")
-        ax1.text(20,0.4,"A",fontsize = 22)
+        ax1.text(20,0.3,"A",fontsize = 22)
         ax1.text(20,0.8,"B",fontsize = 22)
-        ax1.text(100,0.4,"C",fontsize = 22)
+        ax1.text(100,0.3,"C",fontsize = 22)
         ax1.text(100,0.8,"SR",fontsize = 22)
         ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
       if lines==6:
@@ -88,11 +88,11 @@ def makeSR(sample,var,cut,lines=0,SR=0):
         ax1.axvline(x=xline,color="red",ls="--")
         ax1.axhline(y=yline,color="red",ls="--")
         ax1.axvline(x=inner_tracks,color="blue",ls="--")
-        ax1.text(0,0.4,"A",fontsize = 18)
+        ax1.text(0,0.3,"A",fontsize = 18)
         ax1.text(0,0.8,"D",fontsize = 18)
-        ax1.text(40,0.4,"B",fontsize = 18)
-        ax1.text(40,0.8,"E",fontsize = 18)
-        ax1.text(100,0.4,"C",fontsize = 18)
+        ax1.text(30,0.3,"B",fontsize = 18)
+        ax1.text(30,0.8,"E",fontsize = 18)
+        ax1.text(100,0.3,"C",fontsize = 18)
         ax1.text(100,0.8,"SR",fontsize = 18)
         ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
       if lines==9:
@@ -102,15 +102,15 @@ def makeSR(sample,var,cut,lines=0,SR=0):
         ax1.axhline(y=inner_sphere/100.,color="blue",ls="--")
         ax1.axvline(x=xline,color="red",ls="--")
         ax1.axhline(y=yline,color="red",ls="--")
-        ax1.text(0,0.32,"A",fontsize = 18)
-        ax1.text(0,0.4,"D",fontsize = 18)
-        ax1.text(0,0.8,"G",fontsize = 18)
-        ax1.text(40,0.32,"B",fontsize = 18)
-        ax1.text(40,0.4,"E",fontsize = 18)
-        ax1.text(40,0.8,"H",fontsize = 18)
-        ax1.text(100,0.32,"C",fontsize = 18)
-        ax1.text(100,0.4,"F",fontsize = 18)
-        ax1.text(100,0.8,"SR",fontsize = 18)
+        ax1.text(0,0.3,"A",fontsize = 14)
+        ax1.text(0,0.34,"D",fontsize = 14)
+        ax1.text(0,0.8,"G",fontsize = 14)
+        ax1.text(30,0.3,"B",fontsize = 14)
+        ax1.text(30,0.34,"E",fontsize = 14)
+        ax1.text(30,0.8,"H",fontsize = 14)
+        ax1.text(100,0.3,"C",fontsize = 14)
+        ax1.text(100,0.34,"F",fontsize = 14)
+        ax1.text(100,0.8,"SR",fontsize = 14)
         ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
       fig.suptitle("SR: QCD + %s"%sample)
       ax1.set_xlabel("SUEP Jet Track Multiplicity")
@@ -159,8 +159,8 @@ def makeSRSignif(sample,var,cut,xline=None,yline=None):
 
 def makeSRSignig9(sample="QCD",SR="SR1_suep",cut=3):
   if cut == 2 or cut == 3:
-    highx2 = 70
-    highy2 = 50
+    highx2 = region_cuts_tracks[0]
+    highy2 = region_cuts_sphere[0]
   else:
     highx2 = 100
     highy2 = 70

@@ -56,12 +56,12 @@ def chisqr(obs, exp, error):
         chisqr = chisqr + ((obs[i]-exp[i])**2)/(error[i]**2)
     return chisqr/(len(obs)-1)
 
-def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
+def make_closure(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
   high1 = region_cuts_tracks[point]
   high2 = region_cuts_sphere[point]
   var = "nPFCand"
   SR = SR+"_%s"%cut
-  if sample == "qcd":
+  if sample == "QCD":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   elif sample == "RunA":
      h1 = datascaled[SR].integrate("axis",slice(0,1))
@@ -163,13 +163,13 @@ def make_closure(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
   fig.savefig("Plots/closure_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1,chi=False):
+def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,chi=False):
   highx1 = inner_tracks #region_cuts_tracks[0]
   highx2 = region_cuts_tracks[point]
   highy1 = region_cuts_sphere[point]
   var = "nPFCand"
   SR = SR+"_%s"%cut
-  if sample == "qcd":
+  if sample == "QCD":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   elif sample == "RunA":
      h1 = datascaled[SR].integrate("axis",slice(0,1))
@@ -279,14 +279,14 @@ def make_closure_correction6(sample="qcd",SR="SR1_suep",cut=0,point=0,yrange=1,c
   fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,chi=False):
+def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,rebin=False,chi=False):
   highx1 = inner_tracks #region_cuts_tracks[0]#20
   highy1 = inner_sphere #region_cuts_sphere[0]#38
   highx2 = region_cuts_tracks[point]
   highy2 = region_cuts_sphere[point]
   var = "nPFCand"
   SR = SR+"_%s"%cut
-  if sample == "qcd":
+  if sample == "QCD":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   elif sample == "RunA":
      h1 = datascaled[SR].integrate("axis",slice(0,1))
@@ -313,7 +313,8 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yran
       sharex=True
   )
   fig.subplots_adjust(hspace=.07)
-  h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
+  if not rebin:
+    h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
   #abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
   #bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
   #cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
@@ -370,6 +371,8 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yran
   ratx = fbinx*((hbinx*dbinx*bbinx)**2)/((gbinx*cbinx*abinx)*(ebinx**4))
   rel_err = (2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2
   err = ratx*fbinx*np.sqrt(rel_err+F_err**2)
+  if rebin:
+    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +[50,55,60,65,120,300]))
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)),
       ax=ax,
@@ -431,8 +434,11 @@ def make_closure_correction9(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0,yran
   ax.set_xlabel("")
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Predicted")
-  fig.suptitle("9 Bin Closure: %s"%(sample))
-  fig.savefig("Plots/closure9_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
+  fig.suptitle("9 Bin Closure: %s"%(labels[sample]))
+  if rebin:
+    fig.savefig("Plots/closure9_%s_%s_%s_%s_rebin.%s"%(sample,SR,gap,year,ext))
+  else:
+    fig.savefig("Plots/closure9_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
   plt.close()
 
 def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
@@ -444,15 +450,15 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
   highy3 = 100
   var = "nPFCand"
   SR = SR+"_%s"%cut
-  predicted = {"qcd":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
-  observed = {"qcd":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
-  sigobserved = {"qcd":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
-  signif = {"qcd":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
+  predicted = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
+  observed = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
+  sigobserved = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
+  signif = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
   gapx = region_cuts_tracks[0]
   gapy = region_cuts_sphere[0]
   injected = False
-  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    if sample == "qcd":
+  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+    if sample == "QCD":
        h1 = qcdscaled[SR].integrate("axis",slice(0,1))
     elif sample == "RunA":
        h1 = datascaled[SR].integrate("axis",slice(0,1))
@@ -524,16 +530,16 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
   obs = pd.DataFrame(observed)
   sobs = pd.DataFrame(sigobserved)
   signifi = pd.DataFrame(signif)
-  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
     print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[0],region_cuts_sphere[0]/100.,sample,pred[sample][0],sobs[sample][0],obs[sample][0],signifi[sample][0]))
   print("\\hline")
-  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
     print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[1],region_cuts_sphere[1]/100.,sample,pred[sample][1],sobs[sample][1],obs[sample][1],signifi[sample][1]))
   print("\\hline")
-  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
     print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[2],region_cuts_sphere[2]/100.,sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2]))
   print("\\hline")
-  for sample in ["qcd","sig125","sig200","sig300","sig400","sig700","sig1000"]:
+  for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
     print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[3],region_cuts_sphere[3]/100.,sample,pred[sample][3],sobs[sample][3],obs[sample][3],signifi[sample][3]))
 
 def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
@@ -766,11 +772,11 @@ def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0
   ax.axvline(x=9.5,color="grey",ls="--")
   ax.axvline(x=14.5,color="grey",ls="--")
   ax1.set_ylabel("Observed/Predicted")
-  fig.suptitle("9 Bin Predicted vs Observed by Bin: %s"%sample)
+  fig.suptitle("9 Bin Predicted vs Observed by Bin: %s"%labels[sample])
   fig.savefig("Plots/closureBinnedFull_%s_%s_%s_%s_%s.%s"%(sample,SR,gap,zoom,year,ext))
   plt.close()
 
-def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=0):
+def make_closure_correction_binned(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0):
   highx1 = inner_tracks#20
   highy1 = inner_sphere#38
   lowx =0
@@ -779,7 +785,7 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   highy3 = 100
   var = "nPFCand"
   SR = SR+"_%s"%cut
-  if sample == "qcd":
+  if sample == "QCD":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   elif sample == "RunA":
      h1 = datascaled[SR].integrate("axis",slice(0,1))
@@ -874,12 +880,12 @@ def make_closure_correction_binned(sample="qcd",SR="SR1_suep",cut=0,point=0,gap=
   ax.autoscale(axis='y', tight=True)
   ax1.set_yscale("log")
   ax1.autoscale(axis='y', tight=True)
-  if(sample=="qcd"):
+  if(sample=="QCD"):
     ax1.set_ylim(0.0,2)
   ax.set_ylabel("Events")
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Predicted")
-  fig.suptitle("9 Bin Closure: %s"%(sample))
+  fig.suptitle("9 Bin Closure: %s"%(labels[sample]))
   fig.savefig("Plots/closureBinned_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
   plt.close()
 
@@ -963,6 +969,18 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
     ax1.set_ylabel("Data/MC")
     ax.set_ylabel("Events")
     ax1.set_xlabel(xlab)
+    if i ==0:
+      ax1.text(0,1,"A",fontsize = 18)
+      ax1.text(30,1,"B",fontsize = 18)
+      ax1.text(60,1,"C",fontsize = 18)
+    elif i ==1:
+      ax1.text(0,1,"D",fontsize = 18)
+      ax1.text(30,1,"E",fontsize = 18)
+      ax1.text(60,1,"F",fontsize = 18)
+    else:
+      ax1.text(0,1,"G",fontsize = 18)
+      ax1.text(30,1,"H",fontsize = 18)
+      ax1.text(60,1,"I(SR)",fontsize = 18)
     fig.savefig("Plots/controlbins_dist_%s_cut%s_%s_%s.%s"%(var,cut,i,year,ext))
     plt.close()
 
@@ -1045,5 +1063,20 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
     ax1.set_ylabel("Data/MC")
     ax.set_ylabel("Events")
     ax1.set_xlabel(xlab)
+    if i ==0:
+      ax1.text(0.0 ,1,"Excluded",fontsize = 18)
+      ax1.text(0.3,1,"A",fontsize = 18)
+      ax1.text(0.36,1,"D",fontsize = 18)
+      ax1.text(0.62,1,"G",fontsize = 18)
+    elif i ==1:
+      ax1.text(0.0 ,1,"Excluded",fontsize = 18)
+      ax1.text(0.3,1,"B",fontsize = 18)
+      ax1.text(0.36,1,"E",fontsize = 18)
+      ax1.text(0.62,1,"H",fontsize = 18)
+    else:
+      ax1.text(0.0 ,1,"Excluded",fontsize = 18)
+      ax1.text(0.3,1,"C",fontsize = 18)
+      ax1.text(0.36,1,"F",fontsize = 18)
+      ax1.text(0.62,1,"I(SR)",fontsize = 18)
     fig.savefig("Plots/controlbins2_dist_%s_cut%s_%s_%s.%s"%(var,cut,i,year,ext))
     plt.close()

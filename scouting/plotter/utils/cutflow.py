@@ -3,6 +3,8 @@ from utils.utils import *
 cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]]
 
 def make_cutflow(samples,var):
+  region_cuts_tracksx = region_cuts_tracks + [300]
+  region_cuts_spherex = region_cuts_tracks + [.4]
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   cutflow = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
@@ -19,13 +21,17 @@ def make_cutflow(samples,var):
     cutflow["QCD"].append(b.sum())
     cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][2])
   for SR in [0,1,2,3]:
-    x1 = region_cuts_tracks[SR]
-    y1 = region_cuts_sphere[SR]/100.
-    b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+    x1 = region_cuts_tracksx[SR]
+    y1 = region_cuts_spherex[SR]/100.
+    x2 = region_cuts_tracksx[SR+1]
+    y2 = region_cuts_spherex[SR+1]/100.
+    b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(0,1)).values()
+    #b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
     for (k,b) in b3.items():
       cutflow["QCD"].append(b.sum())
       cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][3])
-    b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+    b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+    #b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
     for (k,b) in b4.items():
       cutflow["QCD"].append(b.sum())
       cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][4+2*SR])
@@ -49,13 +55,17 @@ def make_cutflow(samples,var):
         for SR in [0,1,2,3]:
           x1 = region_cuts_tracks[SR]
           y1 = region_cuts_sphere[SR]/100.
-          s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
+          x2 = region_cuts_tracksx[SR+1]
+          y2 = region_cuts_spherex[SR+1]/100.
+          s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(0,1)).values()
+          #s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
           for (k,s) in s3.items():
             cutflow[sample].append(s.sum())
             cutflow_releff[sample].append(100*s.sum()/cutflow[sample][3])
             cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][4+2*SR]+(cutflow["QCD"][4+2*SR]**2)))
 
-          s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+          s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(y1,1)).values()
+          #s4 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
           for (k,s) in s4.items():
             cutflow[sample].append(s.sum())
             cutflow_releff[sample].append(100*s.sum()/cutflow[sample][4+2*SR])
@@ -87,7 +97,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
   name = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   higgs = False
-  if systematics2 =="higgsdown":
+  if systematics2 =="_higgs_weights_down":
     cutflow = {"sig125":[],"sig125%s"%(systematics1):[],"sig125%s"%(systematics2):[]}
     syslist = ["",systematics1,systematics2]
     higgs = True
@@ -145,7 +155,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
     if systematics2 == "":
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i]))
+        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
     else:
@@ -156,7 +166,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
           print("\\hline")
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
+        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
   else:
@@ -173,7 +183,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
     if systematics2 == "":
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
+        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],100*(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],100*(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],100*(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],100*(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],100*(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
     else:
@@ -184,7 +194,7 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
           print("\\hline")
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
+        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],100*(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],100*(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],100*(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],100*(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],100*(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
 
@@ -323,7 +333,7 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
     systematics_list = [""]
   else:
     #systematics_list = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown","JESup","JESdown","killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
-    systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]
+    systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down","_higgs_weights_up","_higgs_weights_down","_track_down"]
   for sample in samples:
     for systematic in systematics_list:
       if samplename == "QCD":
@@ -332,14 +342,16 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
         #scaled = datascaled#.to_hist().to_numpy()
         scaled = datafullscaled#.to_hist().to_numpy()
       else:
-        #if "higgs" in systematic or "killtrk2" in systematic or "JES" in systematic:
-        #  scaled = sigscaled_sys[sample][""]
+        if "higgs" in systematic and "125" not in samplename: 
+          scaled = sigscaled_sys[sample][""]
+        elif "track_down" in systematic:
+          scaled = sigscaled_sys[sample]["_track_up"]
         #elif "PSup2" in systematic: 
         #  scaled = sigscaled_sys[sample]["PSup"]
         #elif "PSdown2" in systematic:
         #  scaled = sigscaled_sys[sample]["PSdown"]
-        #else:
-        scaled = sigscaled_sys[sample][systematic]
+        else:
+          scaled = sigscaled_sys[sample][systematic]
       name = var+"_%s"%cut
       xvar = "SUEP Jet Track Multiplicity"
       s = scaled[name].to_hist().to_numpy()
@@ -350,11 +362,11 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
 
       x1 = 0
       x2 = inner_tracks
-      x3 = 60#region_cuts_tracks[0]
+      x3 = region_cuts_tracks[0]
       x4 = 300
       y1 = 30
       y2 = inner_sphere
-      y3 = 60#region_cuts_sphere[0]
+      y3 = region_cuts_sphere[0]
       y4 = 100
       #if sample == "sig200" or sample == "sig125":
       #  point=1
@@ -421,7 +433,7 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
           print("what happened")
           pass
         #h = ROOT.TH2F("%s_%s"%(systematic,region),"%s_%s"%(systematic,region),300,0,300,100,0,1)
-        h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic_names[systematic]),"%s_SUEP_nconst_Cluster70%s"%(region,systematic_names[systematic]),300,0,300)
+        h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic),"%s_SUEP_nconst_Cluster70%s"%(region,systematic),300,0,300)
         #h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
         #if systematic == "":
         #  hb = ROOT.TH1D("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)

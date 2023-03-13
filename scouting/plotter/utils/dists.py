@@ -123,7 +123,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
 def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
   #skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
-  #run = ["dist_offline_trk_pt","dist_offline_trk_eta","dist_offline_trk_phi"]
+  run = ["dist_gen_dR","dist_PFcand_alldR"]
   if "QCD" in sample:
     scaled = qcdscaled
   elif "RunA" in sample:
@@ -135,8 +135,8 @@ def make_dists(sample):
           continue
     #if name in skip:
     #      continue
-    #if name not in run:
-    #      continue
+    if name not in run:
+          continue
     print(name)
 
     fig, ax1 = plt.subplots()

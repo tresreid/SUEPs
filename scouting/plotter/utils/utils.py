@@ -19,8 +19,8 @@ from matplotlib.colors import LogNorm
 from root_numpy import array2hist, hist2array
 import ROOT
 
-year = 2018
-#year = "Run2"
+#year = 2016
+year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -49,11 +49,13 @@ xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":
 genfilter_T2_phi2 = {"sig1000":0.4929149897230587,"sig700":0.2816894976779231,"sig400":0.12259774967384872,"sig300":0.08115244345939307,"sig200":0.045499775471722015,"sig125":0.022561693317296093} 
 set_lumi = None
 if standard:
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"TTBar","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
   labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
   file_data     = "myhistos_Data_"#_%s"%(year)  
   file_data1    = "myhistos_Data1_"#_%s"%(year) 
   file_mctrig   = "myhistos_QCD_"#_%s"%(year) 
   file_datatrig = "myhistos_Trigger_"#_%s"%(year) 
+  #file_qcd      = "myhistos_TTBar_"#_%s"%(year) 
   file_qcd      = "myhistos_QCD_"#_%s"%(year) 
 else:
   #year=""
@@ -78,10 +80,16 @@ else:
 #xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>560 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>560 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
 
-region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
-region_cuts_sphere = [50,80,65,50]
-inner_tracks = 20
-inner_sphere = 38
+region_cuts_tracks = [50,55,60,65] #gap, R1,R2,R3
+#region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
+region_cuts_sphere = [40,40,40,40]
+#region_cuts_sphere = [45,45,45,45]
+#region_cuts_sphere = [50,80,65,50]
+inner_tracks = 18
+#inner_tracks = 20
+#inner_sphere = 35
+inner_sphere = 34
+#inner_sphere = 38
 
 directory = "../outhists/"
 def load_all(year):
@@ -180,11 +188,11 @@ def load_samples(sample,year,systematic=""):
 
 
 
-def merge_years(dic1,dic2,dic3):
+def merge_years(dic1,dic2,dic3,data=False):
   dicx = {}
   for key in dic1:
-    print(key)
-    if "dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key:
+    #print(key)
+    if data and ("dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key):
       continue
     dicx[key] = dic1[key]
     dicx[key].add(dic2[key])
@@ -206,8 +214,8 @@ if year == "Run2":
   qcdscaled = merge_years(qcdscaled_18,qcdscaled_17,qcdscaled_16) 
   qcddatascaled = merge_years(qcddatascaled_18,qcddatascaled_17,qcddatascaled_16) 
   qcddatafullscaled = merge_years(qcddatafullscaled_18,qcddatafullscaled_17,qcddatafullscaled_16) 
-  datascaled = merge_years(datascaled_18,datascaled_17,datascaled_16) 
-  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17,datafullscaled_16) 
+  datascaled = merge_years(datascaled_18,datascaled_17,datascaled_16,data=True) 
+  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17,datafullscaled_16,data=True) 
   trigscaled = merge_years(trigscaled_18,trigscaled_17,trigscaled_16) 
   qcdtrigscaled = merge_years(qcdtrigscaled_18,qcdtrigscaled_17,qcdtrigscaled_16) 
 
@@ -236,7 +244,8 @@ if year == "Run2":
   sig400scaled = merge_years(sig400scaled_18,sig400scaled_17,sig400scaled_16)  
   sig700scaled = merge_years(sig700scaled_18,sig700scaled_17,sig700scaled_16)  
   sig1000scaled = merge_years(sig1000scaled_18,sig1000scaled_17,sig1000scaled_16)  
-  for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
+  #for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
+  for sys in ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]:
     sig125scaled_sys_18=   load_samples("sig125_2",2018,sys)
     sig200scaled_sys_18=   load_samples("sig200_2",2018,sys)
     sig300scaled_sys_18=   load_samples("sig300_2",2018,sys)
@@ -262,14 +271,14 @@ if year == "Run2":
     sig400scaled_sys[sys] =  merge_years(sig400scaled_sys_18,sig400scaled_sys_17,sig400scaled_sys_16) 
     sig700scaled_sys[sys] =  merge_years(sig700scaled_sys_18,sig700scaled_sys_17,sig700scaled_sys_16) 
     sig1000scaled_sys[sys] = merge_years(sig1000scaled_sys_18,sig1000scaled_sys_17,sig1000scaled_sys_16) 
-  sig125scaled_sys_18=   load_samples("sig125_2",2018,"higgsup")
-  sig125scaled_sys_17=   load_samples("sig125_2",2017,"higgsup")
-  sig125scaled_sys_16=   load_samples("sig125_2",2016,"higgsup")
-  sig125scaled_sys["higgsup"] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17,sig125scaled_sys_16) 
-  sig125scaled_sys_181=   load_samples("sig125_2",2018,"higgsdown")
-  sig125scaled_sys_171=   load_samples("sig125_2",2017,"higgsdown")
-  sig125scaled_sys_161=   load_samples("sig125_2",2016,"higgsdown")
-  sig125scaled_sys["higgsdown"] =  merge_years(sig125scaled_sys_181,sig125scaled_sys_171,sig125scaled_sys_161) 
+  sig125scaled_sys_18=   load_samples("sig125_2",2018,"_higgs_weights_up")
+  sig125scaled_sys_17=   load_samples("sig125_2",2017,"_higgs_weights_up")
+  sig125scaled_sys_16=   load_samples("sig125_2",2016,"_higgs_weights_up")
+  sig125scaled_sys["_higgs_weights_up"] =  merge_years(sig125scaled_sys_18,sig125scaled_sys_17,sig125scaled_sys_16) 
+  sig125scaled_sys_181=   load_samples("sig125_2",2018,"_higgs_weights_down")
+  sig125scaled_sys_171=   load_samples("sig125_2",2017,"_higgs_weights_down")
+  sig125scaled_sys_161=   load_samples("sig125_2",2016,"_higgs_weights_down")
+  sig125scaled_sys["_higgs_weights_down"] =  merge_years(sig125scaled_sys_181,sig125scaled_sys_171,sig125scaled_sys_161) 
 else:
   qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled,qcdtrigscaled = load_all(year)
   sig125scaled =   load_samples("sig125_2",year)
@@ -281,6 +290,7 @@ else:
 
   for sys in ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down"]:
   #for sys in ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown"]:
+    print(sys)
     sig125scaled_sys[sys] =   load_samples("sig125_2",year,sys)
     sig200scaled_sys[sys] =   load_samples("sig200_2",year,sys)
     sig300scaled_sys[sys] =   load_samples("sig300_2",year,sys)
@@ -289,8 +299,8 @@ else:
     sig1000scaled_sys[sys] =  load_samples("sig1000_2",year,sys)
   #sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"higgsup")
   #sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"higgsdown")
-  sig125scaled_sys["higgsup"] =  load_samples("sig125_2",year,"_higgs_weights_up")
-  sig125scaled_sys["higgsdown"] =  load_samples("sig125_2",year,"_higgs_weights_down")
+  sig125scaled_sys["_higgs_weights_up"] =  load_samples("sig125_2",year,"_higgs_weights_up")
+  sig125scaled_sys["_higgs_weights_down"] =  load_samples("sig125_2",year,"_higgs_weights_down")
 
 sigscaled = {"sig125":sig125scaled,"sig200":sig200scaled,"sig300":sig300scaled,"sig400":sig400scaled,"sig700":sig700scaled,"sig1000":sig1000scaled}
 sigscaled_sys = {"sig125":sig125scaled_sys,"sig200":sig200scaled_sys,"sig300":sig300scaled_sys,"sig400":sig400scaled_sys,"sig700":sig700scaled_sys,"sig1000":sig1000scaled_sys}
