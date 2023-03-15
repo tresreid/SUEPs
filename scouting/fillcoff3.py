@@ -43,7 +43,7 @@ killTrks = False
 era=18
 datatype= "MC"
 runoffline=True
-HEM_veto = True
+HEM_veto = False
 lepton_veto = True
 makefromoffline = False
 
@@ -1343,6 +1343,8 @@ if len(sys.argv) >= 4:
     era= 16
   else:
     era = int(era1)
+if era == 18:
+  HEM_veto = True
 if len(sys.argv) >= 5:
   systematicType = int(sys.argv[4])
 if "HT" in fin:
@@ -1571,7 +1573,9 @@ if __name__ == "__main__":
     if batch == -1:
       batch = "test"
     if signal:
-      datatype = "SIG"
+      datatype = "SIG" 
+      if era != 16:
+        fin="sig%s"%fin
     with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
     #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
