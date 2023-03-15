@@ -18,9 +18,10 @@ from matplotlib.offsetbox import AnchoredText
 from matplotlib.colors import LogNorm
 from root_numpy import array2hist, hist2array
 import ROOT
+import json
 
-#year = 2016
-year = "Run2"
+year = 2017
+#year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -45,8 +46,16 @@ standard = True
 colors = ["black","red","green","orange","blue","magenta","cyan","yellow","brown","grey","indigo"]
 sigcolors = {"sig1000":"green","sig700":"cyan","sig400":"blue","sig300":"orange","sig200":"magenta","sig125":"saddlebrown","RunA":"black","QCD":"wheat"}
 cuts=["0:None","1:HTTrig","2:HT>=560","3:FJ>=2","4:nPFCand>=140"]
-xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
-genfilter_T2_phi2 = {"sig1000":0.4929149897230587,"sig700":0.2816894976779231,"sig400":0.12259774967384872,"sig300":0.08115244345939307,"sig200":0.045499775471722015,"sig125":0.022561693317296093} 
+xsecs = {}
+with open ("utils/xsections_2018.json") as json_file:
+  xsecs = json.load(json_file)
+#xsecs["RunA"] = 0
+#xsecs["RunA_0"] = 0
+#xsecs["QCD"] = lumi
+print(xsecs)
+
+#xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
+#genfilter_T2_phi2 = {"sig1000":0.4929149897230587,"sig700":0.2816894976779231,"sig400":0.12259774967384872,"sig300":0.08115244345939307,"sig200":0.045499775471722015,"sig125":0.022561693317296093} 
 set_lumi = None
 if standard:
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"TTBar","Data":"Data(100%)","Trigger":"Trigger Data (100%)"}
@@ -154,7 +163,7 @@ def load_all(year):
           qcddatafullscaled[name] = h.copy()
           qcddatafullscaled[name].scale(datafulllumi/qcdlumi)
   return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled, qcdtrigscaled
-def load_samples(sample,year,systematic=""):
+def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000",mode="generic"):
       sigscaled = {}
 #      year=2018
       if year == 2018:
@@ -166,9 +175,15 @@ def load_samples(sample,year,systematic=""):
       with open(directory+"myhistos_%s%s_%s.p"%(sample,systematic,year), "rb") as pkl_file:
           out = pickle.load(pkl_file)
           sample = sample.split("_")[0]
+          
           #print(sample[3:])
           #print(out["sumw"])
-          xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
+          formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp1,sample[3:],phi,temp2,mode) 
+          #xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
+          xsec1 = xsecs[formatting]["xsec"] 
+          genfilter = xsecs[formatting]["kr"] 
+          xsec = xsec1 * genfilter
+          #print(xsec1,genfilter,xsec)
           if xsec ==0:
             scale = 1
           else:

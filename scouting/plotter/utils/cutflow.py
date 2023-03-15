@@ -325,40 +325,31 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
-def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
+def makeCombineHistogramsOffline(samples,var,cut,samplename="test",load_ondemand=False):
   f = ROOT.TFile.Open("combineHist/%s_%s.root"%(samplename,year),"RECREATE")
-  #makeQCD = True
-  #systematic_names = {"":"","killtrk":"_track_up","AK4up":"_JER_up","AK4down":"_JER_down","trigup":"_trigSF_up","trigdown":"_trigSF_down","PUup":"_puweights_up","PUdown":"_puweights_down","PSup":"_PSWeight_ISR_up","PSdown":"_PSWeight_ISR_down","PSup2":"_PSWeight_FSR_up","PSdown2":"_PSWeight_FSR_down","Prefireup":"_prefire_up","Prefiredown":"_prefire_down","higgsup":"_higgs_weights_up","higgsdown":"_higgs_weights_down","JESup":"_JES_up","JESdown":"_JES_down","killtrk2":"_track_down"}
   if samplename == "QCD" or samplename == "Data":
     systematics_list = [""]
   else:
-    #systematics_list = ["","killtrk","AK4up","AK4down","trigup","trigdown","PUup","PUdown","PSup","PSdown","Prefireup","Prefiredown","JESup","JESdown","killtrk2","higgsup","higgsdown","PSdown2","PSup2"]
     systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down","_higgs_weights_up","_higgs_weights_down","_track_down"]
   for sample in samples:
     for systematic in systematics_list:
       if samplename == "QCD":
         scaled = qcdscaled#.to_hist().to_numpy()
       elif samplename == "Data":
-        #scaled = datascaled#.to_hist().to_numpy()
         scaled = datafullscaled#.to_hist().to_numpy()
       else:
-        if "higgs" in systematic and "125" not in samplename: 
-          scaled = sigscaled_sys[sample][""]
-        elif "track_down" in systematic:
-          scaled = sigscaled_sys[sample]["_track_up"]
-        #elif "PSup2" in systematic: 
-        #  scaled = sigscaled_sys[sample]["PSup"]
-        #elif "PSdown2" in systematic:
-        #  scaled = sigscaled_sys[sample]["PSdown"]
+        if load_ondemand:
+          scaled = load_samples(sample+"_2",2018,sys)
         else:
-          scaled = sigscaled_sys[sample][systematic]
+          if "higgs" in systematic and "125" not in samplename: 
+            scaled = sigscaled_sys[sample][""]
+          elif "track_down" in systematic:
+            scaled = sigscaled_sys[sample]["_track_up"]
+          else:
+            scaled = sigscaled_sys[sample][systematic]
       name = var+"_%s"%cut
       xvar = "SUEP Jet Track Multiplicity"
       s = scaled[name].to_hist().to_numpy()
-      #if systematic == "":
-      #  b = qcdscaled[name].to_hist().to_numpy()
-      #else:
-      #  systematic = "_"+systematic #for aesthetic purposes
 
       x1 = 0
       x2 = inner_tracks
@@ -432,29 +423,14 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test"):
         else:
           print("what happened")
           pass
-        #h = ROOT.TH2F("%s_%s"%(systematic,region),"%s_%s"%(systematic,region),300,0,300,100,0,1)
         h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic),"%s_SUEP_nconst_Cluster70%s"%(region,systematic),300,0,300)
-        #h = ROOT.TH2F("%s_%s%s"%(sample,region,systematic),"%s_%s%s"%(sample,region,systematic),300,0,300,100,0,1)
-        #if systematic == "":
-        #  hb = ROOT.TH1D("QCD_%s_%s"%(sample,region),"QCD_%s_%s"%(sample,region),300,0,300,100,0,1)
         for x in range(xx,xxx):
           for y in range(yy,yyy):
             region_sum[region] = region_sum[region] + s[0][0][x][y]
             h.Fill(s[2][x],s[0][0][x][y])
-            #h.Fill(s[2][x],s[3][y],s[0][0][x][y])
-            #if systematic == "":
-              #region_sum[region] = region_sum[region] + s[0][0][x][y]
-              #region_sumqcd[region] = region_sumqcd[region] + b[0][0][x][y]
-              #hb.Fill(b[2][x],b[0][0][x][y])
-              #hb.Fill(b[2][x],b[3][y],b[0][0][x][y])
         h.Write()
-        #if systematic == "":
-        #  hb.Write()
-      #if systematic == "":
-      #  print(sample)
-      #  print(region_sum)
-      #  print(region_sumqcd)
   f.Close()
+
 #def makeCombineHistograms(samples,var,cut):
 #  f = ROOT.TFile.Open("combineInputscan.root","RECREATE")
 #  #makeQCD = True
