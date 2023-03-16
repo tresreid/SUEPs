@@ -20,10 +20,10 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2017
-#year = "Run2"
-ext="png"
-#ext="pdf"
+#year = 2017
+year = "Run2"
+#ext="png"
+ext="pdf"
 pd.set_option("precision",2)
 
 parameters = {'axes.labelsize': 20,
@@ -32,14 +32,14 @@ parameters = {'axes.labelsize': 20,
           }
 plt.rcParams.update(parameters)
 if year == 2018:
-  lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+  lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
 if year == 2017:
-  lumi = 36.74*1000 #lumi for 2017 scouting #
+  lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
 if year == 2016:
-  lumi = 35.48*1000 #lumi for 2016 scouting #
+  lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
 if year == "Run2":
   #lumi = 96.43*1000 #lumi for 2018+2017 scouting #
-  lumi = 131.91*1000 #lumi for 2018+2017 scouting #
+  lumi = 114.80*1000#131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
 
 standard = True
@@ -52,7 +52,7 @@ with open ("utils/xsections_2018.json") as json_file:
 #xsecs["RunA"] = 0
 #xsecs["RunA_0"] = 0
 #xsecs["QCD"] = lumi
-print(xsecs)
+#print(xsecs)
 
 #xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.185,"sig700":0.621,"sig400":3.16,"sig300":6.59,"sig200":16.9,"sig125":45.2,"HT2000":25.24} #1000-200
 #genfilter_T2_phi2 = {"sig1000":0.4929149897230587,"sig700":0.2816894976779231,"sig400":0.12259774967384872,"sig300":0.08115244345939307,"sig200":0.045499775471722015,"sig125":0.022561693317296093} 
@@ -89,7 +89,7 @@ else:
 #xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>560 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>560 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
 
-region_cuts_tracks = [50,55,60,65] #gap, R1,R2,R3
+region_cuts_tracks = [50,50,70,90] #gap, R1,R2,R3
 #region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
 region_cuts_sphere = [40,40,40,40]
 #region_cuts_sphere = [45,45,45,45]
@@ -113,11 +113,11 @@ def load_all(year):
   qcdtrigscaled = {}
   datafulllumi = 0
   if year == 2018:
-    lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+    lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
   if year == 2017:
-    lumi = 36.74*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+    lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
   if year == 2016:
-    lumi = 35.48*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+    lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
   #lumi=1 #for data2016 compare
   if set_lumi:
     lumi = set_lumi
@@ -167,11 +167,11 @@ def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000
       sigscaled = {}
 #      year=2018
       if year == 2018:
-        lumi = 59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+        lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
       if year == 2017:
-        lumi = 36.74*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+        lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
       if year == 2016:
-        lumi = 35.48*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+        lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
       with open(directory+"myhistos_%s%s_%s.p"%(sample,systematic,year), "rb") as pkl_file:
           out = pickle.load(pkl_file)
           sample = sample.split("_")[0]

@@ -372,7 +372,7 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   rel_err = (2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2
   err = ratx*fbinx*np.sqrt(rel_err+F_err**2)
   if rebin:
-    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +[50,55,60,65,120,300]))
+    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +[50,70,90,120,300]))
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)),
       ax=ax,
@@ -454,6 +454,7 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
   observed = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
   sigobserved = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
   signif = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
+  #sig_signif = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
   gapx = region_cuts_tracks[0]
   gapy = region_cuts_sphere[0]
   injected = False
@@ -468,14 +469,20 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
       h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
       h2 = (sigscaled[sample][SR]).integrate("axis",slice(0,1))
 
-    for highx2, highy2 in zip(region_cuts_tracks,region_cuts_sphere):
+    for i, (highx2, highy2) in enumerate(zip(region_cuts_tracks,region_cuts_sphere)):
       if gap == 0:
         gapx = highx2
         gapy = highy2
-      if gap ==2:
-        highy3 = highy2+10
-        if highx2!=100:
-          highx3 = highx2+10
+      if gap ==1:
+        if i==0: # first point no gap
+          highx3 = 300 
+          highy3 = 100 
+        elif i==3: # last point to the end
+          highx3 = 300 
+          highy3 = 100 
+        else: #middle points to the nest point
+          highx3 = region_cuts_tracks[i+1] 
+          #highy3 = region_cuts_sphere[i+1] 
       print(highx2,highy2)
       h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
       abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
@@ -526,21 +533,23 @@ def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
       predicted[sample].append(ratx*fbinx)
       observed[sample].append(SRbinx)
       signif[sample].append(SRbinx/(ratx*fbinx))
+      #sig_signif[sample].append(sigobserved[sample]/observed[sample])
   pred = pd.DataFrame(predicted)
   obs = pd.DataFrame(observed)
   sobs = pd.DataFrame(sigobserved)
   signifi = pd.DataFrame(signif)
+  sig_signifi = sobs/obs #pd.DataFrame(sig_signif)
   for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[0],region_cuts_sphere[0]/100.,sample,pred[sample][0],sobs[sample][0],obs[sample][0],signifi[sample][0]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[0],region_cuts_sphere[0]/100.,sample,pred[sample][0],sobs[sample][0],obs[sample][0],signifi[sample][0],sig_signifi[sample][0]))
   print("\\hline")
   for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[1],region_cuts_sphere[1]/100.,sample,pred[sample][1],sobs[sample][1],obs[sample][1],signifi[sample][1]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[1],region_cuts_sphere[1]/100.,sample,pred[sample][1],sobs[sample][1],obs[sample][1],signifi[sample][1],sig_signifi[sample][1]))
   print("\\hline")
   for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[2],region_cuts_sphere[2]/100.,sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[2],region_cuts_sphere[2]/100.,sample,pred[sample][2],sobs[sample][2],obs[sample][2],signifi[sample][2],sig_signifi[sample][2]))
   print("\\hline")
   for sample in ["QCD","sig125","sig200","sig300","sig400","sig700","sig1000"]:
-    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f  \\\\"%(region_cuts_tracks[3],region_cuts_sphere[3]/100.,sample,pred[sample][3],sobs[sample][3],obs[sample][3],signifi[sample][3]))
+    print("(%s,%s) %s & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(region_cuts_tracks[3],region_cuts_sphere[3]/100.,sample,pred[sample][3],sobs[sample][3],obs[sample][3],signifi[sample][3],sig_signifi[sample][3]))
 
 def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   highx1 = inner_tracks#22
@@ -911,6 +920,15 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
   gapx = highx2
   gapy = highy2
 
+  sig_s1 = {}
+  sig_s2 = {}
+  sig_s3 = {}
+  sigs = ["sig200","sig400","sig1000"]
+  for sig in sigs: 
+    h3 = sigscaled[sig][sr].integrate("axis",slice(0,1))
+    sig_s1[sig] = h3.integrate("eventBoostedSphericity",slice(  lowy/100.,  highy1/100.)).to_hist().to_numpy()
+    sig_s2[sig] = h3.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).to_hist().to_numpy()
+    sig_s3[sig] = h3.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).to_hist().to_numpy()
   #h1 = h1.rebin(var,hist.bin(var,var,150,0,300))
   abin  = h1.integrate("eventBoostedSphericity",slice(  lowy/100.,  highy1/100.))
   dbin  = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.))
@@ -936,7 +954,10 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
   d1= abin2.to_hist().to_numpy()
   d2= dbin2.to_hist().to_numpy()
   d3= gbin2.to_hist().to_numpy()
-  for i,(b,d) in enumerate(zip([b1,b2,b3],[d1,d2,d3])):
+  #s1= abin3.to_hist().to_numpy()
+  #s2= dbin3.to_hist().to_numpy()
+  #s3= gbin3.to_hist().to_numpy()
+  for i,(b,d,s) in enumerate(zip([b1,b2,b3],[d1,d2,d3],[sig_s1,sig_s2,sig_s3])):
     fig, (ax, ax1) = plt.subplots(
         nrows=2,
         ncols=1,
@@ -951,10 +972,14 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
       ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
       ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
       ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="green")
+      for sig in sigs:
+        ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
       ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+      for sig in sigs:
+        ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     ax.axvline(x=highx1,color="green",ls="--")
     hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
     ax.axvline(x=highx2,color="magenta",ls="--")
@@ -962,7 +987,7 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
     ax1.axvline(x=highx2,color="magenta",ls="--")
     ax.autoscale(axis='y', tight=True)
     ax.set_yscale("log")
-    ax.legend(loc="right")
+    ax.legend(loc="upper right")
     ax.set_xlim([0,125])
     ax1.set_ylim([0.5,1.5])
     ax1.axhline(y=1,color="grey",ls="--")
@@ -1006,6 +1031,15 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
   gapx = highx2
   gapy = highy2
 
+  sig_s1 = {}
+  sig_s2 = {}
+  sig_s3 = {}
+  sigs = ["sig200","sig400","sig1000"]
+  for sig in sigs: 
+    h3 = sigscaled[sig][sr].integrate("axis",slice(0,1))
+    sig_s1[sig] = h3.integrate("nPFCand",slice( lowx,  highx1)).to_hist().to_numpy() 
+    sig_s2[sig] = h3.integrate("nPFCand",slice(highx1, highx2)).to_hist().to_numpy()
+    sig_s3[sig] = h3.integrate("nPFCand",slice(highx2, highx3)).to_hist().to_numpy()
   abin  = h1.integrate("nPFCand",slice( lowx,  highx1))
   bbin  = h1.integrate("nPFCand",slice(highx1, highx2))
   cbin  = h1.integrate("nPFCand",slice(highx2, highx3))
@@ -1028,7 +1062,7 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
   d1= abin2.to_hist().to_numpy()
   d2= bbin2.to_hist().to_numpy()
   d3= cbin2.to_hist().to_numpy()
-  for i,(b,d) in enumerate(zip([b1,b2,b3],[d1,d2,d3])):
+  for i,(b,d,s) in enumerate(zip([b1,b2,b3],[d1,d2,d3],[sig_s1,sig_s2,sig_s3])):
     fig, (ax, ax1) = plt.subplots(
         nrows=2,
         ncols=1,
@@ -1043,10 +1077,14 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
       ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
       ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
       ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="green")
+      for sig in sigs:
+        ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
       ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+      for sig in sigs:
+        ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     ax.axvline(x=lowy/100.,color="grey",ls="--")
     hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
     ax.axvline(x=highy1/100.,color="green",ls="--")
