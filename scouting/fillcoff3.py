@@ -1406,13 +1406,16 @@ elif "Run" in fin:
   print("Run",Run)
   runoffline = False
   #Runs = ["RunA","RunB","RunC"]
-  fs = np.loadtxt("rootfiles/20%s/Data_%s_v6.txt"%(era,fin),dtype=str)
+  if era == 18:
+    fs = np.loadtxt("rootfiles/20%s/new_data/Data_%s_v6.txt"%(era,fin),dtype=str)
+  else:
+    fs = np.loadtxt("rootfiles/20%s/Data_%s_v6.txt"%(era,fin),dtype=str)
   batch = int(batch)
   fs=fs[5*batch:5*(batch+1)]
   if(era==16 and ((Run != "F") and (Run != "G") and (Run != "H"))):
     fileset = {
      #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,fin,era,Run,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
     }
   #elif(era==16):
   #  fileset = {
