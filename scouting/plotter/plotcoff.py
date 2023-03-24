@@ -38,13 +38,14 @@ from utils.closure import *
 ######
 ##################################### HT Trigger
 ########### HT Distributions
+#make_dists("sig400")
 #make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
 #make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
 ######### Trigger Efficiency
 ##print("running trigger studies")
-##make_datatrigs(["Data"])
+make_datatrigs(["Data"])
 ####make_datatrigs(["Data"],systematics=True)
-##make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
+make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
 #
 #
 ############################## Track Selection
@@ -87,11 +88,12 @@ from utils.closure import *
 #make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
 #make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"Track pt threshold")
 #
+##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_pvs",2,"nPV")
 #make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=[0.02])
-##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
-##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
-##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
-##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
 #
 #
 ############################  FatJet Selection
@@ -137,7 +139,7 @@ from utils.closure import *
 #make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
 #make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_eta",3,"ISR eta",make_ratio=True)
 #make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_phi",3,"ISR phi",make_ratio=True)
-#
+
 ################################ ABCD
 #make_correlation("SR1_suep",3)
 #make_correlation("SR1_suep",1)
@@ -182,6 +184,7 @@ from utils.closure import *
 #make_closure("Data","SR1_isrsuep",3,chi=True)
 #make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
 #make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
+#make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
 #make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
 #make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
 
@@ -278,7 +281,6 @@ from utils.closure import *
 
 ###############Distributions
 #make_dists("QCD")
-#make_dists("sig400")
 ######################### CUTFLOW TABLES
 #make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
 #make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_JES_up",systematics2="_JES_down")
@@ -303,14 +305,14 @@ from utils.closure import *
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
-makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
-makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
-makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
-makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
-makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
-makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
-makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
+#makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
+#makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
+#makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
+#makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
+#makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
+#makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
+#makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
+#makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
 #makeCombineHistogramsOffline(["sig500"],"SR1_suep",3,"sig500",load_ondemand=True)
 #makeCombineHistogramsOffline(["sig600"],"SR1_suep",3,"sig600",load_ondemand=True)
 #makeCombineHistogramsOffline(["sig800"],"SR1_suep",3,"sig800",load_ondemand=True)

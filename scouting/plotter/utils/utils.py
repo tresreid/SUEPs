@@ -20,11 +20,16 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2018
-#year = "Run2"
-ext="png"
-#ext="pdf"
+#year = 2018
+year = "Run2"
+#ext="png"
+ext="pdf"
 pd.set_option("precision",2)
+
+region_cuts_tracks = [50,50,60,80]
+region_cuts_sphere = [60,60,60,60]
+inner_tracks = 18
+inner_sphere = 34
 
 parameters = {'axes.labelsize': 20,
           'axes.titlesize': 20,
@@ -89,17 +94,6 @@ else:
 #xsecs = {"RunA_0":0,"RunA":0,"QCD":lumi,"sig1000":0.17,"sig700":0.5,"sig400":5.9,"sig300":8.9,"sig200":13.6,"HT2000":25.24} #1000-200
 selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s>560 GeV"%(r"$H_{t}$"),"Selection:\nTrigger\n %s>560 GeV\n 2+ AK15 Jets"%(r"$H_{t}$"),"Selection:\n Trigger\n %s>560 GeV\n 2+ AK15 Jets\n nPFcands>70"%(r"$H_{t}$")]
 
-region_cuts_tracks = [50,50,70,90] #gap, R1,R2,R3
-#region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
-region_cuts_sphere = [60,60,60,60]
-#region_cuts_sphere = [40,40,40,40]
-#region_cuts_sphere = [45,45,45,45]
-#region_cuts_sphere = [50,80,65,50]
-inner_tracks = 18
-#inner_tracks = 20
-#inner_sphere = 35
-inner_sphere = 34
-#inner_sphere = 38
 
 directory = "../outhists/"
 def load_all(year):
@@ -210,9 +204,6 @@ def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000
 def merge_years(dic1,dic2,dic3,data=False):
   dicx = {}
   for key in dic1:
-    #print(key)
-    #if data and ("dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key):
-    #  continue
     dicx[key] = dic1[key]
     dicx[key].add(dic2[key])
     dicx[key].add(dic3[key])
