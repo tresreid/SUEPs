@@ -20,10 +20,10 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-#year = 2017
-year = "Run2"
-#ext="png"
-ext="pdf"
+year = 2018
+#year = "Run2"
+ext="png"
+#ext="pdf"
 pd.set_option("precision",2)
 
 parameters = {'axes.labelsize': 20,
@@ -32,14 +32,14 @@ parameters = {'axes.labelsize': 20,
           }
 plt.rcParams.update(parameters)
 if year == 2018:
-  lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+  lumi = 60.69*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
 if year == 2017:
   lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
 if year == 2016:
   lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
 if year == "Run2":
   #lumi = 96.43*1000 #lumi for 2018+2017 scouting #
-  lumi = 114.80*1000#131.91*1000 #lumi for 2018+2017 scouting #
+  lumi = 125.81*1000#131.91*1000 #lumi for 2018+2017 scouting #
 #lumi=1 #for data2016 compare
 
 standard = True
@@ -91,7 +91,8 @@ selection = ["Selection:\n None","Selection:\nTrigger","Selection:\nTrigger\n %s
 
 region_cuts_tracks = [50,50,70,90] #gap, R1,R2,R3
 #region_cuts_tracks = [70,85,90,105] #gap, R1,R2,R3
-region_cuts_sphere = [40,40,40,40]
+region_cuts_sphere = [60,60,60,60]
+#region_cuts_sphere = [40,40,40,40]
 #region_cuts_sphere = [45,45,45,45]
 #region_cuts_sphere = [50,80,65,50]
 inner_tracks = 18
@@ -113,7 +114,7 @@ def load_all(year):
   qcdtrigscaled = {}
   datafulllumi = 0
   if year == 2018:
-    lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+    lumi = 60.69*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
   if year == 2017:
     lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
   if year == 2016:
@@ -167,7 +168,7 @@ def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000
       sigscaled = {}
 #      year=2018
       if year == 2018:
-        lumi = 49.68*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
+        lumi = 60.69*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
       if year == 2017:
         lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
       if year == 2016:
@@ -181,7 +182,10 @@ def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000
           formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp1,sample[3:],phi,temp2,mode) 
           #xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
           xsec1 = xsecs[formatting]["xsec"] 
-          genfilter = xsecs[formatting]["kr"] 
+          if year == 2016:
+            genfilter = 1
+          else:
+            genfilter = xsecs[formatting]["kr"] 
           xsec = xsec1 * genfilter
           #print(xsec1,genfilter,xsec)
           if xsec ==0:
@@ -207,8 +211,8 @@ def merge_years(dic1,dic2,dic3,data=False):
   dicx = {}
   for key in dic1:
     #print(key)
-    if data and ("dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key):
-      continue
+    #if data and ("dist_offlinetrk_pt_eta" in key or "dist_offlinetrk_pt" in key or "dist_offlinetrk_eta" in key or "dist_offlinetrk_phi" in key or "dist_PFcand_pt_eta" in key or "dist_PFcand_pt" in key or "dist_PFcand_eta" in key):
+    #  continue
     dicx[key] = dic1[key]
     dicx[key].add(dic2[key])
     dicx[key].add(dic3[key])

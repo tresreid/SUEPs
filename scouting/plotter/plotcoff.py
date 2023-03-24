@@ -174,13 +174,6 @@ from utils.closure import *
 #make_closure_correction9("sig400","SR1_suep",3, point=0,yrange=0,rebin=True)
 #make_closure_correction9("sig700","SR1_suep",3, point=0,yrange=0,rebin=True)
 #make_closure_correction9("sig1000","SR1_suep",3, point=0,yrange=0,rebin=True)
-##make_closure_correction9("sig1000","SR1_suep",3,point=3,yrange=0)
-##make_closure_correction9("sig125","SR1_suep",3, point=1,gap=1,yrange=0)
-##make_closure_correction9("sig200","SR1_suep",3, point=1,gap=1,yrange=0)
-##make_closure_correction9("sig300","SR1_suep",3, point=2,gap=1,yrange=0)
-##make_closure_correction9("sig400","SR1_suep",3, point=2,gap=1,yrange=0)
-##make_closure_correction9("sig700","SR1_suep",3, point=3,gap=1,yrange=0)
-##make_closure_correction9("sig1000","SR1_suep",3,point=3,gap=1,yrange=0)
 ##
 ###data validation
 #make_closure("RunA","SR1_suep",3,chi=True)
@@ -191,6 +184,10 @@ from utils.closure import *
 #make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
 #make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
 #make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
+
+
+
+
 ##make_closure_correction_binnedFull(["QCD","sig125"],"SR1_suep",3,gap=2,zoom=0)
 ##make_closure_correction_binnedFull(["QCD","sig125"],"SR1_suep",3,gap=2,zoom=1)
 ##make_closure_correction_binnedFull(["QCD","sig200"],"SR1_suep",3,gap=2,zoom=0)
@@ -301,23 +298,23 @@ from utils.closure import *
 #make_systematics(["sig125"],"sphere1_suep",systematics1="higgsup",systematics2="higgsdown")
 #####Signal Contamination
 #cutflow_correction_binned()
-cutflow_correction_binned(gap=1)
+#cutflow_correction_binned(gap=1)
 #cutflow_correction_binned(gap=2)
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-#makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
-#makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
-#makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
-#makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
-#makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
-#makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
+makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
+makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
+makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
+makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
+makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
+makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
+makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
+makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
 #makeCombineHistogramsOffline(["sig500"],"SR1_suep",3,"sig500",load_ondemand=True)
 #makeCombineHistogramsOffline(["sig600"],"SR1_suep",3,"sig600",load_ondemand=True)
 #makeCombineHistogramsOffline(["sig800"],"SR1_suep",3,"sig800",load_ondemand=True)
 #makeCombineHistogramsOffline(["sig900"],"SR1_suep",3,"sig900",load_ondemand=True)
-#makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
-#makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
 #make_limits()
 #make_limits(scan=0)
 #make_limits(scan=2)
