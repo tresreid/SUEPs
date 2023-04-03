@@ -163,7 +163,7 @@ def make_closure(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
   fig.savefig("Plots/closure_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,chi=False):
+def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,chi=False,rebin=False):
   highx1 = inner_tracks #region_cuts_tracks[0]
   highx2 = region_cuts_tracks[point]
   highy1 = region_cuts_sphere[point]
@@ -190,7 +190,8 @@ def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,c
       sharex=True
   )
   fig.subplots_adjust(hspace=.07)
-  h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
+  if not rebin:
+    h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
   abin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
   bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
   cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100,  highy1/100)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
@@ -218,6 +219,8 @@ def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,c
   ratx = ((ebinx**2)*abinx)/((bbinx**2)*dbinx)
   rel_err = ((D_err)**2 +(2*B_err)**2 +(C_err)**2 +(A_err)**2 + (2*E_err)**2)
   err = ratx*cbinx*np.sqrt(rel_err)
+  if rebin:
+    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +region_cuts_tracks[1:]+[120,300]))#[50,70,90,120,300]))
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(highy1/100,highy2/100)),
       ax=ax,
@@ -276,7 +279,10 @@ def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,c
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.set_ylabel("Observed/Predicted")
   fig.suptitle("6 Bin Closure: %s"%(sample))
-  fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
+  if rebin:
+    fig.savefig("Plots/closure6_%s_%s_%s_rebin.%s"%(sample,SR,year,ext))
+  else:
+    fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
 def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,rebin=False,chi=False):
@@ -372,7 +378,7 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   rel_err = (2*H_err)**2 +(2*D_err)**2 +(2*B_err)**2 +(F_err)**2 +(G_err)**2 +(C_err)**2 +(A_err)**2 + (4*E_err)**2
   err = ratx*fbinx*np.sqrt(rel_err+F_err**2)
   if rebin:
-    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +[50,70,90,120,300]))
+    h1 = h1.rebin(var,hist.Bin(var,var,[x for x in range(0,highx1,2)] +region_cuts_tracks[1:]+[120,300]))#[50,70,90,120,300]))
   hx = hist.plot1d(
       h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)),
       ax=ax,

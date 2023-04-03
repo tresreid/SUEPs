@@ -1,4 +1,9 @@
 from utils.utils import *
+from scipy.optimize import curve_fit
+
+def linearFunc(x,intercept,slope):
+    y = intercept + slope * x
+    return y
 
 cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]]
 
@@ -325,8 +330,12 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
-def makeCombineHistogramsOffline(samples,var,cut,samplename="test",load_ondemand=False):
-  f = ROOT.TFile.Open("combineHist/%s_%s.root"%(samplename,year),"RECREATE")
+def makeCombineHistogramsOffline(samples,var,cut,samplename="test",temp="",phi="",load_ondemand=False):
+  if not (temp=="" and phi==""):
+    scan = "_T%s_phi%s"%(temp,phi) 
+  else:
+    scan = ""
+  f = ROOT.TFile.Open("combineHist/%s%s_%s.root"%(samplename,scan,year),"RECREATE")
   if samplename == "QCD" or samplename == "Data":
     systematics_list = [""]
   else:
@@ -339,7 +348,7 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test",load_ondemand
         scaled = datafullscaled#.to_hist().to_numpy()
       else:
         if load_ondemand:
-          scaled = load_samples(sample+"_2",2018,sys)
+          scaled = load_samples(sample+"_2",year,sys,temp=temp,phi=phi)
         else:
           if "higgs" in systematic and "125" not in samplename: 
             scaled = sigscaled_sys[sample][""]
@@ -369,6 +378,8 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test",load_ondemand
       y0 = region_cuts_sphere[0] #use only gap point
       region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
       region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
+      C_array = [0]*x4 #arrays for F/C comparison
+      F_array = [0]*x4
       for region in ["A","B","C","D","E","F","G","H","I","ALL"]:
         if region == "A":
           xx = x1
@@ -428,7 +439,58 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test",load_ondemand
           for y in range(yy,yyy):
             region_sum[region] = region_sum[region] + s[0][0][x][y]
             h.Fill(s[2][x],s[0][0][x][y])
+            if(region == "F"): 
+              print("F: ",s[2][x],s[0][0][x][y])
+              F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
+            if(region == "C"):
+              print("C: ",s[2][x],s[0][0][x][y])
+              C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
+              #C_array.append(s[0][0][x][y])
         h.Write()
+      print(F_array)
+      print(C_array)
+      F_err =np.sqrt(np.nan_to_num(F_array))
+      C_err =np.sqrt(np.nan_to_num(C_array))
+      print(F_err)
+      print(C_err)
+      FC_array = np.nan_to_num(np.divide(F_array,C_array))
+      FC_array[FC_array > 1000] = np.nan
+      print(FC_array)
+      FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
+      print(FC_err)
+      fig, (ax, ax1) = plt.subplots(
+      nrows=2,
+      ncols=1,
+      figsize=(7,7),
+      gridspec_kw={"height_ratios": (3, 1)},
+      sharex=True
+      )
+      fig.subplots_adjust(hspace=.07)
+      ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
+      ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
+      #ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
+      plt.legend()
+      ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
+
+      valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
+      a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
+      inter = a_fit[0]
+      slope = a_fit[1]
+      d_inter = np.sqrt(cov[0][0])
+      d_slope = np.sqrt(cov[1][1])
+      print(inter, slope, d_inter, d_slope)
+      yfit = inter + slope*range(50,80)
+      #ax1.plot(range(50,80),yfit,color="black")
+      ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
+      plt.legend()
+      ax1.set_xlabel("SUEP Track Multiplicity")
+      ax1.set_ylabel("F/C")
+      ax.set_ylabel("Events")
+      ax1.set_ylim(0.0,20)
+      fig.suptitle("F/C %s"%(sample))
+      fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
+      plt.close()
+
   f.Close()
 
 #def makeCombineHistograms(samples,var,cut):

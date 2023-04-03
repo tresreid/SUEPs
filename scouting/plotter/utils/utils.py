@@ -20,13 +20,13 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2018
-#year = "Run2"
-#ext="png"
-ext="pdf"
+#year = 2018
+year = "Run2"
+ext="png"
+#ext="pdf"
 pd.set_option("precision",2)
 
-region_cuts_tracks = [50,50,60,80]
+region_cuts_tracks = [50,50,60,70]
 region_cuts_sphere = [60,60,60,60]
 inner_tracks = 18
 inner_sphere = 34
@@ -158,22 +158,30 @@ def load_all(year):
           qcddatafullscaled[name] = h.copy()
           qcddatafullscaled[name].scale(datafulllumi/qcdlumi)
   return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled, qcdtrigscaled
-def load_samples(sample,year,systematic="",temp1="2p00",temp2="2.000",phi="2.000",mode="generic"):
+def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic"):
       sigscaled = {}
 #      year=2018
+      temp2 = temp.replace("p",".")
+      temp3 = temp.split("p")[1]
+      add_0 = 3- len(temp3)
+      temp2 = temp2+"0"*add_0
+      if temp == "2p00" and phi=="2.000":
+        scan = ""
+      else:
+        scan = "_T%s_phi%s"%(temp,phi) 
       if year == 2018:
         lumi = 60.69*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
       if year == 2017:
         lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
       if year == 2016:
         lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
-      with open(directory+"myhistos_%s%s_%s.p"%(sample,systematic,year), "rb") as pkl_file:
+      with open(directory+"myhistos_%s%s%s_%s.p"%(sample,systematic,scan,year), "rb") as pkl_file:
           out = pickle.load(pkl_file)
           sample = sample.split("_")[0]
           
           #print(sample[3:])
           #print(out["sumw"])
-          formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp1,sample[3:],phi,temp2,mode) 
+          formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,sample[3:],phi,temp2,mode) 
           #xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
           xsec1 = xsecs[formatting]["xsec"] 
           if year == 2016:

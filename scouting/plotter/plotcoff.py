@@ -160,6 +160,7 @@ from utils.closure import *
 ######closure
 #make_closure("QCD","SR1_suep",3,yrange=0,chi=True)
 #make_closure_correction6("QCD","SR1_suep",3,chi=True)
+#make_closure_correction6("QCD","SR1_suep",3,chi=True,rebin=True,yrange=1)
 #make_closure_correction9("QCD","SR1_suep",3,chi=True)
 #make_closure_correction9("QCD","SR1_suep",3,chi=True,rebin=True,yrange=1)
 #makeSRSignig9("QCD","SR1_suep",3) # error plot
@@ -182,6 +183,7 @@ from utils.closure import *
 #make_closure_correction6("RunA","SR1_suep",3,chi=True)
 #make_closure_correction9("RunA","SR1_suep",3,chi=True)
 #make_closure("Data","SR1_isrsuep",3,chi=True)
+#make_closure_correction6("Data","SR1_isrsuep",3,chi=True,rebin=True)
 #make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
 #make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
 #make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
@@ -299,18 +301,27 @@ from utils.closure import *
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-#makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
-#makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
+makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
+makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
 #makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
 #makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
 #makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
 #makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
 #makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
 #makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
-makeCombineHistogramsOffline(["sig500"],"SR1_suep",3,"sig500",load_ondemand=True)
-#makeCombineHistogramsOffline(["sig600"],"SR1_suep",3,"sig600",load_ondemand=True)
-#makeCombineHistogramsOffline(["sig800"],"SR1_suep",3,"sig800",load_ondemand=True)
-#makeCombineHistogramsOffline(["sig900"],"SR1_suep",3,"sig900",load_ondemand=True)
+
+#temp = "8p00"
+#phi = "4.000"
+#makeCombineHistogramsOffline(["sig500"],"SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig600"],"SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig800"],"SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig900"],"SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True)
+##makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True)
 #make_limits()
 #make_limits(scan=0)
 #make_limits(scan=2)
