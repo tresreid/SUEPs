@@ -20,8 +20,8 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-#year = 2018
-year = "Run2"
+year = 2017
+#year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -76,17 +76,21 @@ else:
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"QCD","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{\S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCDOffline","QCD":"QCD","Data":"QCDOffline","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"Data(1%)","QCD":"Data_2016(1%)","Data":"Data(100% RunA)","Trigger":"Trigger Data (100%)"}
-  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD 2016","QCD":"QCD 2018","Data":"QCD 2016","Trigger":"Trigger Data (100%)"}
+  labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"private: sig125","QCD":"central: sig125","Data":"private: sig125","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"private: sig800","QCD":"central: sig800","Data":"private: sig800","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"private: sig400","QCD":"central: sig400","Data":"private: sig400","Trigger":"Trigger Data (100%)"}
+  #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD 2016","QCD":"QCD 2018","Data":"QCD 2016","Trigger":"Trigger Data (100%)"}
   #labels = {"sig1000":r"$m_{S}$ = 1000 GeV","sig700":r"$m_{S}$ = 700 GeV","sig400":r"$m_{S}$ = 400 GeV","sig300":r"$m_{S}$ = 300 GeV","sig200":r"$m_{S}$ = 200 GeV","sig125":r"$m_{S}$ = 125 GeV","RunA":"QCD offline","QCD":"QCD scouting","Data":"QCD offline","Trigger":"Trigger Data (100%)"}
   #file_data     = "myhistos_Data_%s"%(year)  
   #file_data     = "myhistos_QCD_2016"#%(year)  
   #file_data1    = "myhistos_QCD_2016"#%(year) 
-  file_data     = "myhistos_QCD_2016" #_offline"#%(year)  
-  file_data1    = "myhistos_QCD_2016"#_offline"#%(year) 
+  file_data     = "private/myhistos_sig125_2_T1p00_phi2.000_2018" #_offline"#%(year)  
+  file_data1    = "private/myhistos_sig125_2_T1p00_phi2.000_2018"#_offline"#%(year) 
   #file_data1    = "myhistos_Data1_%s"%(year) 
   file_mctrig   = "myhistos_QCD_2018"#_%s"%(year) 
   file_datatrig = "myhistos_Trigger_2018"#_%s"%(year) 
-  file_qcd      = "myhistos_QCD_2018" 
+  file_qcd      = "central/myhistos_sig125_2_T1p00_phi2.000_2018" 
+  #file_qcd      = "myhistos_QCD_2018" 
   #file_qcd      = "myhistos_QCD_2018_offline_scouting3" 
   #file_qcd      = "myhistos_Data_2016" 
   set_lumi = 1

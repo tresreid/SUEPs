@@ -15,7 +15,7 @@ done
 #outdir=/publicweb/m/mreid/SUEPs/chi_test #_withoutdrop
 #outdir=/publicweb/m/mreid/SUEPs/fullplotstest_offline_scouting_compare_17 #_withoutdrop
 #outdir=/publicweb/m/mreid/SUEPs/fullplotstest_16compare18 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
-outdir=/publicweb/m/mreid/SUEPs/test_FC
+outdir=/publicweb/m/mreid/SUEPs/trigtest #central_private_compare_sig125_T1_P2
 #outdir=/publicweb/m/mreid/SUEPs/fullplots_161718 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
 #outdir=/publicweb/m/mreid/SUEPs/fullplots_17_QCDquick
 #outdir=/publicweb/m/mreid/SUEPs/fullplots_18

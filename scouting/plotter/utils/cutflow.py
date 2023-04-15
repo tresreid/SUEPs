@@ -439,57 +439,57 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test",temp="",phi="
           for y in range(yy,yyy):
             region_sum[region] = region_sum[region] + s[0][0][x][y]
             h.Fill(s[2][x],s[0][0][x][y])
-            if(region == "F"): 
-              print("F: ",s[2][x],s[0][0][x][y])
-              F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
-            if(region == "C"):
-              print("C: ",s[2][x],s[0][0][x][y])
-              C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
-              #C_array.append(s[0][0][x][y])
+            #if(region == "F"): 
+            #  print("F: ",s[2][x],s[0][0][x][y])
+            #  F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
+            #if(region == "C"):
+            #  print("C: ",s[2][x],s[0][0][x][y])
+            #  C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
+            #  #C_array.append(s[0][0][x][y])
         h.Write()
-      print(F_array)
-      print(C_array)
-      F_err =np.sqrt(np.nan_to_num(F_array))
-      C_err =np.sqrt(np.nan_to_num(C_array))
-      print(F_err)
-      print(C_err)
-      FC_array = np.nan_to_num(np.divide(F_array,C_array))
-      FC_array[FC_array > 1000] = np.nan
-      print(FC_array)
-      FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
-      print(FC_err)
-      fig, (ax, ax1) = plt.subplots(
-      nrows=2,
-      ncols=1,
-      figsize=(7,7),
-      gridspec_kw={"height_ratios": (3, 1)},
-      sharex=True
-      )
-      fig.subplots_adjust(hspace=.07)
-      ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
-      ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
-      #ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
-      plt.legend()
-      ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
+      #print(F_array)
+      #print(C_array)
+      #F_err =np.sqrt(np.nan_to_num(F_array))
+      #C_err =np.sqrt(np.nan_to_num(C_array))
+      #print(F_err)
+      #print(C_err)
+      #FC_array = np.nan_to_num(np.divide(F_array,C_array))
+      #FC_array[FC_array > 1000] = np.nan
+      #print(FC_array)
+      #FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
+      #print(FC_err)
+      #fig, (ax, ax1) = plt.subplots(
+      #nrows=2,
+      #ncols=1,
+      #figsize=(7,7),
+      #gridspec_kw={"height_ratios": (3, 1)},
+      #sharex=True
+      #)
+      #fig.subplots_adjust(hspace=.07)
+      #ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
+      #ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
+      ##ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
+      #plt.legend()
+      #ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
 
-      valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
-      a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
-      inter = a_fit[0]
-      slope = a_fit[1]
-      d_inter = np.sqrt(cov[0][0])
-      d_slope = np.sqrt(cov[1][1])
-      print(inter, slope, d_inter, d_slope)
-      yfit = inter + slope*range(50,80)
-      #ax1.plot(range(50,80),yfit,color="black")
-      ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
-      plt.legend()
-      ax1.set_xlabel("SUEP Track Multiplicity")
-      ax1.set_ylabel("F/C")
-      ax.set_ylabel("Events")
-      ax1.set_ylim(0.0,20)
-      fig.suptitle("F/C %s"%(sample))
-      fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
-      plt.close()
+      #valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
+      #a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
+      #inter = a_fit[0]
+      #slope = a_fit[1]
+      #d_inter = np.sqrt(cov[0][0])
+      #d_slope = np.sqrt(cov[1][1])
+      #print(inter, slope, d_inter, d_slope)
+      #yfit = inter + slope*range(50,80)
+      ##ax1.plot(range(50,80),yfit,color="black")
+      #ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
+      #plt.legend()
+      #ax1.set_xlabel("SUEP Track Multiplicity")
+      #ax1.set_ylabel("F/C")
+      #ax.set_ylabel("Events")
+      #ax1.set_ylim(0.0,20)
+      #fig.suptitle("F/C %s"%(sample))
+      #fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
+      #plt.close()
 
   f.Close()
 
