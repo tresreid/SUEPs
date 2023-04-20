@@ -330,7 +330,7 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
-def makeCombineHistogramsOffline(samples,var,cut,samplename="test",temp="",phi="",load_ondemand=False):
+def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False):
   if not (temp=="" and phi==""):
     scan = "_T%s_phi%s"%(temp,phi) 
   else:
@@ -339,157 +339,205 @@ def makeCombineHistogramsOffline(samples,var,cut,samplename="test",temp="",phi="
   if samplename == "QCD" or samplename == "Data":
     systematics_list = [""]
   else:
-    systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down","_higgs_weights_up","_higgs_weights_down","_track_down"]
-  for sample in samples:
-    for systematic in systematics_list:
-      if samplename == "QCD":
-        scaled = qcdscaled#.to_hist().to_numpy()
-      elif samplename == "Data":
-        scaled = datafullscaled#.to_hist().to_numpy()
+    systematics_list = ["","_track_up","_JES_up","_JES_down","_JER_up","_JER_down","_trigSF_up","_trigSF_down","_puweights_up","_puweights_down","_PSWeight_ISR_up","_PSWeight_FSR_up","_PSWeight_ISR_down","_PSWeight_FSR_down","_prefire_up","_prefire_down","_track_down"]
+  if "125" in samplename:
+    systematics_list = systematics_list + ["_higgs_weights_up","_higgs_weights_down"]
+  for systematic in systematics_list:
+    if samplename == "QCD":
+      scaled = qcdscaled#.to_hist().to_numpy()
+    elif samplename == "Data":
+      scaled = datafullscaled#.to_hist().to_numpy()
+      h1 = datafullscaled["SR1_suep_3"].integrate("axis",slice(0,1))
+      lowx =0
+      lowy = 30
+      highx3 = 300
+      highy3 = 100
+      highx1 = inner_tracks #region_cuts_tracks[0]#20
+      highy1 = inner_sphere #region_cuts_sphere[0]#38
+      highx2 = region_cuts_tracks[0]
+      highy2 = region_cuts_sphere[0]
+      varx = "nPFCand"
+      gapx = region_cuts_tracks[0]
+      gapy = region_cuts_sphere[0]
+      abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  varx,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+      bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  varx,slice(highx1,gapx)).sum().values(sumw2=True)[()]
+      cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  varx,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+      dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  varx,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+      ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  varx,slice(highx1,gapx)).sum().values(sumw2=True)[()]
+      fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., gapy/100.)).integrate(  varx,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+      gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  varx,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
+      hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  varx,slice(highx1,gapx)).sum().values(sumw2=True)[()]
+      SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)).integrate(  varx,slice(highx2,highx3)).sum().values(sumw2=True)[()]
+      abinx = abin[0]
+      bbinx = bbin[0]
+      cbinx = cbin[0]
+      dbinx = dbin[0]
+      ebinx = ebin[0]
+      fbinx = fbin[0]
+      gbinx = gbin[0]
+      hbinx = hbin[0]
+      SRbinx = SRbin[0]
+      ratx = fbinx*((hbinx*dbinx*bbinx)**2)/((gbinx*cbinx*abinx)*(ebinx**4))
+    else:
+      #if load_ondemand:
+      if "track_down" in systematic:
+        scaled = load_samples(samplename+"_2",year,"_track_up",temp=temp,phi=phi)
       else:
-        if load_ondemand:
-          scaled = load_samples(sample+"_2",year,sys,temp=temp,phi=phi)
+        scaled = load_samples(samplename+"_2",year,systematic,temp=temp,phi=phi)
+      #else:
+      #  if "higgs" in systematic and "125" not in samplename: 
+      #    scaled = sigscaled_sys[sample][""]
+      #  elif "track_down" in systematic:
+      #    scaled = sigscaled_sys[sample]["_track_up"]
+      #  else:
+      #    scaled = sigscaled_sys[sample][systematic]
+    name = var+"_%s"%cut
+    xvar = "SUEP Jet Track Multiplicity"
+    s = scaled[name].to_hist().to_numpy()
+
+    x1 = 0
+    x2 = inner_tracks
+    x3 = region_cuts_tracks[0]
+    x4 = 300
+    y1 = 30
+    y2 = inner_sphere
+    y3 = region_cuts_sphere[0]
+    y4 = 100
+    #if sample == "sig200" or sample == "sig125":
+    #  point=1
+    #if sample == "sig300" or sample == "sig400":
+    #  point=2
+    #if sample == "sig700" or sample == "sig1000":
+    #  point=3
+    x0 = region_cuts_tracks[0]
+    y0 = region_cuts_sphere[0] #use only gap point
+    #region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
+    #region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
+    #C_array = [0]*x4 #arrays for F/C comparison
+    #F_array = [0]*x4
+    for region in ["A","B","C","D","E","F","G","H","I","ALL"]:
+      if region == "A":
+        xx = x1
+        xxx = x2
+        yy = y1
+        yyy = y2
+      elif region == "B":
+        xx = x2
+        xxx = x3
+        yy = y1
+        yyy = y2
+      elif region == "C":
+        xx = x0
+        xxx = x4
+        yy = y1
+        yyy = y2
+      elif region == "D":
+        xx = x1
+        xxx = x2
+        yy = y2
+        yyy = y3
+      elif region == "E":
+        xx = x2
+        xxx = x3
+        yy = y2
+        yyy = y3
+      elif region == "F":
+        xx = x0
+        xxx = x4
+        yy = y2
+        yyy = y3
+      elif region == "G":
+        xx = x1
+        xxx = x2
+        yy = y0
+        yyy = y4
+      elif region == "H":
+        xx = x2
+        xxx = x3
+        yy = y0
+        yyy = y4
+      elif region == "I":
+        if(samplename == "Data"): #repeat region F for data to do expected scaling
+          xx = x0
+          xxx = x4
+          yy = y2
+          yyy = y3
         else:
-          if "higgs" in systematic and "125" not in samplename: 
-            scaled = sigscaled_sys[sample][""]
-          elif "track_down" in systematic:
-            scaled = sigscaled_sys[sample]["_track_up"]
+          xx = x0
+          xxx = x4
+          yy = y0
+          yyy = y4
+      elif region == "ALL":
+        xx = 0
+        xxx = x4
+        yy = 0
+        yyy = y4
+      else:
+        print("what happened")
+        pass
+      h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic),"%s_SUEP_nconst_Cluster70%s"%(region,systematic),300,0,300)
+      for x in range(xx,xxx):
+        for y in range(yy,yyy):
+          #region_sum[region] = region_sum[region] + s[0][0][x][y]
+          if(samplename == "Data" and region == "I"): 
+          #  h.Fill(s[2][x],0)
+            h.Fill(s[2][x],ratx*s[0][0][x][y])
           else:
-            scaled = sigscaled_sys[sample][systematic]
-      name = var+"_%s"%cut
-      xvar = "SUEP Jet Track Multiplicity"
-      s = scaled[name].to_hist().to_numpy()
+            if (region == "I"):
+              h.Fill(s[2][x],s[0][0][x][y])
+            else:
+              h.Fill(s[2][x],s[0][0][x][y])
+          #if(region == "F"): 
+          #  print("F: ",s[2][x],s[0][0][x][y])
+          #  F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
+          #if(region == "C"):
+          #  print("C: ",s[2][x],s[0][0][x][y])
+          #  C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
+          #  #C_array.append(s[0][0][x][y])
+      h.Write()
+    #print(F_array)
+    #print(C_array)
+    #F_err =np.sqrt(np.nan_to_num(F_array))
+    #C_err =np.sqrt(np.nan_to_num(C_array))
+    #print(F_err)
+    #print(C_err)
+    #FC_array = np.nan_to_num(np.divide(F_array,C_array))
+    #FC_array[FC_array > 1000] = np.nan
+    #print(FC_array)
+    #FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
+    #print(FC_err)
+    #fig, (ax, ax1) = plt.subplots(
+    #nrows=2,
+    #ncols=1,
+    #figsize=(7,7),
+    #gridspec_kw={"height_ratios": (3, 1)},
+    #sharex=True
+    #)
+    #fig.subplots_adjust(hspace=.07)
+    #ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
+    #ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
+    ##ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
+    #plt.legend()
+    #ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
 
-      x1 = 0
-      x2 = inner_tracks
-      x3 = region_cuts_tracks[0]
-      x4 = 300
-      y1 = 30
-      y2 = inner_sphere
-      y3 = region_cuts_sphere[0]
-      y4 = 100
-      #if sample == "sig200" or sample == "sig125":
-      #  point=1
-      #if sample == "sig300" or sample == "sig400":
-      #  point=2
-      #if sample == "sig700" or sample == "sig1000":
-      #  point=3
-      x0 = region_cuts_tracks[0]
-      y0 = region_cuts_sphere[0] #use only gap point
-      region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
-      region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
-      C_array = [0]*x4 #arrays for F/C comparison
-      F_array = [0]*x4
-      for region in ["A","B","C","D","E","F","G","H","I","ALL"]:
-        if region == "A":
-          xx = x1
-          xxx = x2
-          yy = y1
-          yyy = y2
-        elif region == "B":
-          xx = x2
-          xxx = x3
-          yy = y1
-          yyy = y2
-        elif region == "C":
-          xx = x0
-          xxx = x4
-          yy = y1
-          yyy = y2
-        elif region == "D":
-          xx = x1
-          xxx = x2
-          yy = y2
-          yyy = y3
-        elif region == "E":
-          xx = x2
-          xxx = x3
-          yy = y2
-          yyy = y3
-        elif region == "F":
-          xx = x0
-          xxx = x4
-          yy = y2
-          yyy = y3
-        elif region == "G":
-          xx = x1
-          xxx = x2
-          yy = y0
-          yyy = y4
-        elif region == "H":
-          xx = x2
-          xxx = x3
-          yy = y0
-          yyy = y4
-        elif region == "I":
-          xx = x0
-          xxx = x4
-          yy = y0
-          yyy = y4
-        elif region == "ALL":
-          xx = 0
-          xxx = x4
-          yy = 0
-          yyy = y4
-        else:
-          print("what happened")
-          pass
-        h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic),"%s_SUEP_nconst_Cluster70%s"%(region,systematic),300,0,300)
-        for x in range(xx,xxx):
-          for y in range(yy,yyy):
-            region_sum[region] = region_sum[region] + s[0][0][x][y]
-            h.Fill(s[2][x],s[0][0][x][y])
-            #if(region == "F"): 
-            #  print("F: ",s[2][x],s[0][0][x][y])
-            #  F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
-            #if(region == "C"):
-            #  print("C: ",s[2][x],s[0][0][x][y])
-            #  C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
-            #  #C_array.append(s[0][0][x][y])
-        h.Write()
-      #print(F_array)
-      #print(C_array)
-      #F_err =np.sqrt(np.nan_to_num(F_array))
-      #C_err =np.sqrt(np.nan_to_num(C_array))
-      #print(F_err)
-      #print(C_err)
-      #FC_array = np.nan_to_num(np.divide(F_array,C_array))
-      #FC_array[FC_array > 1000] = np.nan
-      #print(FC_array)
-      #FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
-      #print(FC_err)
-      #fig, (ax, ax1) = plt.subplots(
-      #nrows=2,
-      #ncols=1,
-      #figsize=(7,7),
-      #gridspec_kw={"height_ratios": (3, 1)},
-      #sharex=True
-      #)
-      #fig.subplots_adjust(hspace=.07)
-      #ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
-      #ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
-      ##ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
-      #plt.legend()
-      #ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
-
-      #valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
-      #a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
-      #inter = a_fit[0]
-      #slope = a_fit[1]
-      #d_inter = np.sqrt(cov[0][0])
-      #d_slope = np.sqrt(cov[1][1])
-      #print(inter, slope, d_inter, d_slope)
-      #yfit = inter + slope*range(50,80)
-      ##ax1.plot(range(50,80),yfit,color="black")
-      #ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
-      #plt.legend()
-      #ax1.set_xlabel("SUEP Track Multiplicity")
-      #ax1.set_ylabel("F/C")
-      #ax.set_ylabel("Events")
-      #ax1.set_ylim(0.0,20)
-      #fig.suptitle("F/C %s"%(sample))
-      #fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
-      #plt.close()
+    #valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
+    #a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
+    #inter = a_fit[0]
+    #slope = a_fit[1]
+    #d_inter = np.sqrt(cov[0][0])
+    #d_slope = np.sqrt(cov[1][1])
+    #print(inter, slope, d_inter, d_slope)
+    #yfit = inter + slope*range(50,80)
+    ##ax1.plot(range(50,80),yfit,color="black")
+    #ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
+    #plt.legend()
+    #ax1.set_xlabel("SUEP Track Multiplicity")
+    #ax1.set_ylabel("F/C")
+    #ax.set_ylabel("Events")
+    #ax1.set_ylim(0.0,20)
+    #fig.suptitle("F/C %s"%(sample))
+    #fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
+    #plt.close()
 
   f.Close()
 

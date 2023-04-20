@@ -123,7 +123,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
 def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
   #skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
-  run = ["dist_gen_dR","dist_PFcand_alldR"]
+  run = ["dist_Jet_pt","dist_Jet_eta","dist_Jet_phi"]
   if "QCD" in sample:
     scaled = qcdscaled
   elif "RunA" in sample:
@@ -238,12 +238,12 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
 
   for sample in samples:
     if "sig" in sample:
-      fil = directory+"myhistos_%s_2.p"%sample
+      #fil = directory+"myhistos_%s_2.p"%sample
       scaled = sigscaled[sample]
       s = scaled[name].integrate("cut",slice(cut,cut+1))#.to_hist().to_numpy()
       if("ht" in name):
         s = s.rebin("v1",hist.Bin("v1","ht",50,50,3500))
-      s_scale = s.values(sumw2=True)[()]
+      #s_scale = s.values(sumw2=True)[()]
       s1= s.to_hist().to_numpy()
       xbin = xbins(s1[1])
       ## append an extra point at the end because the post doesn't work without it for the last bin. it needs to know where to go next

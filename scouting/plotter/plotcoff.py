@@ -37,110 +37,110 @@ from utils.closure import *
 #######
 ######
 ##################################### HT Trigger
-########### HT Distributions
-#make_dists("sig400")
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
-######### Trigger Efficiency
-##print("running trigger studies")
-make_datatrigs(["Data"])
+########## HT Distributions
+make_dists("sig400")
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
+####### Trigger Efficiency
+print("running trigger studies")
+#make_datatrigs(["Data"])
 #make_datatrigs(["Data"],systematics=True)
-##make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
-#
-#
-############################## Track Selection
-#print("running track studies")
-######### TRK Eff and Fakes 
-#make_trkeff("sig200","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig200","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig200","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig200","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#make_trkeff("sig1000","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#make_trkeff("sig400","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig400","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig400","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig400","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#maxpoints = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount70",4,maxpoints,"PFCand(70) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount80",4,maxpoints,"PFCand(80) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount90",4,maxpoints,"PFCand(90) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
-#make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"Track pt threshold")
-#
-##make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_pvs",2,"nPV")
-#make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=[0.02])
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
-#
-#
-############################  FatJet Selection
-#
-#print("running Jet studies")
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"sphere1_suep",3,xlab="SUEP Sphericity",make_ratio=False,shift_leg=True)
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"sphere1_isrsuep",3,xlab="ISR Sphericity",make_ratio=False,shift_leg=True)
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
-#
-#maxpointsfj = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount50",2,maxpointsfj,xlab="AK15(50) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount100",2,maxpointsfj,xlab="AK15(100) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount150",2,maxpointsfj,xlab="AK15(150) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount200",2,maxpointsfj,xlab="AK15(200) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount250",2,maxpointsfj,xlab="AK15(250) Multiplicity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount300",2,maxpointsfj,xlab="AK15(300) Multiplicity") 
-#make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpointsfj,[50,100,150,200,250,300],"AK15 pt threshold")
-#
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_pt",3,"AK15 Jet pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_eta",3,"AK15 Jet Eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_phi",3,"AK15 Jet Phi")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_ncount50",3,"AK15 Jet(50) Multiplicity")
-########################### BOOSTING and sphericity
-### TODO ISR removal methods
-#print("running sphericity studies")
-#empty = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",3,empty,xlab="SUEP Jet Track Multiplicity") 
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",4,empty,xlab="SUEP Jet Track Multiplicity") 
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",3,empty,xlab="Boosted Sphericity",shift_leg=True)
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",4,empty,xlab="Boosted Sphericity",shift_leg=True)
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",3,empty,xlab="Unboosted Sphericity")
-#make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",4,empty,xlab="Unboosted Sphericity")
-#
-#
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_pt",3,"SUEP pT [GeV]",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_eta",3,"SUEP eta",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_phi",3,"SUEP phi",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_eta",3,"ISR eta",make_ratio=True)
-#make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_phi",3,"ISR phi",make_ratio=True)
+make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
 
-################################ ABCD
+
+############################# Track Selection
+print("running track studies")
+######## TRK Eff and Fakes 
+make_trkeff("sig200","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi")
+make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta")
+make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi",runPV=1)
+make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta",runPV=1)
+make_trkeff("sig200","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+make_trkeff("sig200","dist_trkIDFK_PFcand_phi","PFCand Phi")
+make_trkeff("sig200","dist_trkIDFK_PFcand_eta","PFCand Eta")
+make_trkeff("sig1000","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi")
+make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta")
+make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi",runPV=1)
+make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta",runPV=1)
+make_trkeff("sig1000","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+make_trkeff("sig1000","dist_trkIDFK_PFcand_phi","PFCand Phi")
+make_trkeff("sig1000","dist_trkIDFK_PFcand_eta","PFCand Eta")
+make_trkeff("sig400","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi")
+make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta")
+make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi",runPV=1)
+make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta",runPV=1)
+make_trkeff("sig400","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+make_trkeff("sig400","dist_trkIDFK_PFcand_phi","PFCand Phi")
+make_trkeff("sig400","dist_trkIDFK_PFcand_eta","PFCand Eta")
+maxpoints = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount70",4,maxpoints,"PFCand(70) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount75",4,maxpoints,"PFCand(75) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount80",4,maxpoints,"PFCand(80) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount90",4,maxpoints,"PFCand(90) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount100",4,maxpoints,"PFCand(100) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount150",4,maxpoints,"PFCand(150) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount200",4,maxpoints,"PFCand(200) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount300",4,maxpoints,"PFCand(300) Multiplicity")
+make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpoints,[.5,.6,.7,.75,.8,.9,1.0,1.5,2,3],"Track pt threshold")
+
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_pvs",2,"nPV")
+make_overlapdists(["sig1000","sig400","sig200","sig125"],"gen_dR",2,"1-1 Minimum dR(gen,PFcand)",make_ratio=False,vline=[0.02])
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_pt",2,"PFCand pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_eta",2,"PFCand eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"PFcand_phi",2,"PFCand phi")
+
+
+###########################  FatJet Selection
+
+print("running Jet studies")
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"sphere1_suep",3,xlab="SUEP Sphericity",make_ratio=False,shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"sphere1_isrsuep",3,xlab="ISR Sphericity",make_ratio=False,shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_beta",0,make_ratio=False,xlab="Suep Jet beta - Scalar truth beta",shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_pt",0,make_ratio=False,xlab="Suep Jet pT - Scalar truth pT",shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_mass",0,make_ratio=False,xlab="Suep Jet mass - Scalar truth mass",shift_leg=True)
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dR",0,make_ratio=False,xlab="dR(Suep Jet,Scalar truth)")
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dEta",0,make_ratio=False,xlab="Suep Jet eta - Scalar truth eta")
+make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125"],"res_dPhi",0,make_ratio=False,xlab="Suep Jet phi - Scalar truth phi")
+
+maxpointsfj = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount50",2,maxpointsfj,xlab="AK15(50) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount100",2,maxpointsfj,xlab="AK15(100) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount150",2,maxpointsfj,xlab="AK15(150) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount200",2,maxpointsfj,xlab="AK15(200) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount250",2,maxpointsfj,xlab="AK15(250) Multiplicity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"fjn1_FatJet_ncount300",2,maxpointsfj,xlab="AK15(300) Multiplicity") 
+make_threshold(["sig1000","sig700","sig400","sig300","sig200","sig125"],maxpointsfj,[50,100,150,200,250,300],"AK15 pt threshold")
+
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_pt",3,"AK15 Jet pT [GeV]")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_eta",3,"AK15 Jet Eta")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_phi",3,"AK15 Jet Phi")
+make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"FatJet_ncount50",3,"AK15 Jet(50) Multiplicity")
+########################## BOOSTING and sphericity
+## TODO ISR removal methods
+print("running sphericity studies")
+empty = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",3,empty,xlab="SUEP Jet Track Multiplicity") 
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"FatJet_nconst",4,empty,xlab="SUEP Jet Track Multiplicity") 
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",3,empty,xlab="Boosted Sphericity",shift_leg=True)
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",4,empty,xlab="Boosted Sphericity",shift_leg=True)
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",3,empty,xlab="Unboosted Sphericity")
+make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"event_sphericity",4,empty,xlab="Unboosted Sphericity")
+
+
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_pt",3,"SUEP pT [GeV]",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_eta",3,"SUEP eta",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"SUEP_phi",3,"SUEP phi",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_eta",3,"ISR eta",make_ratio=True)
+make_overlapdists(["QCD","RunA","sig1000","sig700","sig400","sig300","sig200","sig125"],"ISR_phi",3,"ISR phi",make_ratio=True)
+
+################################# ABCD
 #make_correlation("SR1_suep",3)
 #make_correlation("SR1_suep",1)
 #print("running ABCD studies")
@@ -150,6 +150,9 @@ make_datatrigs(["Data"])
 #makeSR("sig400","SR1_suep",3,lines=4,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=6,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=9,SR=0)
+##makeSR("sig200","SR1_suep",3,lines=4,SR=0)
+##makeSR("sig400","SR1_suep",3,lines=4,SR=0)
+##makeSR("sig1000","SR1_suep",3,lines=4,SR=0)
 #######significances
 #makeSRSignif("sig125","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
 #makeSRSignif("sig200","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
@@ -238,11 +241,11 @@ make_datatrigs(["Data"])
 #make2dTrig("sig1000",2,"trig2d_ht_event_sphericity")
 #make2dTrig("sig1000",2,"trig2d_ht_FatJet_nconst",ylab="Suep Jet Track Multiplicity",yfactor=6)
 ####################APPENDIX Basic Distributions 
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_pfMu",1,"n PF Muons")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_pt",1,"AK4 Jet pT [GeV]")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_eta",1,"AK4 Jet eta")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_phi",1,"AK4 Jet phi")
-#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_jetId",1,"n AK4 Jets")
+#make_overlapdists(["QCD","RunA","sig1000","sig200","sig125"],"n_pfMu",1,"n PF Muons")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_pt",2,"AK4 Jet pT [GeV]")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_eta",2,"AK4 Jet eta")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"Jet_phi",2,"AK4 Jet phi")
+#make_overlapdists(["QCD","RunA","sig1000","sig400","sig200","sig125"],"n_jetId",2,"n AK4 Jets")
 ####################APPENDIX Sphericity 
 #spheremax = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
 #make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",4,spheremax,xlab="Boosted Sphericity 1 (SUEP Jet)",shift_leg=True)
@@ -301,27 +304,21 @@ make_datatrigs(["Data"])
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-#makeCombineHistogramsOffline(["QCD"],"SR1_suep",3,"QCD")
-#makeCombineHistogramsOffline(["Data"],"SR1_suep",3,"Data")
-#makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000")
-#makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700")
-#makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400")
-#makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300")
-#makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200")
-#makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125")
+#makeCombineHistogramsOffline("SR1_suep",3,"QCD")
+#makeCombineHistogramsOffline("SR1_suep",3,"Data")
 
-#temp = "8p00"
-#phi = "4.000"
-#makeCombineHistogramsOffline(["sig500"],"SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig600"],"SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig800"],"SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig900"],"SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True)
-##makeCombineHistogramsOffline(["sig700"],"SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig400"],"SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig300"],"SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig200"],"SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig125"],"SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True)
-#makeCombineHistogramsOffline(["sig1000"],"SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True)
+#temp = "2p00"
+#phi = "2.000"
+#makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True)
+#makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True)
 #make_limits()
 #make_limits(scan=0)
 #make_limits(scan=2)

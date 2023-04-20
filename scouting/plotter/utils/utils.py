@@ -20,14 +20,14 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2017
-#year = "Run2"
+#year = 2017
+year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
 
-region_cuts_tracks = [50,50,60,70]
-region_cuts_sphere = [60,60,60,60]
+region_cuts_tracks = [50,50,65,80]
+region_cuts_sphere = [50,50,50,50]
 inner_tracks = 18
 inner_sphere = 34
 
@@ -169,7 +169,8 @@ def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic
       temp3 = temp.split("p")[1]
       add_0 = 3- len(temp3)
       temp2 = temp2+"0"*add_0
-      if temp == "2p00" and phi=="2.000":
+      #if temp == "2p00" and phi=="2.000":
+      if year==2016:
         scan = ""
       else:
         scan = "_T%s_phi%s"%(temp,phi) 
@@ -180,6 +181,7 @@ def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic
       if year == 2016:
         lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
       with open(directory+"myhistos_%s%s%s_%s.p"%(sample,systematic,scan,year), "rb") as pkl_file:
+          print("open: %s\n"%("myhistos_%s%s%s_%s.p"%(sample,systematic,scan,year)))
           out = pickle.load(pkl_file)
           sample = sample.split("_")[0]
           
@@ -213,12 +215,14 @@ def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic
 
 
 
-def merge_years(dic1,dic2,dic3,data=False):
+def merge_years(dic1,dic2,dic3,skip=False):
   dicx = {}
   for key in dic1:
+    if skip and ("dist_offlinetrk_" in key or "dist_PFcand_" in key):
+      continue
     dicx[key] = dic1[key]
     dicx[key].add(dic2[key])
-    dicx[key].add(dic3[key])
+    #dicx[key].add(dic3[key])
   return dicx
 
 
@@ -236,9 +240,9 @@ if year == "Run2":
   qcdscaled = merge_years(qcdscaled_18,qcdscaled_17,qcdscaled_16) 
   qcddatascaled = merge_years(qcddatascaled_18,qcddatascaled_17,qcddatascaled_16) 
   qcddatafullscaled = merge_years(qcddatafullscaled_18,qcddatafullscaled_17,qcddatafullscaled_16) 
-  datascaled = merge_years(datascaled_18,datascaled_17,datascaled_16,data=True) 
-  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17,datafullscaled_16,data=True) 
-  trigscaled = merge_years(trigscaled_18,trigscaled_17,trigscaled_16) 
+  datascaled = merge_years(datascaled_18,datascaled_17,datascaled_16) 
+  datafullscaled = merge_years(datafullscaled_18,datafullscaled_17,datafullscaled_16) 
+  trigscaled = merge_years(trigscaled_18,trigscaled_17,trigscaled_16,skip=True) 
   qcdtrigscaled = merge_years(qcdtrigscaled_18,qcdtrigscaled_17,qcdtrigscaled_16) 
 
   sig125scaled_18 =   load_samples("sig125_2",2018)

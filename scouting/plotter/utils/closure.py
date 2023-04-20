@@ -430,6 +430,9 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   ax1.set_xlim(highx2,125)
   if yrange:
     ax1.set_ylim(0.0,2.0)
+  else:
+    ax1.set_ylim(0.0,10.0)
+    
   if("isrsuep" in SR):
     ax1.set_xlabel("ISR Jet Track Multiplicity")
   else:

@@ -55,20 +55,23 @@ def makeSR(sample,var,cut,lines=0,SR=0):
           scaled[name].integrate("axis",slice(0,1)),
           xvar,
           ax=ax1,
-          patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":150}
+          patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":10}
+          #patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":150}
       )
       h1 = hist.plot2d(
           qcdscaled[name].integrate("axis",slice(0,1)),
           xvar,
           ax=ax1,
-          patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":80000}
+          patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":2000}
+          #patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":80000}
       )
       h2 = hist.plot2d(
           scaled[name].integrate("axis",slice(0,1)),
           xvar,
           ax=ax1,
           clear=False,
-          patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":150}
+          patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":10}
+          #patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":150}
       )
       xline = region_cuts_tracks[SR]
       yline = region_cuts_sphere[SR]/100. #0.5
@@ -112,7 +115,8 @@ def makeSR(sample,var,cut,lines=0,SR=0):
         ax1.text(100,0.34,"F",fontsize = 14)
         ax1.text(100,0.8,"SR",fontsize = 14)
         ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
-      fig.suptitle("SR: QCD + %s"%sample)
+      fig.suptitle("SR: TTBar + %s"%sample)
+      #fig.suptitle("SR: QCD + %s"%sample)
       ax1.set_xlabel("SUEP Jet Track Multiplicity")
       ax1.set_ylabel("Boosted Sphericity")
       hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
