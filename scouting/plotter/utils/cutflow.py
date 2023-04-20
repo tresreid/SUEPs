@@ -9,7 +9,7 @@ cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK1
 
 def make_cutflow(samples,var):
   region_cuts_tracksx = region_cuts_tracks + [300]
-  region_cuts_spherex = region_cuts_tracks + [.4]
+  region_cuts_spherex = region_cuts_sphere + [50]
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   cutflow = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
@@ -28,8 +28,12 @@ def make_cutflow(samples,var):
   for SR in [0,1,2,3]:
     x1 = region_cuts_tracksx[SR]
     y1 = region_cuts_spherex[SR]/100.
-    x2 = region_cuts_tracksx[SR+1]
-    y2 = region_cuts_spherex[SR+1]/100.
+    if SR==0:
+      x2 = region_cuts_tracksx[-1]
+      y2 = region_cuts_spherex[-1]/100.
+    else:
+      x2 = region_cuts_tracksx[SR+1]
+      y2 = region_cuts_spherex[SR+1]/100.
     b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(0,1)).values()
     #b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
     for (k,b) in b3.items():
@@ -60,8 +64,12 @@ def make_cutflow(samples,var):
         for SR in [0,1,2,3]:
           x1 = region_cuts_tracks[SR]
           y1 = region_cuts_sphere[SR]/100.
-          x2 = region_cuts_tracksx[SR+1]
-          y2 = region_cuts_spherex[SR+1]/100.
+          if SR==0:
+            x2 = region_cuts_tracksx[-1]
+            y2 = region_cuts_spherex[-1]/100.
+          else:
+            x2 = region_cuts_tracksx[SR+1]
+            y2 = region_cuts_spherex[SR+1]/100.
           s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(0,1)).values()
           #s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
           for (k,s) in s3.items():

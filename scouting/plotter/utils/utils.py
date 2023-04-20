@@ -20,8 +20,8 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-#year = 2017
-year = "Run2"
+year = 2017
+#year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
