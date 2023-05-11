@@ -14,6 +14,7 @@ import vector
 from math import pi
 import dask
 import fastjet
+import os
 
 from coffea.jetmet_tools import FactorizedJetCorrector, JetCorrectionUncertainty
 from coffea.jetmet_tools import JECStack, CorrectedJetsFactory
@@ -983,10 +984,10 @@ class MyProcessor(processor.ProcessorABC):
         if "DATA" not in datatype and "Trigger" not in datatype:
         	if era==16:
         		vals0["trigwgt"] =1
-        		vals0["Prefirewgt"] =1
+        	#	vals0["Prefirewgt"] =1
         	else: 
         		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
-       			vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
+       		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
         	vals0["PUwgt"] = pileup_weight(vals0["PU"],PUSystematics,era)*vals0["lepton_veto"]
        		vals0["PSwgt"] = PS_weight(arrays,PSSystematics)
         	vals0["wgt"] = vals0["trigwgt"]*vals0["PUwgt"]*vals0["PSwgt"]*vals0["Prefirewgt"]
@@ -1445,30 +1446,54 @@ elif "Trigger" in fin:
   print("Run",Run)
   #Runs = ["RunA","RunB","RunC"]
   #runInteractive=True
-  fs = np.loadtxt("rootfiles/20%s/Trigger_%s.txt"%(era,Run),dtype=str)
+  fs = np.loadtxt("rootfiles/20%s/new_trigger/Trigger_%s.txt"%(era,Run),dtype=str)
   batch = int(batch)
   fs=fs[10*batch:10*(batch+1)]
   fileset = {
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/Trigger/ScoutingPFCommissioning+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
+            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Trigger/20%s/ScoutingPFCommissioning+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
   }  
 else:
   datatype="MC"
   signal=True
-  decays = {"0":"darkPho","1":"darkPhoHad","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
+  decays = {"0":"leptonic","1":"hadronic","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
+  if len(sys.argv) >= 6:
+    temp = sys.argv[5]
+  else:
+    temp = "2p00"
+  if len(sys.argv) >= 7:
+    mPhi = sys.argv[6]
+  else:
+    mPhi = "2.000"
+  temp2 = temp.replace("p",".")
+  temp3 = temp.split("p")[1]
+  add_0 = 3- len(temp3)
+  temp2 = temp2+"0"*add_0
+  print(decays[batch],temp,mPhi)
   if era==16:
-    runInteractive=True
+    #runInteractive=True
+    #fileset = {
+    #        #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
+    sigdir = "/mnt/T2_US_MIT/hadoop/cms/store/user/cfreer/suep_correct/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/"%(era1,temp,fin,mPhi,temp2,decays[batch])
+    fs = os.listdir(sigdir)
+    skiplist = ["Scouting_GluGluToSUEP_HT400_T8p00_mS500.000_mPhi8.000_T8.000_modegeneric_TuneCP5_13TeV_1159380.root","Scouting_GluGluToSUEP_HT400_T0p50_mS800.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_4991322.root","Scouting_GluGluToSUEP_HT400_T0p50_mS900.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_2191135.root","Scouting_GluGluToSUEP_HT400_T0p75_mS1000.000_mPhi3.000_T0.750_modegeneric_TuneCP5_13TeV_4499588.root","Scouting_GluGluToSUEP_HT400_T2p00_mS800.000_mPhi4.000_T2.000_modegeneric_TuneCP5_13TeV_1448099.root","Scouting_GluGluToSUEP_HT400_T2p00_mS400.000_mPhi4.000_T2.000_modegeneric_TuneCP5_13TeV_339186.root","Scouting_GluGluToSUEP_HT400_T32p0_mS400.000_mPhi8.000_T32.000_modegeneric_TuneCP5_13TeV_2571977.root","Scouting_GluGluToSUEP_HT400_T4p00_mS600.000_mPhi8.000_T4.000_modegeneric_TuneCP5_13TeV_3905552.root","Scouting_GluGluToSUEP_HT400_T16p0_mS500.000_mPhi4.000_T16.000_modegeneric_TuneCP5_13TeV_3465263.root","Scouting_GluGluToSUEP_HT400_T1p50_mS300.000_mPhi3.000_T1.500_modegeneric_TuneCP5_13TeV_4754282.root","Scouting_GluGluToSUEP_HT400_T3p00_mS400.000_mPhi3.000_T3.000_modegeneric_TuneCP5_13TeV_3643925.root","Scouting_GluGluToSUEP_HT400_T3p00_mS800.000_mPhi3.000_T3.000_modegeneric_TuneCP5_13TeV_2370213.root"]
+    fs = [ f for f in fs if f not in skiplist]
     fileset = {
-            #fin:["root://cmseos.fnal.gov//mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
-            #fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
-            #fin:["root://xrootd.cmsaf.mit.edu://store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
-            fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/%s"%(fin,mPhi,temp2,f) for f in fs]
+            fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/cfreer/suep_correct/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/%s"%(era1,temp,fin,mPhi,temp2,decays[batch],f) for f in fs]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
+  #}  
   }  
   else:
-    fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
+    #fs = np.loadtxt("rootfiles/20%s/central_test/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric.txt"%(era,fin,mPhi,temp2),dtype=str)
+    #fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
+    #sigdir = "root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/"%(fin,mPhi,temp2)
+    sigdir = "/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/"%(era,temp,fin,mPhi,temp2,decays[batch])
+    fs = os.listdir(sigdir)
+    skiplist = ["Scouting_GluGluToSUEP_HT400_T0p50_mS400.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_913476.root","Scouting_GluGluToSUEP_HT400_T0p50_mS900.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_3886095.root","Scouting_GluGluToSUEP_HT400_T0p50_mS1000.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_4464300.root","Scouting_GluGluToSUEP_HT400_T4p00_mS125.000_mPhi4.000_T4.000_modegeneric_TuneCP5_13TeV_887963.root","Scouting_GluGluToSUEP_HT400_T6p00_mS125.000_mPhi3.000_T6.000_modegeneric_TuneCP5_13TeV_2076815.root","Scouting_GluGluToSUEP_HT400_T8p00_mS700.000_mPhi4.000_T8.000_modegeneric_TuneCP5_13TeV_1895528.root","Scouting_GluGluToSUEP_HT400_T16p0_mS600.000_mPhi8.000_T16.000_modegeneric_TuneCP5_13TeV_2460646.root","Scouting_GluGluToSUEP_HT400_T8p00_mS600.000_mPhi4.000_T8.000_modegeneric_TuneCP5_13TeV_3248519.root","Scouting_GluGluToSUEP_HT400_T4p00_mS900.000_mPhi4.000_T4.000_modegeneric_TuneCP5_13TeV_3095671.root"]
+    fs = [ f for f in fs if f not in skiplist]
     fileset = {
-            #fin:["root://cmseos.fnal.gov//mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
-            fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
-            #fin:["root://xrootd.cmsaf.mit.edu://store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T2p00_mS%s.000_mPhi2.000_T2.000_modegeneric_TuneCP5_13TeV/%s"%(era,fin,f) for f in fs]
+            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/%s"%(fin,mPhi,temp2,f) for f in fs]
+            fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/%s"%(era,temp,fin,mPhi,temp2,decays[batch],f) for f in fs]
             #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
   }  
 appendname=""
@@ -1552,6 +1577,7 @@ if __name__ == "__main__":
     if(runInteractive):
       out = processor.run_uproot_job(
         fileset,
+        #treename="tree",
         treename="mmtree/tree",
         processor_instance=proc,
         executor=processor.iterative_executor,
@@ -1564,6 +1590,7 @@ if __name__ == "__main__":
     else:
       out,metrics = processor.run_uproot_job(
           fileset,
+          #treename="tree",
           treename="mmtree/tree",
           processor_instance=proc,
           executor=processor.dask_executor,
@@ -1588,8 +1615,9 @@ if __name__ == "__main__":
       batch = "test"
     if signal:
       datatype = "SIG" 
-      if era != 16:
-        fin="sig%s"%fin
-    with open("outhists/20%s/%s/myhistos_%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
-    #with open("outhists/myhistos_%s_%skilltrk.p"%(fin,batch), "wb") as pkl_file:
+      appendname = appendname+"_T%s_phi%s"%(temp,mPhi)
+      #if era != 16:
+      #  fin="sig%s"%fin
+    #with open("outhists/20%s/%s/myhistos_sig%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
+    with open("/data/submit/mgr85/20%s/TotalSIG/myhistos_sig%s_%s%s_20%s.p"%(era1,fin,batch,appendname,era1), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
