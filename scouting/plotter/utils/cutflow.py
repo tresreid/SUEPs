@@ -106,7 +106,7 @@ def make_cutflow(samples,var):
     if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
 
-def make_systematics(samples,var,systematics1="",systematics2=""):
+def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=""):
   name = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   higgs = False
@@ -182,6 +182,8 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
         print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
+    i=5
+    allsys.append("%s\t & %.2f & N/A & N/A & N/A & N/A & N/A \\\\"%(sysname,100*abs(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
   else:
     print("##################  Yields  ################")
     for i in yields.index:
@@ -211,6 +213,11 @@ def make_systematics(samples,var,systematics1="",systematics2=""):
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
 
+    i=5
+    if systematics2== "":
+      allsys.append("%s\t & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(sysname,100*abs(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],100*abs(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],100*abs(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],100*abs(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],100*abs(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],100*abs(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
+    else:
+      allsys.append("%s\t & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(sysname,100*abs(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],100*abs(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],100*abs(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],100*abs(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],100*abs(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],100*abs(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
 
 
 def makeCombineHistograms(samples,var,cut):
@@ -338,7 +345,7 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
-def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False):
+def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False,fullscan=False):
   if not (temp=="" and phi==""):
     scan = "_T%s_phi%s"%(temp,phi) 
   else:
@@ -389,9 +396,9 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
     else:
       #if load_ondemand:
       if "track_down" in systematic:
-        scaled = load_samples(samplename+"_2",year,"_track_up",temp=temp,phi=phi)
+        scaled = load_samples(samplename+"_2",year,"_track_up",temp=temp,phi=phi,fullscan=fullscan)
       else:
-        scaled = load_samples(samplename+"_2",year,systematic,temp=temp,phi=phi)
+        scaled = load_samples(samplename+"_2",year,systematic,temp=temp,phi=phi,fullscan=fullscan)
       #else:
       #  if "higgs" in systematic and "125" not in samplename: 
       #    scaled = sigscaled_sys[sample][""]

@@ -183,6 +183,7 @@ def make_datatrigs(samples,var="ht",systematics =False):
   ax.plot(xs,func(xs,popt3[0],popt3[1],popt3[2],popt3[3]), color="black",label=labels["Trigger"])#: 90:%d 98:%d"%(p90dat,p98dat))
   ax.plot(xs,func(xs,popt2[0],popt2[1],popt2[2],popt2[3]), color="red",label="QCD")#: 90:%d 98:%d"%(p90bkg,p98bkg))
   ax.axvline(x=560,color="grey",ls="--")
+  ax1.axvline(x=560,color="grey",ls="--")
 
   xbin = xbins(b.to_hist().to_numpy()[1])
   ratio = (b1/b2)/(d1/d2)
@@ -194,7 +195,7 @@ def make_datatrigs(samples,var="ht",systematics =False):
   ax1.axhline(y=1,color="grey",ls="--")
   ax.set_ylim(0,1.1)
   ax1.set_ylabel("Data/QCD")
-  ax1.set_ylim(0.5,1.5)
+  ax1.set_ylim(0.9,1.1)
   ax.set_xlabel("")
   ax.set_ylabel("Efficiency")
   ax.legend(loc="lower right")

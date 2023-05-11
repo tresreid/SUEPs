@@ -123,7 +123,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
 def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
   #skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
-  run = ["dist_Jet_pt","dist_Jet_eta","dist_Jet_phi"]
+  #run = ["dist_trkIDFK_PFcand_pt","dist_trk_gen_pt"]
   if "QCD" in sample:
     scaled = qcdscaled
   elif "RunA" in sample:
@@ -135,8 +135,8 @@ def make_dists(sample):
           continue
     #if name in skip:
     #      continue
-    if name not in run:
-          continue
+    #if name not in run:
+    #      continue
     print(name)
 
     fig, ax1 = plt.subplots()
@@ -180,8 +180,8 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
   if "RunA" in samples:
     h1 = datascaled[name].integrate("cut",slice(cut,cut+1))
     if("ht" in name):
-      h1 = h1.rebin("v1",hist.Bin("v1","ht",np.array(list(range(100,1500,100))+list(range(1500,3500,200)))))
-      #h1 = h1.rebin("v1",hist.Bin("v1","ht",50,50,3500))
+      #h1 = h1.rebin("v1",hist.Bin("v1","ht",np.array(list(range(100,1500,100))+list(range(1500,3500,200)))))
+      h1 = h1.rebin("v1",hist.Bin("v1","ht",50,50,3500))
     #if("pt" in name and "PFcand" not in name and "SUEP" not in name and "ISR" not in name ):
     #  h1 = h1.rebin("v1",hist.Bin("v1",name,np.array(list(range(0,500,20))+list(range(500,1000,50)))))
     #elif("pt" in name and "PFcand" not in name):
@@ -206,8 +206,8 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
     h2x = qcddatascaled[name]
     h2= h2x.integrate("cut",slice(cut,cut+1))
     if("ht" in name):
-      #h2 = h2.rebin("v1",hist.Bin("v1","ht",50,50,3500))
-      h2 = h2.rebin("v1",hist.Bin("v1","ht",np.array(list(range(100,1500,100))+list(range(1500,3500,200)))))
+      h2 = h2.rebin("v1",hist.Bin("v1","ht",50,50,3500))
+      #h2 = h2.rebin("v1",hist.Bin("v1","ht",np.array(list(range(100,1500,100))+list(range(1500,3500,200)))))
     #if("pt" in name and "PFcand" not in name and "SUEP" not in name and "ISR" not in name):
     #  h2 = h2.rebin("v1",hist.Bin("v1",name,np.array(list(range(0,500,20))+list(range(500,1000,50)))))
     #elif("pt" in name and "PFcand" not in name):

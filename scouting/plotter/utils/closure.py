@@ -144,7 +144,7 @@ def make_closure(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1, chi=False):
   hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
-  ax1.set_xlim(high1,125)
+  ax1.set_xlim(high1,300)
   if yrange:
     ax1.set_ylim(0.5,1.5)
   else:
@@ -265,7 +265,7 @@ def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,c
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*cbinx,err)]
   ax.legend(leg)
 
-  ax1.set_xlim(highx2,125)
+  ax1.set_xlim(highx2,300)
   if yrange:
     ax1.set_ylim(0.5,1.5)
   if("isrsuep" in SR):
@@ -302,6 +302,7 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
     h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
   lowx =0
   lowy = 30
+  #highx3 = 65
   highx3 = 300
   highy3 = 100
   if gap:
@@ -427,7 +428,8 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
   ax.legend(leg)
 ######
-  ax1.set_xlim(highx2,125)
+  ax1.set_xlim(highx2,highx3)
+  #ax1.set_xlim(highx2,300)
   if yrange:
     ax1.set_ylim(0.0,2.0)
   else:
@@ -976,28 +978,28 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
     )
     fig.subplots_adjust(hspace=.07)
     if i==2:
-      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1])[:highx2],d[0][:highx2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
-      ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-      ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="green")
+      ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
-      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
-    ax.axvline(x=highx1,color="green",ls="--")
+    ax.axvline(x=highx1,color="black",ls="--")
     hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
-    ax.axvline(x=highx2,color="magenta",ls="--")
-    ax1.axvline(x=highx1,color="green",ls="--")
-    ax1.axvline(x=highx2,color="magenta",ls="--")
+    ax.axvline(x=highx2,color="black",ls="--")
+    ax1.axvline(x=highx1,color="black",ls="--")
+    ax1.axvline(x=highx2,color="black",ls="--")
     ax.autoscale(axis='y', tight=True)
     ax.set_yscale("log")
     ax.legend(loc="upper right")
-    ax.set_xlim([0,125])
+    ax.set_xlim([0,300])
     ax1.set_ylim([0.5,1.5])
     ax1.axhline(y=1,color="grey",ls="--")
     ax1.set_ylabel("Data/MC")
@@ -1081,26 +1083,26 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
     )
     fig.subplots_adjust(hspace=.07)
     if i==2:
-      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1])[:highy2],d[0][:highy2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
-      ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="green",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-      ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="green")
+      ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
-      ax.step(xbins(b[1]),b[0],color="blue",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
+      ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
       ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
       ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     ax.axvline(x=lowy/100.,color="grey",ls="--")
     hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2,ax=ax)
-    ax.axvline(x=highy1/100.,color="green",ls="--")
-    ax.axvline(x=highy2/100.,color="magenta",ls="--")
-    ax1.axvline(x=lowy/100.,color="grey",ls="--")
-    ax1.axvline(x=highy1/100.,color="green",ls="--")
-    ax1.axvline(x=highy2/100.,color="magenta",ls="--")
+    ax.axvline(x=highy1/100.,color="black",ls="--")
+    ax.axvline(x=highy2/100.,color="black",ls="--")
+    ax1.axvline(x=lowy/100.,color="black",ls="--")
+    ax1.axvline(x=highy1/100.,color="black",ls="--")
+    ax1.axvline(x=highy2/100.,color="black",ls="--")
     ax.autoscale(axis='y', tight=True)
     ax.set_yscale("log")
     ax.legend(loc="right")

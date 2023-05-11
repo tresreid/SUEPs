@@ -82,7 +82,8 @@ def make_trkeff(sample,name,xlab,runPV=0):
             )
 
         ax1.legend(leg,loc="lower right")
-        ax1.set_ylim(0.7,1.01)
+        ax1.set_ylim(0.,1.01)
+        #ax1.set_ylim(0.7,1.01)
         ax1.set_xlabel(xlab)
         ax1.set_ylabel("Efficiency")
         fig.suptitle("Track Efficiency: %s"%sample)

@@ -20,7 +20,7 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2017
+year = 2016
 #year = "Run2"
 ext="png"
 #ext="pdf"
@@ -162,7 +162,12 @@ def load_all(year):
           qcddatafullscaled[name] = h.copy()
           qcddatafullscaled[name].scale(datafulllumi/qcdlumi)
   return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled, qcdtrigscaled
-def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic"):
+def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic",fullscan=True):
+      fullscan=True
+      if fullscan:
+        todir="TotalSIG/"
+      else:
+        todir=""
       sigscaled = {}
 #      year=2018
       temp2 = temp.replace("p",".")
@@ -170,43 +175,73 @@ def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic
       add_0 = 3- len(temp3)
       temp2 = temp2+"0"*add_0
       #if temp == "2p00" and phi=="2.000":
-      if year==2016:
-        scan = ""
-      else:
-        scan = "_T%s_phi%s"%(temp,phi) 
+      #if year==2016:
+      #  scan = ""
+      #else:
+      #  scan = "_T%s_phi%s"%(temp,phi) 
+      scan = "_T%s_phi%s"%(temp,phi) 
       if year == 2018:
         lumi = 60.69*1000##59.69*1000 #lumi for 2018 scouting # A:13.978, B: 7.064, C: 6.899, D: 31.748
       if year == 2017:
         lumi = 34.62*1000#36.74*1000 #lumi for 2017 scouting #
       if year == 2016:
         lumi = 30.50*1000#35.48*1000 #lumi for 2016 scouting #
-      with open(directory+"myhistos_%s%s%s_%s.p"%(sample,systematic,scan,year), "rb") as pkl_file:
-          print("open: %s\n"%("myhistos_%s%s%s_%s.p"%(sample,systematic,scan,year)))
+      with open(directory+"%smyhistos_%s%s%s_%s.p"%(todir,sample,systematic,scan,year), "rb") as pkl_file:
+          print("open: %s\n"%("%smyhistos_%s%s%s_%s.p"%(todir,sample,systematic,scan,year)))
           out = pickle.load(pkl_file)
-          sample = sample.split("_")[0]
+          samplex = sample.split("_")[0]
           
-          #print(sample[3:])
-          #print(out["sumw"])
-          formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,sample[3:],phi,temp2,mode) 
-          #xsec = xsecs[sample.split("_")[0]] * genfilter_T2_phi2[sample.split("_")[0]]
+          formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,samplex[3:],phi,temp2,mode) 
           xsec1 = xsecs[formatting]["xsec"] 
-          if year == 2016:
-            genfilter = 1
-          else:
-            genfilter = xsecs[formatting]["kr"] 
+          #if year == 2016:
+          #  genfilter = 1
+          #else:
+          #  genfilter = xsecs[formatting]["kr"] 
+          genfilter = xsecs[formatting]["kr"] 
           xsec = xsec1 * genfilter
-          #print(xsec1,genfilter,xsec)
           if xsec ==0:
             scale = 1
           else:
-            if year == 2016:
-              scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
-            else:
-              scale= lumi*xsec/out["sumw"][sample[3:]]
+            #if year == 2016:
+            #  scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
+            #else:
+            #  scale= lumi*xsec/out["sumw"][sample[3:]]
+            scale= lumi*xsec/out["sumw"][samplex[3:]]
           for name, h in out.items():
             if isinstance(h,hist.Hist):
               sigscaled[name] = h.copy()
               sigscaled[name].scale(scale) 
+      if year == 2016 and "sig" in sample:
+        with open(directory+"%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year), "rb") as pkl_file:
+            print("open: %s\n"%("%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year)))
+            out = pickle.load(pkl_file)
+            samplex = sample.split("_")[0]
+            
+            formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,samplex[3:],phi,temp2,mode) 
+            xsec1 = xsecs[formatting]["xsec"] 
+            #if year == 2016:
+            #  genfilter = 1
+            #else:
+            #  genfilter = xsecs[formatting]["kr"] 
+            genfilter = xsecs[formatting]["kr"] 
+            xsec = xsec1 * genfilter
+            if xsec ==0:
+              scale = 1
+            else:
+              #if year == 2016:
+              #  scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
+              #else:
+              #  scale= lumi*xsec/out["sumw"][sample[3:]]
+              scale= lumi*xsec/out["sumw"][samplex[3:]]
+            for name, h in out.items():
+              if isinstance(h,hist.Hist):
+                temp = h.copy()#.scale(scale)
+                temp.scale(scale)
+                #sigscaled[name] = h.copy()
+                #print(name)
+                #print(temp)
+                #print(sigscaled[name])
+                sigscaled[name].add(temp) 
       return sigscaled
 
 
@@ -222,7 +257,7 @@ def merge_years(dic1,dic2,dic3,skip=False):
       continue
     dicx[key] = dic1[key]
     dicx[key].add(dic2[key])
-    #dicx[key].add(dic3[key])
+    dicx[key].add(dic3[key])
   return dicx
 
 

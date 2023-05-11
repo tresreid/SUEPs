@@ -38,43 +38,43 @@ from utils.closure import *
 ######
 ##################################### HT Trigger
 ########## HT Distributions
-#make_dists("sig400")
+##make_dists("sig400")
 #make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","QCD"],"ht",0,"Ht [GeV]",make_ratio=False,vline=[560,1200])
-#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560])
-######## Trigger Efficiency
+#make_overlapdists(["sig1000","sig700","sig400","sig300","sig200","sig125","RunA","QCD"],"ht",1,"Ht [GeV]",vline=[560,1200])
+####### Trigger Efficiency
 #print("running trigger studies")
-##make_datatrigs(["Data"])
-##make_datatrigs(["Data"],systematics=True)
+#make_datatrigs(["Data"])
+#make_datatrigs(["Data"],systematics=True)
 #make_sigtrigs(["sig1000","sig700","sig400","sig300","sig200","sig125"])
 #
 #
 ############################## Track Selection
 #print("running track studies")
 ######## TRK Eff and Fakes 
-#make_trkeff("sig200","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig200","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig200","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig200","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#make_trkeff("sig1000","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig1000","dist_trkIDFK_PFcand_eta","PFCand Eta")
-#make_trkeff("sig400","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
-#make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi")
-#make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta")
-#make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi",runPV=1)
-#make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta",runPV=1)
-#make_trkeff("sig400","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
-#make_trkeff("sig400","dist_trkIDFK_PFcand_phi","PFCand Phi")
-#make_trkeff("sig400","dist_trkIDFK_PFcand_eta","PFCand Eta")
+##make_trkeff("sig200","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+##make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi")
+##make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta")
+##make_trkeff("sig200","dist_trkID_gen_phi","Gen Phi",runPV=1)
+##make_trkeff("sig200","dist_trkID_gen_eta","Gen Eta",runPV=1)
+##make_trkeff("sig200","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+##make_trkeff("sig200","dist_trkIDFK_PFcand_phi","PFCand Phi")
+##make_trkeff("sig200","dist_trkIDFK_PFcand_eta","PFCand Eta")
+##make_trkeff("sig1000","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+##make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi")
+##make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta")
+##make_trkeff("sig1000","dist_trkID_gen_phi","Gen Phi",runPV=1)
+##make_trkeff("sig1000","dist_trkID_gen_eta","Gen Eta",runPV=1)
+##make_trkeff("sig1000","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+##make_trkeff("sig1000","dist_trkIDFK_PFcand_phi","PFCand Phi")
+##make_trkeff("sig1000","dist_trkIDFK_PFcand_eta","PFCand Eta")
+##make_trkeff("sig400","dist_trkID_gen_pt","Gen pT [GeV]",runPV=2)
+##make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi")
+##make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta")
+##make_trkeff("sig400","dist_trkID_gen_phi","Gen Phi",runPV=1)
+##make_trkeff("sig400","dist_trkID_gen_eta","Gen Eta",runPV=1)
+##make_trkeff("sig400","dist_trkIDFK_PFcand_pt","PFCand pT [GeV]") ## TODO fix fake labels
+##make_trkeff("sig400","dist_trkIDFK_PFcand_phi","PFCand Phi")
+##make_trkeff("sig400","dist_trkIDFK_PFcand_eta","PFCand Eta")
 #maxpoints = {"err_sig1000":[],"err_sig700":[],"err_sig400":[],"err_sig300":[],"err_sig200":[],"err_sig125":[],"sig_sig1000":[],"sig_sig700":[],"sig_sig400":[],"sig_sig300":[],"sig_sig200":[],"sig_sig125":[],"evt_sig1000":[],"evt_sig700":[],"evt_sig400":[],"evt_sig300":[],"evt_sig200":[],"evt_sig125":[]}
 #make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount50",4,maxpoints,"PFCand(50) Multiplicity")
 #make_n1(["sig1000","sig700","sig400","sig300","sig200","sig125"],"PFcand_ncount60",4,maxpoints,"PFCand(60) Multiplicity")
@@ -146,13 +146,14 @@ from utils.closure import *
 #print("running ABCD studies")
 #makeSR("sig200","SR1_suep",3)
 #makeSR("sig400","SR1_suep",3)
+#makeSR("sig700","SR1_suep",3)
 #makeSR("sig1000","SR1_suep",3)
 #makeSR("sig400","SR1_suep",3,lines=4,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=6,SR=0)
 #makeSR("sig400","SR1_suep",3,lines=9,SR=0)
-##makeSR("sig200","SR1_suep",3,lines=4,SR=0)
-##makeSR("sig400","SR1_suep",3,lines=4,SR=0)
-##makeSR("sig1000","SR1_suep",3,lines=4,SR=0)
+#makeSR("sig200","SR1_suep",3,lines=4,SR=0)
+#makeSR("sig400","SR1_suep",3,lines=4,SR=0)
+#makeSR("sig1000","SR1_suep",3,lines=4,SR=0)
 #######significances
 #makeSRSignif("sig125","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
 #makeSRSignif("sig200","SR1_suep",3,xline=region_cuts_tracks[1],yline=region_cuts_sphere[1])
@@ -167,7 +168,7 @@ from utils.closure import *
 #make_closure_correction9("QCD","SR1_suep",3,chi=True)
 #make_closure_correction9("QCD","SR1_suep",3,chi=True,rebin=True,yrange=1)
 #makeSRSignig9("QCD","SR1_suep",3) # error plot
-########signal Injection closure
+#########signal Injection closure
 #make_closure_correction9("sig125","SR1_suep",3, point=0,yrange=0)
 #make_closure_correction9("sig200","SR1_suep",3, point=0,yrange=0)
 #make_closure_correction9("sig300","SR1_suep",3, point=0,yrange=0)
@@ -186,10 +187,12 @@ from utils.closure import *
 #make_closure_correction6("RunA","SR1_suep",3,chi=True)
 #make_closure_correction9("RunA","SR1_suep",3,chi=True)
 #make_closure("Data","SR1_isrsuep",3,chi=True)
-#make_closure_correction6("Data","SR1_isrsuep",3,chi=True,rebin=True)
-#make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
-#make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
-#make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
+##make_closure_correction6("Data","SR1_isrsuep",3,chi=True,rebin=True)
+##make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
+##make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
+##make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
+##make_closure_correction9("Data","SR1_suep",3,chi=True)
+##make_closure_correction9("Data","SR1_suep",3,chi=True,rebin=True)
 #make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
 #make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
 
@@ -287,16 +290,19 @@ from utils.closure import *
 ###############Distributions
 #make_dists("QCD")
 ######################### CUTFLOW TABLES
-make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_trigSF_up",systematics2="_trigSF_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_JES_up",systematics2="_JES_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_JER_up",systematics2="_JER_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_puweights_up",systematics2="_puweights_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_track_up")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_PSWeight_ISR_up",systematics2="_PSWeight_ISR_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_PSWeight_FSR_up",systematics2="_PSWeight_FSR_down")
-#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",systematics1="_prefire_up",systematics2="_prefire_down")
-#make_systematics(["sig125"],"sphere1_suep",systematics1="_higgs_weights_up",systematics2="_higgs_weights_down")
+#make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
+#allsys=[]
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Trigger Efficiency",systematics1="_trigSF_up",systematics2="_trigSF_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Scale Corrections",systematics1="_JES_up",systematics2="_JES_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Resolution Corrections",systematics1="_JER_up",systematics2="_JER_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Pile-up reweighing",systematics1="_puweights_up",systematics2="_puweights_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Track Reconstruction Efficiency",systematics1="_track_up")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower ISR",systematics1="_PSWeight_ISR_up",systematics2="_PSWeight_ISR_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower FSR",systematics1="_PSWeight_FSR_up",systematics2="_PSWeight_FSR_down")
+#make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Pre-fire  weight",systematics1="_prefire_up",systematics2="_prefire_down")
+#make_systematics(["sig125"],"sphere1_suep",allsys,"Higgs \pt reweighing",systematics1="_higgs_weights_up",systematics2="_higgs_weights_down")
+#for lin in allsys:
+#  print(lin)
 #####Signal Contamination
 ##cutflow_correction_binned()
 #cutflow_correction_binned(gap=1)
@@ -304,9 +310,9 @@ make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-#makeCombineHistogramsOffline("SR1_suep",3,"QCD")
-#makeCombineHistogramsOffline("SR1_suep",3,"Data")
-
+makeCombineHistogramsOffline("SR1_suep",3,"QCD")
+makeCombineHistogramsOffline("SR1_suep",3,"Data")
+#
 #temp = "2p00"
 #phi = "2.000"
 #makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True)
@@ -324,3 +330,56 @@ make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
 #make_limits(scan=2)
 #make_limits(scan=3)
 #make_limits(scan=5)
+
+for phi in ["2.000"]:
+  for temp in ["0p50", "1p00", "2p00", "4p00", "8p00"]:
+    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+for phi in ["3.000"]:
+  for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
+  #for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
+    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+for phi in ["4.000"]:
+  #for temp in ["4p00"]:
+  for temp in ["16p0", "1p00", "2p00", "4p00", "8p00"]:
+    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+for phi in ["8.000"]:
+  #for temp in ["2p00", "4p00", "8p00"]:
+  for temp in ["32p0", "16p0", "2p00", "4p00", "8p00"]:
+    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+
