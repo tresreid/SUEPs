@@ -178,6 +178,8 @@ def load_vals(arrays,dataset,era):
                'n_pfEl': arrays["n_pfEl"],
                'n_pvs': arrays["n_pvs"],
                'PU': arrays["PU_num"],
+               'offline_trig': arrays["offline_trig"],
+               'zh_trig': arrays["veto_trig"],
                'nPVs_good0': ak.count(arrays["Vertex_isValidVtx"],axis=-1),
                'nPVs_good1': ak.count(arrays["Vertex_isValidVtx"][(arrays["Vertex_isValidVtx"] == 1)],axis=-1),
                'nPVs_good2': ak.count(arrays["Vertex_isValidVtx"][(abs(arrays["Vertex_z"]) <24 ) & (arrays["Vertex_isValidVtx"] == 1)],axis=-1),
