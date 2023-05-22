@@ -193,9 +193,13 @@ from utils.closure import *
 ##make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
 ##make_closure_correction9("Data","SR1_suep",3,chi=True)
 ##make_closure_correction9("Data","SR1_suep",3,chi=True,rebin=True)
-#make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
-#make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
+make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
+make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
 
+
+###########UNBLINDING
+make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False,ublind=True)
+make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False,unblind=True)
 
 
 
@@ -310,8 +314,8 @@ from utils.closure import *
 
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
-makeCombineHistogramsOffline("SR1_suep",3,"QCD")
-makeCombineHistogramsOffline("SR1_suep",3,"Data")
+#makeCombineHistogramsOffline("SR1_suep",3,"QCD")
+#makeCombineHistogramsOffline("SR1_suep",3,"Data")
 #
 #temp = "2p00"
 #phi = "2.000"
@@ -331,55 +335,58 @@ makeCombineHistogramsOffline("SR1_suep",3,"Data")
 #make_limits(scan=3)
 #make_limits(scan=5)
 
-for phi in ["2.000"]:
-  for temp in ["0p50", "1p00", "2p00", "4p00", "8p00"]:
-    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
-for phi in ["3.000"]:
-  for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
-  #for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
-    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
-for phi in ["4.000"]:
-  #for temp in ["4p00"]:
-  for temp in ["16p0", "1p00", "2p00", "4p00", "8p00"]:
-    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
-for phi in ["8.000"]:
-  #for temp in ["2p00", "4p00", "8p00"]:
-  for temp in ["32p0", "16p0", "2p00", "4p00", "8p00"]:
-    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
-    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
-
+#for phi in ["2.000"]:
+#  for temp in ["0p50", "1p00", "2p00", "4p00", "8p00"]:
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+#for phi in ["3.000"]:
+#  for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
+#  #for temp in ["0p75", "12p0", "1p50", "3p00", "6p00"]:
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+#for phi in ["4.000"]:
+#  #for temp in ["4p00"]:
+#  for temp in ["16p0", "1p00", "2p00", "4p00", "8p00"]:
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+#for phi in ["8.000"]:
+#  #for temp in ["2p00", "4p00", "8p00"]:
+#  for temp in ["32p0", "16p0", "2p00", "4p00", "8p00"]:
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig500",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig600",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig800",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig900",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig700",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig400",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig300",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig200",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig125",temp=temp,phi=phi,load_ondemand=True,fullscan=True)
+#    makeCombineHistogramsOffline("SR1_suep",3,"sig1000",temp=temp, phi=phi,load_ondemand=True,fullscan=True)
+#
+#make_dists("sig125")
+#make_dists("sig400")
+#make_dists("sig1000")

@@ -909,7 +909,7 @@ def make_closure_correction_binned(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=
   fig.savefig("Plots/closureBinned_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
   plt.close()
 
-def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
+def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True,unblind=False):
   if cut == 2 or cut == 3:
     highx1 = inner_tracks#22
     highx2 = region_cuts_tracks[0]
@@ -979,10 +979,16 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
     fig.subplots_adjust(hspace=.07)
     if i==2:
       ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
-      ax.step(xbins(d[1])[:highx2],d[0][:highx2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
-      ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
-      ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-      ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
+      if unblind:
+        ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+        ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+        #ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+        #ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
+      else:
+        ax.step(xbins(d[1])[:highx2],d[0][:highx2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+        ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
+        ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+        ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
@@ -1017,10 +1023,10 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True):
       ax1.text(0,1,"G",fontsize = 18)
       ax1.text(30,1,"H",fontsize = 18)
       ax1.text(60,1,"I(SR)",fontsize = 18)
-    fig.savefig("Plots/controlbins_dist_%s_cut%s_%s_%s.%s"%(var,cut,i,year,ext))
+    fig.savefig("Plots/controlbins_dist_%s_cut%s_%s_%s_%s.%s"%(var,cut,i,year,unblind,ext))
     plt.close()
 
-def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
+def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True,unblind=False):
   if cut == 2 or cut == 3:
     highx1 = inner_tracks#22
     highx2 = region_cuts_tracks[0]
@@ -1084,10 +1090,14 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
     fig.subplots_adjust(hspace=.07)
     if i==2:
       ax.step(xbins(b[1]),b[0],color="cyan",linestyle="--",where="mid",zorder=2,label=labels["QCD"])
-      ax.step(xbins(d[1])[:highy2],d[0][:highy2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
-      ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
-      ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-      ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="orange")
+      if unblind:
+        ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+        ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
+      else:
+        ax.step(xbins(d[1])[:highy2],d[0][:highy2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
+        ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
+        ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+        ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
@@ -1127,5 +1137,5 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True):
       ax1.text(0.3,1,"C",fontsize = 18)
       ax1.text(0.36,1,"F",fontsize = 18)
       ax1.text(0.62,1,"I(SR)",fontsize = 18)
-    fig.savefig("Plots/controlbins2_dist_%s_cut%s_%s_%s.%s"%(var,cut,i,year,ext))
+    fig.savefig("Plots/controlbins2_dist_%s_cut%s_%s_%s_%s.%s"%(var,cut,i,year,unblind,ext))
     plt.close()

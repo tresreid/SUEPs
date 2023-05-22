@@ -20,8 +20,8 @@ from root_numpy import array2hist, hist2array
 import ROOT
 import json
 
-year = 2016
-#year = "Run2"
+#year = 2018
+year = "Run2"
 ext="png"
 #ext="pdf"
 pd.set_option("precision",2)
@@ -163,7 +163,9 @@ def load_all(year):
           qcddatafullscaled[name].scale(datafulllumi/qcdlumi)
   return qcdscaled, qcddatascaled,qcddatafullscaled,datascaled,datafullscaled,trigscaled, qcdtrigscaled
 def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic",fullscan=True):
-      fullscan=True
+      #fullscan=True
+      #if systematic=="" and year == 2016:
+      #  todir="TotalSIG/"#sueptracks/"
       if fullscan:
         todir="TotalSIG/"
       else:
@@ -203,45 +205,45 @@ def load_samples(sample,year,systematic="",temp="2p00",phi="2.000",mode="generic
             scale = 1
           else:
             #if year == 2016:
-            #  scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
+            #  scale= lumi*xsec/out["sumw"]["sig"+samplex[3:]]
             #else:
-            #  scale= lumi*xsec/out["sumw"][sample[3:]]
+            #  scale= lumi*xsec/out["sumw"][samplex[3:]]
             scale= lumi*xsec/out["sumw"][samplex[3:]]
           for name, h in out.items():
             if isinstance(h,hist.Hist):
               sigscaled[name] = h.copy()
               sigscaled[name].scale(scale) 
-      if year == 2016 and "sig" in sample:
-        with open(directory+"%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year), "rb") as pkl_file:
-            print("open: %s\n"%("%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year)))
-            out = pickle.load(pkl_file)
-            samplex = sample.split("_")[0]
-            
-            formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,samplex[3:],phi,temp2,mode) 
-            xsec1 = xsecs[formatting]["xsec"] 
-            #if year == 2016:
-            #  genfilter = 1
-            #else:
-            #  genfilter = xsecs[formatting]["kr"] 
-            genfilter = xsecs[formatting]["kr"] 
-            xsec = xsec1 * genfilter
-            if xsec ==0:
-              scale = 1
-            else:
-              #if year == 2016:
-              #  scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
-              #else:
-              #  scale= lumi*xsec/out["sumw"][sample[3:]]
-              scale= lumi*xsec/out["sumw"][samplex[3:]]
-            for name, h in out.items():
-              if isinstance(h,hist.Hist):
-                temp = h.copy()#.scale(scale)
-                temp.scale(scale)
-                #sigscaled[name] = h.copy()
-                #print(name)
-                #print(temp)
-                #print(sigscaled[name])
-                sigscaled[name].add(temp) 
+      #if year == 2016 and "sig" in sample:
+      #  with open(directory+"%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year), "rb") as pkl_file:
+      #      print("open: %s\n"%("%smyhistos_%s%s%s_%sapv.p"%(todir,sample,systematic,scan,year)))
+      #      out = pickle.load(pkl_file)
+      #      samplex = sample.split("_")[0]
+      #      
+      #      formatting = "GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV-pythia8"%(temp,samplex[3:],phi,temp2,mode) 
+      #      xsec1 = xsecs[formatting]["xsec"] 
+      #      #if year == 2016:
+      #      #  genfilter = 1
+      #      #else:
+      #      #  genfilter = xsecs[formatting]["kr"] 
+      #      genfilter = xsecs[formatting]["kr"] 
+      #      xsec = xsec1 * genfilter
+      #      if xsec ==0:
+      #        scale = 1
+      #      else:
+      #        #if year == 2016:
+      #        #  scale= lumi*xsec/out["sumw"]["sig"+sample[3:]]
+      #        #else:
+      #        #  scale= lumi*xsec/out["sumw"][sample[3:]]
+      #        scale= lumi*xsec/out["sumw"][samplex[3:]]
+      #      for name, h in out.items():
+      #        if isinstance(h,hist.Hist):
+      #          temp = h.copy()#.scale(scale)
+      #          temp.scale(scale)
+      #          #sigscaled[name] = h.copy()
+      #          #print(name)
+      #          #print(temp)
+      #          #print(sigscaled[name])
+      #          sigscaled[name].add(temp) 
       return sigscaled
 
 

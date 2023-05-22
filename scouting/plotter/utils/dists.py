@@ -124,6 +124,10 @@ def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
   #skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
   #run = ["dist_trkIDFK_PFcand_pt","dist_trk_gen_pt"]
+  run = ["suepcanddist_pt","suepcanddist_eta","suepcanddist_phi"
+  ,"isrcanddist_pt","isrcanddist_eta","isrcanddist_phi"
+  ,"allcanddist_pt","allcanddist_eta","allcanddist_phi"
+  ,"offresdist_pt","offresdist_eta","offresdist_phi"]
   if "QCD" in sample:
     scaled = qcdscaled
   elif "RunA" in sample:
@@ -135,8 +139,8 @@ def make_dists(sample):
           continue
     #if name in skip:
     #      continue
-    #if name not in run:
-    #      continue
+    if name not in run:
+          continue
     print(name)
 
     fig, ax1 = plt.subplots()
@@ -159,6 +163,18 @@ def make_dists(sample):
     if "dR" in name:
       ax1.set_yscale("log")
       ax1.axvline(x=0.02,color="grey",ls="--")
+    if "offres" in name:
+      ax1.set_yscale("linear")
+    if "canddist" in name:
+      ax1.set_yscale("linear")
+      if "pt" in name:
+        ax1.set_ylim([0.001,600000])
+        if "all" in name:
+          ax1.set_ylim([0.001,10000000])
+        #a0x1.autoscale(axis='y', tight=True)
+        #ax1.set_yscale("log")
+        ax1.set_xlim([0.5,200])
+      
     fig.savefig("Plots/proccess_%s_%s_%s.%s"%(sample,name,year,ext))
     plt.close()
 
