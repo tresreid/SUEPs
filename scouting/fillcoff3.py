@@ -40,17 +40,19 @@ PUSystematics = 0 #0: nominal, 1: up err, 2: down err
 PSSystematics = 0 #0: nominal, 1:  isr up err, 2: fsr up err 3: isr down 4: fsr down
 PrefireSystematics = 0 #0: nominal, 1: up err, 2: down err
 higgsSystematics = 0
-killTrks = False
+killTrks = False # for track reconstruction uncertainty
+
 era=18
 datatype= "MC"
 runoffline=True
 HEM_veto = False
 lepton_veto = True
 makefromoffline = False
-runfull = False
+runfull = True #False
 ########################
-eventDisplay_knob= False#True
-redoISRRM = True
+#Do not change
+eventDisplay_knob= False#used to remake event displays
+redoISRRM = True #used to calculate all different isotropy variables. 
 
 
 pt_bins = np.array([0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
@@ -58,9 +60,11 @@ eta_bins = np.array(range(-250,250,25))/100.
 pt_bins2 = np.array([0.0,0.1,0.2,0.3,0.4,0.5,0.75,1,1.25,1.5,2.0,3,10,20,50])
 eta_bins2 = np.array(range(-250,275,25))/100.
 phi_bins = np.array(range(-31,31,5))/10.
+
 class MyProcessor(processor.ProcessorABC):
     def __init__(self):
         self._accumulator = processor.dict_accumulator({
+	    #setup all histograms
             "sumw": processor.defaultdict_accumulator(float),
             "SR1_isrsuep_0" : hist.Hist(
                       "Events",
@@ -557,6 +561,66 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nFatJet",10,0,10)
             ),
+            "allcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_pt",pt_bins)
+            ),
+            "allcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_eta",eta_bins)
+            ),
+            "allcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_phi",phi_bins)
+            ),
+            "isrcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_pt",pt_bins)
+            ),
+            "isrcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_eta",eta_bins)
+            ),
+            "isrcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_phi",phi_bins)
+            ),
+            "offresdist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_pt",100,-1,1)
+            ),
+            "offresdist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_eta",100,-1,1)
+            ),
+            "offresdist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_phi",100,-1,1)
+            ),
+            "suepcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_pt",pt_bins)
+            ),
+            "suepcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_eta",eta_bins)
+            ),
+            "suepcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_phi",phi_bins)
+            ),
             "dist_Jet_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -944,47 +1008,48 @@ class MyProcessor(processor.ProcessorABC):
         if "DATA" in datatype:
           arrays = applyGoldenJSON(era,arrays)
 
-        vals0 = load_vals(arrays,datatype,era) 
-        vals_jet0 = load_jets(arrays,datatype,era,signal) 
-        #print(vals_jet0)
-        corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run)
-        if HEM_veto:
+        vals0 = load_vals(arrays,datatype,era) #load initial event level variables 
+        vals_jet0 = load_jets(arrays,datatype,era,signal) #load in standard AK4 jet information
+        corrected_jets = correctJets(vals_jet0,arrays.caches[0],era,datatype,Run) #apply get corrections
+        
+	if HEM_veto: #veto jets in HEM area for Ht calculations. (Does HEM affect tracks? veto entire event?)
           corrected_jets = corrected_jets[ (corrected_jets["eta"] < -3.0) | (corrected_jets["eta"] > -1.3) | (corrected_jets["phi"] < -1.57) | (corrected_jets["phi"] > -0.87)]
 
         if runfull:
-          vals_nsub0 = load_nsub(arrays) 
-          vals_vertex0 = load_vertex(arrays) 
-          vals_offline0 = load_offline(arrays) 
+          vals_nsub0 = load_nsub(arrays) #load nsubjettiness 
+          vals_vertex0 = load_vertex(arrays) #load vertex info
+          vals_offline0 = load_offline(arrays) #load offline track info
 
-        vals_tracks0 = load_tracks(arrays,signal) 
-        calculateHT(vals0,corrected_jets,AK4sys)
-
-        vals_electron0 = load_electrons(arrays)
+        vals_tracks0 = load_tracks(arrays,signal) #load track info
+        calculateHT(vals0,corrected_jets,AK4sys) #calculate Ht values for events
+	
+	#Lepton Veto
+        vals_electron0 = load_electrons(arrays) 
         vals_muon0 = load_muons(arrays)
-        vals0["selected_electrons"] = ak.count(vals_electron0["pt"][(vals_electron0["electron_ID"] == 1 )
-        & (vals_electron0["pt"] >= 15 )
-        & (abs(vals_electron0["dxy"]) < 0.05 + 0.05*(abs(vals_electron0["eta"])> 1.479))
-        & (abs(vals_electron0["dz"]) < 0.10 + 0.1*(abs(vals_electron0["eta"])> 1.479) )
-        & ((abs(vals_electron0["eta"]) < 1.444 ) | (abs(vals_electron0["eta"]) > 1.566 ))
-        & (abs(vals_electron0["eta"]) < 2.5)
+        
+	vals0["selected_electrons"] = ak.count(vals_electron0["pt"][(vals_electron0["electron_ID"] == 1 )
+        	& (vals_electron0["pt"] >= 15 )
+        	& (abs(vals_electron0["dxy"]) < 0.05 + 0.05*(abs(vals_electron0["eta"])> 1.479))
+        	& (abs(vals_electron0["dz"]) < 0.10 + 0.1*(abs(vals_electron0["eta"])> 1.479) )
+        	& ((abs(vals_electron0["eta"]) < 1.444 ) | (abs(vals_electron0["eta"]) > 1.566 ))
+        	& (abs(vals_electron0["eta"]) < 2.5)
         ],axis=-1)
 
         vals0["selected_muons"] = ak.count(vals_muon0["pt"][(vals_muon0["pt"] >=10) 
-	& (abs(vals_muon0["dxy"]) <= 0.02)
-	& (abs(vals_muon0["dz"]) <= 0.1)
-	& (abs(vals_muon0["muon_trkiso"]) < 0.10 )
-	& (abs(vals_muon0["eta"]) < 2.4 )
-	& ((vals_muon0["muon_global"] ==1) | (vals_muon0["muon_tracker"]==1))
+		& (abs(vals_muon0["dxy"]) <= 0.02)
+		& (abs(vals_muon0["dz"]) <= 0.1)
+		& (abs(vals_muon0["muon_trkiso"]) < 0.10 )
+		& (abs(vals_muon0["eta"]) < 2.4 )
+		& ((vals_muon0["muon_global"] ==1) | (vals_muon0["muon_tracker"]==1))
 	],axis =-1)
 
         vals0["lepton_veto"] = (vals0["selected_electrons"] == 0) & (vals0["selected_muons"] ==0)
-        #print(vals0["lepton_veto"])
-        ####Weights#######
+        
+	####Weights#######
 
         if "DATA" not in datatype and "Trigger" not in datatype:
         	if era==16:
         		vals0["trigwgt"] =1
-        	#	vals0["Prefirewgt"] =1
         	else: 
         		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
        		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
@@ -1027,20 +1092,31 @@ class MyProcessor(processor.ProcessorABC):
           output = fill_trigs(output,vals0)
         else:
 
+	  #apply Track ID
           track_cuts = ((arrays["PFcand_q"] != 0) & (arrays["PFcand_vertex"] ==0) & (abs(arrays["PFcand_eta"]) < 2.4) & (arrays["PFcand_pt"]>=0.75))
           if(runoffline):
             vals_offline0 = load_offline(arrays) 
             track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
             vals_offline0["wgt"] = vals0["wgt"]
             vals_offline0["PUwgt"] = vals0["PUwgt"]
-            offline_cut0 = vals_offline0[track_cutsoffline]
-          if(makefromoffline):
+            vals_offline0x = vals_offline0[(vals0.triggerHt >=1) & (vals0.ht > 560)]
+            #scouting_mask = vals_offline0x[vals_offline0x["scoutingID"] >= 0]["scoutingID"]
+            #output = fill_offlineresolution(output,vals_offline0x[vals_offline0x["scoutingID"] >= 0],vals_tracks0[(vals0.triggerHt >=1) & (vals0.ht > 560)][scouting_mask])
+            
+            #vals_offline0["PFcand_pt"] = vals_tracks0[vals_offline0["scoutingID"]["pt"]]
+            #print(vals_offline0["PFcand_pt"])
+            offline_cut0 = vals_offline0#[track_cutsoffline]
+          if(makefromoffline): #use offline tracks as the tracks in the event. 
             tracks_cut0 = killTracksOffline(offline_cut0)
           else:
             tracks_cut0 = vals_tracks0[track_cuts]
-          if (killTrks):
+            #tracks_cut0 = offline_cut0 #remember to remove
+            #output = fill_sueptracks(output,[tracks_cut0,tracks_cut0[tracks_cut0["scoutingMatched"]==1]],"allcand")
+          if (killTrks): #apply track killing method for track systematics
             tracks_cut0 = killTracks(tracks_cut0)
 
+
+	  #cluster AK15 jets
           minPt = 30
           jetdef = fastjet.JetDefinition(fastjet.antikt_algorithm,1.5)
           cluster = fastjet.ClusterSequence(tracks_cut0,jetdef)
@@ -1054,7 +1130,7 @@ class MyProcessor(processor.ProcessorABC):
           jets_sorted = ak_inclusive_jets[highpt_jet]
           cluster_sorted = ak_inclusive_cluster[highpt_jet]
           
-          print("Clustered")
+          print("AK15 Jets Clustered")
           
           vals_fatjet0 =ak.zip({
               "pt": jets_sorted.pt,
@@ -1077,10 +1153,14 @@ class MyProcessor(processor.ProcessorABC):
 
           jets_pTsorted  = vals_fatjet0[ vals0["FatJet_ncount30"] >=2]
           clusters_pTsorted  = cluster_sorted[ vals0["FatJet_ncount30"] >= 2] 
+	  #select tracks within the SUEP and ISR jets
           reSUEP_cand = ak.where(jets_pTsorted.FatJet_nconst[:,1] <=jets_pTsorted.FatJet_nconst[:,0],clusters_pTsorted[:,0],clusters_pTsorted[:,1])
           reISR_cand  = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],clusters_pTsorted[:,0],clusters_pTsorted[:,1])
+	  #select the SUEP and ISR Jet candidates
           SUEP_cand   = ak.where(jets_pTsorted.FatJet_nconst[:,1] <=jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
           ISR_cand    = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
+          #suep_tracks = reSUEP_cand
+          #isr_tracks = reISR_cand
 
           if (redoISRRM):
             print("calc sphericity")
@@ -1154,6 +1234,7 @@ class MyProcessor(processor.ProcessorABC):
             output = packdist(output,sphere1y,"sphere_suep")
             output = packSR(output,sphere1y,"suep")
 
+	    #calculate other Isotropy variables
             if runfull:
               output = packdist(output,sphere1y,"cparam1_suep")
               output = packdist(output,sphere1y,"cparam_suep")
@@ -1177,6 +1258,7 @@ class MyProcessor(processor.ProcessorABC):
               output = packdist(output,sphere1y,"SUEP_lesHouches")
               output = packdist(output,sphere1y,"SUEP_thrust")
             #################################ISR################################
+            # ISR validation region, swap out SUEP jet for ISR ject
             boost_IRMxx = ak.zip({
                 "px": ISR_cand.px*-1,
                 "py": ISR_cand.py*-1,
@@ -1214,6 +1296,7 @@ class MyProcessor(processor.ProcessorABC):
               output = packdist(output,sphere1yxx,"sphere_isrsuep")
               output = packSR(output,sphere1yxx,"isrsuep")
               #################################ISR################################
+		# Calculate sphericity by removing all tracks in selected ISR jet (for appendix study for best sphericity calcuations)
               if(eventDisplay_knob):
                 for evt in range(20):
                   print(evt)
@@ -1240,6 +1323,7 @@ class MyProcessor(processor.ProcessorABC):
               output = packSR(output,sphere1z,"isr")
 
             if runfull:
+		# Calculate sphericity by removing all tracks in phi band around (for appendix study for best sphericity calcuations)
               def sphericityCalc(output,cut):
                 IRM_cands = tracks_IRM[abs(tracks_IRM.deltaphi(ISR_cand_b)) >= cut/10.]
                 onetrackcut = (ak.num(IRM_cands) >=2) # cut to pick out events that survive the isr removal
@@ -1293,10 +1377,8 @@ class MyProcessor(processor.ProcessorABC):
 
 
             
-            #print("filling cutflows trk") 
-            #print(tracks_cut0)
-            #print("HT: ",vals0["ht"])
           if runfull:
+            print("filling cutflows trk") 
             vals_tracks1 = tracks_cut0[vals0.triggerHt >= 1]
             vals_tracks2 = vals_tracks1[vals1.ht >= 560]
             vals_tracks3 = vals_tracks2[vals2.FatJet_ncount50 >= 2]
@@ -1323,6 +1405,15 @@ class MyProcessor(processor.ProcessorABC):
             output = fill_jets(output,corrected_jets,vals,vals_fatjet0,vals_nsub0)
             output = fill_PFncounts(output,valsx)
             output = fill_fatjet(output,vals,spherey2)
+	 	#commented out: used for pre-approval supplimental study
+            #fixcut = vals0[vals0.FatJet_ncount30 >=2]
+            #fixcut1 = suep_tracks[(fixcut["triggerHt"] >= 1) & (fixcut["ht"] >= 560) & (fixcut["FatJet_ncount50"] >= 2)]
+            #fixcut1x = isr_tracks[(fixcut["triggerHt"] >= 1) & (fixcut["ht"] >= 560) & (fixcut["FatJet_ncount50"] >= 2)]
+            #print(fixcut1)
+            #fixcut2 = fixcut1[fixcut1["scoutingMatched"]==1]
+            #fixcut2x = fixcut1x[fixcut1x["scoutingMatched"]==1]
+            #output = fill_sueptracks(output,[fixcut1,fixcut2],"suepcand")
+            #output = fill_sueptracks(output,[fixcut1x,fixcut2x],"isrcand")
             if(signal):
               output = fill_trkID(output,vals_tracks,vals,vals_gen0)
               output = fill_scalars(output,scalar0,vals,resolutions)
@@ -1344,21 +1435,30 @@ signal=False
 runInteractive=False
 systematicType =0
 Run=""
+
+#which fill (QCD HT slice: "HT2000", signal mass: "300", dataset: "RunA"
 if len(sys.argv) >= 2:
   fin = sys.argv[1]
-#fin = "sig400"
+#which batch
 if len(sys.argv) >= 3:
   batch = sys.argv[2]
+#which era:[18,17,16,16apv]
 if len(sys.argv) >= 4:
   era1 = sys.argv[3]
   if(era1 == "16apv"):
     era= 16
   else:
     era = int(era1)
-if era == 18:
+if era == 18:#change to only specific datarun? Change to event level veto?
   HEM_veto = True
+
+#choose systematic uncertainty. 0: no uncertainty otherwise check list for values
 if len(sys.argv) >= 5:
   systematicType = int(sys.argv[4])
+
+
+
+#load QCD MC files
 if "HT" in fin:
   datatype="MC"
   if "apv" in era1:
@@ -1373,6 +1473,7 @@ if "HT" in fin:
   	         fin: ['root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/QCDv4/20%s/%s/test.root'%(era,fin)]
   	}
   else:
+	#load QCD MC files in 100 file batches
   	start = 100*batch
   	end = 100*(batch+1)
   	if (end > len(fs)):
@@ -1380,7 +1481,6 @@ if "HT" in fin:
   	else:
   	  fs=fs[start:end]
   	htslices = {"HT200":"200to300","HT300":"300to500","HT500":"500to700","HT700":"700to1000","HT1000":"1000to1500","HT1500":"1500to2000","HT2000":"2000toInf"}
-#  	htslice = htslices[fin]
   	yearslice = {"16":"_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8+RunIISummer20UL16RECO-106X_mcRun2_asymptotic_v13-v1+AODSIM","16apv":"_TuneCP5_PSWeights_13TeV-madgraphMLM-pythia8+RunIISummer20UL16RECOAPV-106X_mcRun2_asymptotic_preVFP_v8-v1+AODSIM","17":"_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2+AODSIM","18":"_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL18RECO-106X_upgrade2018_realistic_v11_L1v1-v2+AODSIM"}
   	if era == 18:
   	  fileset = {
@@ -1412,50 +1512,49 @@ elif "TTBar" in fin:
   	fileset = {
   	       fin : ["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/TTBar/20%s/TTJets_TuneCP5_13TeV-madgraphMLM-pythia8+RunIISummer20UL17RECO-106X_mc2017_realistic_v6-v2+AODSIM/%s"%(era,f) for f in fs]
   	}
+
+#Load real data
 elif "Run" in fin:
   datatype="DATA"
   Run = fin[3:]
   print("Run",Run)
   runoffline = False
-  #Runs = ["RunA","RunB","RunC"]
   if era == 18:
     fs = np.loadtxt("rootfiles/20%s/new_data/Data_%s_v6.txt"%(era,fin),dtype=str)
   else:
     fs = np.loadtxt("rootfiles/20%s/Data_%s_v6.txt"%(era,fin),dtype=str)
+  #load files in 5 file batchs to avoid memory issues
   batch = int(batch)
   fs=fs[5*batch:5*(batch+1)]
   if(era==16 and ((Run != "F") and (Run != "G") and (Run != "H"))):
     fileset = {
-     #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
     }
-  #elif(era==16):
-  #  fileset = {
-  #   #       fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
-  #          fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/ScoutingPFHT+Run20%s%s-v2+RAW/%s"%(era,era,Run,f) for f in fs]
-  #  }
   else:  
     fileset = {
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/%s"%(era,fin,f) for f in fs]
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav6/20%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datav4/20%s/%s/ScoutingPFHT+Run20%s%s-v1+RAW/%s"%(era,fin,era,Run,f) for f in fs]
     }  
+#load PFcommissioning dataset for trigger studies
 elif "Trigger" in fin:
   datatype="Trigger"
   Run = fin[7:]
   print("Run",Run)
-  #Runs = ["RunA","RunB","RunC"]
-  #runInteractive=True
   fs = np.loadtxt("rootfiles/20%s/new_trigger/Trigger_%s.txt"%(era,Run),dtype=str)
   batch = int(batch)
   fs=fs[10*batch:10*(batch+1)]
   fileset = {
             fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Trigger/20%s/ScoutingPFCommissioning+Run20%s%s-v1+RAW/%s"%(era,era,Run,f) for f in fs]
   }  
+
+#load signal samples
 else:
   datatype="MC"
   signal=True
+
+  #batch number is used to indicate decay mode. 
   decays = {"0":"leptonic","1":"hadronic","2":"generic","m2t0p5":"m2t0p5","m2t1":"m2t1","m2t2":"m2t2","m2t3":"m2t3","m2t4":"m2t4","m3t1p5":"m3t1p5","m3t3":"m3t3","m3t6":"m3t6","m5t1":"m5t1","m5t5":"m5t5","m5t10":"m5t10"}
+
+  #additional set temperature and mPhi values 
   if len(sys.argv) >= 6:
     temp = sys.argv[5]
   else:
@@ -1470,32 +1569,26 @@ else:
   temp2 = temp2+"0"*add_0
   print(decays[batch],temp,mPhi)
   if era==16:
-    #runInteractive=True
-    #fileset = {
-    #        #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
     sigdir = "/mnt/T2_US_MIT/hadoop/cms/store/user/cfreer/suep_correct/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/"%(era1,temp,fin,mPhi,temp2,decays[batch])
     fs = os.listdir(sigdir)
+
+    #list of bad files in 2016 runs to skip over. Should remove these files
     skiplist = ["Scouting_GluGluToSUEP_HT400_T8p00_mS500.000_mPhi8.000_T8.000_modegeneric_TuneCP5_13TeV_1159380.root","Scouting_GluGluToSUEP_HT400_T0p50_mS800.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_4991322.root","Scouting_GluGluToSUEP_HT400_T0p50_mS900.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_2191135.root","Scouting_GluGluToSUEP_HT400_T0p75_mS1000.000_mPhi3.000_T0.750_modegeneric_TuneCP5_13TeV_4499588.root","Scouting_GluGluToSUEP_HT400_T2p00_mS800.000_mPhi4.000_T2.000_modegeneric_TuneCP5_13TeV_1448099.root","Scouting_GluGluToSUEP_HT400_T2p00_mS400.000_mPhi4.000_T2.000_modegeneric_TuneCP5_13TeV_339186.root","Scouting_GluGluToSUEP_HT400_T32p0_mS400.000_mPhi8.000_T32.000_modegeneric_TuneCP5_13TeV_2571977.root","Scouting_GluGluToSUEP_HT400_T4p00_mS600.000_mPhi8.000_T4.000_modegeneric_TuneCP5_13TeV_3905552.root","Scouting_GluGluToSUEP_HT400_T16p0_mS500.000_mPhi4.000_T16.000_modegeneric_TuneCP5_13TeV_3465263.root","Scouting_GluGluToSUEP_HT400_T1p50_mS300.000_mPhi3.000_T1.500_modegeneric_TuneCP5_13TeV_4754282.root","Scouting_GluGluToSUEP_HT400_T3p00_mS400.000_mPhi3.000_T3.000_modegeneric_TuneCP5_13TeV_3643925.root","Scouting_GluGluToSUEP_HT400_T3p00_mS800.000_mPhi3.000_T3.000_modegeneric_TuneCP5_13TeV_2370213.root"]
     fs = [ f for f in fs if f not in skiplist]
     fileset = {
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/%s"%(fin,mPhi,temp2,f) for f in fs]
             fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/cfreer/suep_correct/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/%s"%(era1,temp,fin,mPhi,temp2,decays[batch],f) for f in fs]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
-  #}  
   }  
   else:
-    #fs = np.loadtxt("rootfiles/20%s/central_test/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric.txt"%(era,fin,mPhi,temp2),dtype=str)
-    #fs = np.loadtxt("rootfiles/20%s/new_signal/sig%s.txt"%(era,fin),dtype=str)
-    #sigdir = "root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/"%(fin,mPhi,temp2)
     sigdir = "/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/"%(era,temp,fin,mPhi,temp2,decays[batch])
     fs = os.listdir(sigdir)
+    #list of bad files to skip over. Should remove these files
     skiplist = ["Scouting_GluGluToSUEP_HT400_T0p50_mS400.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_913476.root","Scouting_GluGluToSUEP_HT400_T0p50_mS900.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_3886095.root","Scouting_GluGluToSUEP_HT400_T0p50_mS1000.000_mPhi2.000_T0.500_modegeneric_TuneCP5_13TeV_4464300.root","Scouting_GluGluToSUEP_HT400_T4p00_mS125.000_mPhi4.000_T4.000_modegeneric_TuneCP5_13TeV_887963.root","Scouting_GluGluToSUEP_HT400_T6p00_mS125.000_mPhi3.000_T6.000_modegeneric_TuneCP5_13TeV_2076815.root","Scouting_GluGluToSUEP_HT400_T8p00_mS700.000_mPhi4.000_T8.000_modegeneric_TuneCP5_13TeV_1895528.root","Scouting_GluGluToSUEP_HT400_T16p0_mS600.000_mPhi8.000_T16.000_modegeneric_TuneCP5_13TeV_2460646.root","Scouting_GluGluToSUEP_HT400_T8p00_mS600.000_mPhi4.000_T8.000_modegeneric_TuneCP5_13TeV_3248519.root","Scouting_GluGluToSUEP_HT400_T4p00_mS900.000_mPhi4.000_T4.000_modegeneric_TuneCP5_13TeV_3095671.root"]
     fs = [ f for f in fs if f not in skiplist]
     fileset = {
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Datatest/GenModel_SUEP_mS%s.000_mPhi%s_T%s_modegeneric/%s"%(fin,mPhi,temp2,f) for f in fs]
             fin:["/mnt/T2_US_MIT/hadoop/cms/store/user/bmaier/suep/official_private/20%s/GluGluToSUEP_HT400_T%s_mS%s.000_mPhi%s_T%s_mode%s_TuneCP5_13TeV/%s"%(era,temp,fin,mPhi,temp2,decays[batch],f) for f in fs]
-            #fin:["root://cmseos.fnal.gov//store/group/lpcsuep/Scouting/Signal/20%s/%s_%s.root"%(era,fin,decays[batch])]
   }  
+
+#set systematic uncertainty for signal. 0 for nominal values
 appendname=""
 if systematicType ==1:
 	killTrks = True
@@ -1618,6 +1711,7 @@ if __name__ == "__main__":
       appendname = appendname+"_T%s_phi%s"%(temp,mPhi)
       #if era != 16:
       #  fin="sig%s"%fin
-    #with open("outhists/20%s/%s/myhistos_sig%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
-    with open("/data/submit/mgr85/20%s/TotalSIG/myhistos_sig%s_%s%s_20%s.p"%(era1,fin,batch,appendname,era1), "wb") as pkl_file:
+    #set output directory
+    with open("outhists/20%s/%s/myhistos_sig%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
+    #with open("/data/submit/mgr85/20%s/TotalSIG/myhistos_sig%s_%s%s_20%s.p"%(era1,fin,batch,appendname,era1), "wb") as pkl_file:
         pickle.dump(out, pkl_file)
