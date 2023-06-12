@@ -1,5 +1,7 @@
 from utils.utils import *
 
+
+#makes signal region distribution
 def makedataSR(var,cut,lines=0,SR=0):
       # get colormap
       ncolors = 2048
@@ -122,6 +124,8 @@ def makedataSR(var,cut,lines=0,SR=0):
       hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
       fig.savefig("Plots/SR_%s_data_%s_%s_%s.%s"%(var,cut,lines,year,ext))
       plt.close()
+
+#makes individual distributions for QCD MC or signal 
 def makeSR(sample,var,cut,lines=0,SR=0):
       # get colormap
       ncolors = 2048
@@ -245,6 +249,7 @@ def makeSR(sample,var,cut,lines=0,SR=0):
       fig.savefig("Plots/SR_%s_%s_bkg_%s_%s_%s.%s"%(sample,var,cut,lines,year,ext))
       plt.close()
 
+#signal region significance scan. No longer used
 def makeSRSignif(sample,var,cut,xline=None,yline=None):
       name = var+"_%s"%cut
       print(name)
@@ -283,6 +288,8 @@ def makeSRSignif(sample,var,cut,xline=None,yline=None):
       fig.savefig("Plots/signif2d_%s_%s_%s_%s.%s"%(sample,var,cut,year,ext))
       plt.close()
 
+
+#plots resulting uncertainty due to choice of inner boundary
 def makeSRSignig9(sample="QCD",SR="SR1_suep",cut=3):
   if cut == 2 or cut == 3:
     highx2 = region_cuts_tracks[0]

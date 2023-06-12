@@ -7,6 +7,8 @@ def linearFunc(x,intercept,slope):
 
 cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]]
 
+
+#used to make cutflow yield tables
 def make_cutflow(samples,var):
   region_cuts_tracksx = region_cuts_tracks + [250,300]
   region_cuts_spherex = region_cuts_sphere + [50,50]
@@ -36,12 +38,10 @@ def make_cutflow(samples,var):
       x2 = region_cuts_tracksx[SR+1]
       y2 = region_cuts_spherex[SR+1]/100.
     b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(0,1)).values()
-    #b3 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
     for (k,b) in b3.items():
       cutflow["QCD"].append(b.sum())
       cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][3])
     b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,x2)).integrate("eventBoostedSphericity",slice(y1,1)).values()
-    #b4 = qcdscaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(y1,1)).values()
     for (k,b) in b4.items():
       cutflow["QCD"].append(b.sum())
       cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][4+2*SR])
@@ -107,6 +107,8 @@ def make_cutflow(samples,var):
     if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
 
+
+#used to make table for systematic uncertanty results
 def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=""):
   name = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
@@ -124,13 +126,6 @@ def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=
   for sample in samples:
     for systematic in syslist:
       scaled = sigscaled_sys[sample][systematic] 
-      #with open(directory+"myhistos_%s_2%s.p"%(sample,systematic), "rb") as pkl_file:
-      #    out = pickle.load(pkl_file)
-      #    scale= lumi*xsecs[sample]/out["sumw"][sample]
-      #    for name, h in out.items():
-      #      if isinstance(h, hist.Hist):
-      #        scaled[name] = h.copy()
-      #        scaled[name].scale(scale)
 
       for cut in [0,1,2]:#,3,4]:
         s1 = scaled[name].integrate("cut",slice(cut,cut+1)).values()
@@ -221,6 +216,8 @@ def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=
       allsys.append("%s\t & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(sysname,100*abs(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],100*abs(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],100*abs(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],100*abs(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],100*abs(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],100*abs(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
 
 
+
+#no longer used. The makeCombineHistogramsOffline function is the correct function to use
 def makeCombineHistograms(samples,var,cut):
   f = ROOT.TFile.Open("combineInput_%s.root"%year,"RECREATE")
   #makeQCD = True
@@ -241,12 +238,6 @@ def makeCombineHistograms(samples,var,cut):
       scaled = sigscaled_sys[sample][systematic]
       name = var+"_%s"%cut
       xvar = "SUEP Jet Track Multiplicity"
-     #     for name, h in out.items():
-     #       if var2 not in name:
-     #         continue
-     #       if isinstance(h, hist.Hist):
-     #         scaled[name] = h.copy()
-     #         scaled[name].scale(scale)
       s = scaled[name].to_hist().to_numpy()
       if systematic == "":
         b = qcdscaled[name].to_hist().to_numpy()
@@ -346,6 +337,8 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
+
+#this is the correct function for making the root files to feed into combine
 def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False,fullscan=False,unblind=False):
   if not (temp=="" and phi==""):
     scan = "_T%s_phi%s"%(temp,phi) 
@@ -400,13 +393,6 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
         scaled = load_samples(samplename+"_2",year,"_track_up",temp=temp,phi=phi,fullscan=fullscan)
       else:
         scaled = load_samples(samplename+"_2",year,systematic,temp=temp,phi=phi,fullscan=fullscan)
-      #else:
-      #  if "higgs" in systematic and "125" not in samplename: 
-      #    scaled = sigscaled_sys[sample][""]
-      #  elif "track_down" in systematic:
-      #    scaled = sigscaled_sys[sample]["_track_up"]
-      #  else:
-      #    scaled = sigscaled_sys[sample][systematic]
     name = var+"_%s"%cut
     xvar = "SUEP Jet Track Multiplicity"
     s = scaled[name].to_hist().to_numpy()
@@ -419,18 +405,8 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
     y2 = inner_sphere
     y3 = region_cuts_sphere[0]
     y4 = 100
-    #if sample == "sig200" or sample == "sig125":
-    #  point=1
-    #if sample == "sig300" or sample == "sig400":
-    #  point=2
-    #if sample == "sig700" or sample == "sig1000":
-    #  point=3
     x0 = region_cuts_tracks[0]
     y0 = region_cuts_sphere[0] #use only gap point
-    #region_sum = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
-    #region_sumqcd = {"A":0,"B":0,"C":0,"D":0,"E":0,"F":0,"G":0,"H":0,"I":0,"ALL":0}
-    #C_array = [0]*x4 #arrays for F/C comparison
-    #F_array = [0]*x4
     for region in ["A","B","C","D","E","F","G","H","I","ALL"]:
       if region == "A":
         xx = x1
@@ -494,69 +470,18 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
       h = ROOT.TH1D("%s_SUEP_nconst_Cluster70%s"%(region,systematic),"%s_SUEP_nconst_Cluster70%s"%(region,systematic),300,0,300)
       for x in range(xx,xxx):
         for y in range(yy,yyy):
-          #region_sum[region] = region_sum[region] + s[0][0][x][y]
           if(samplename == "Data" and region == "I" and not unblind): 
-          #  h.Fill(s[2][x],0)
             h.Fill(s[2][x],ratx*s[0][0][x][y])
           else:
             if (region == "I"):
               h.Fill(s[2][x],s[0][0][x][y])
             else:
               h.Fill(s[2][x],s[0][0][x][y])
-          #if(region == "F"): 
-          #  print("F: ",s[2][x],s[0][0][x][y])
-          #  F_array[int(s[2][x])] = F_array[int(s[2][x])] + s[0][0][x][y]
-          #if(region == "C"):
-          #  print("C: ",s[2][x],s[0][0][x][y])
-          #  C_array[int(s[2][x])] = C_array[int(s[2][x])] + s[0][0][x][y]
-          #  #C_array.append(s[0][0][x][y])
       h.Write()
-    #print(F_array)
-    #print(C_array)
-    #F_err =np.sqrt(np.nan_to_num(F_array))
-    #C_err =np.sqrt(np.nan_to_num(C_array))
-    #print(F_err)
-    #print(C_err)
-    #FC_array = np.nan_to_num(np.divide(F_array,C_array))
-    #FC_array[FC_array > 1000] = np.nan
-    #print(FC_array)
-    #FC_err = FC_array * np.sqrt( (F_err/F_array)**2 + (C_err/C_array)**2)
-    #print(FC_err)
-    #fig, (ax, ax1) = plt.subplots(
-    #nrows=2,
-    #ncols=1,
-    #figsize=(7,7),
-    #gridspec_kw={"height_ratios": (3, 1)},
-    #sharex=True
-    #)
-    #fig.subplots_adjust(hspace=.07)
-    #ax.errorbar(range(0,110),np.nan_to_num(F_array[:110]),xerr=1,yerr=F_err[:110],color="b",ls='none',label= "F")
-    #ax.errorbar(range(0,110),np.nan_to_num(C_array[:110]),xerr=1,yerr=C_err[:110],color="r",ls='none',label = "C")
-    ##ax1.errorbar(range(0,300),FC_array,yerr=1,color="r",ls='none',label = "F/C")
-    #plt.legend()
-    #ax1.errorbar(range(0,110),FC_array[:110],yerr=FC_err[:110],color="r",ls='none',label = "F/C")
-
-    #valid = ~(np.isnan(FC_array) | np.isnan(FC_err))
-    #a_fit,cov=curve_fit(linearFunc,np.array(range(0,300))[valid],FC_array[valid],sigma=FC_err[valid],absolute_sigma=False)
-    #inter = a_fit[0]
-    #slope = a_fit[1]
-    #d_inter = np.sqrt(cov[0][0])
-    #d_slope = np.sqrt(cov[1][1])
-    #print(inter, slope, d_inter, d_slope)
-    #yfit = inter + slope*range(50,80)
-    ##ax1.plot(range(50,80),yfit,color="black")
-    #ax1.plot(range(50,80),yfit,color="black",label="best fit:\n y = (%.3f$\pm$%.3f) *x\n + (%.1f$\pm$%.1f)"%(slope,d_slope,inter,d_inter))
-    #plt.legend()
-    #ax1.set_xlabel("SUEP Track Multiplicity")
-    #ax1.set_ylabel("F/C")
-    #ax.set_ylabel("Events")
-    #ax1.set_ylim(0.0,20)
-    #fig.suptitle("F/C %s"%(sample))
-    #fig.savefig("Plots/FC_%s_%s.%s"%(sample,year,ext))
-    #plt.close()
 
   f.Close()
 
+#no longer used
 #def makeCombineHistograms(samples,var,cut):
 #  f = ROOT.TFile.Open("combineInputscan.root","RECREATE")
 #  #makeQCD = True
@@ -675,7 +600,7 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
 #                print(region_sumqcd)
 #  f.Close()
 
-
+#no longer used. replaced by combine jupyter plotter
 def make_limits(scan=0):
   dirx = "/uscms/home/mreid/nobackup/sueps/analysis/SUEPs/limits/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit/"
   values = {0:[],1:[],2:[],3:[],4:[],5:[]}

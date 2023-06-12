@@ -11,7 +11,6 @@ def make_correlation(SR,cut):
   fig, ax1 = plt.subplots()
 
   sphere = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-  #labs = []
   for i in range(len(sphere)-1):
     h2 = h1.integrate("eventBoostedSphericity",slice(sphere[i],sphere[i+1])).to_hist().to_numpy()
     norm = np.linalg.norm(h2[0])
@@ -47,6 +46,7 @@ def make_correlation(SR,cut):
     ax1.autoscale(axis='y', tight=True)
     fig.savefig("Plots/correlation_PFcand_%s_cut%s_%s.%s"%(SR,cut,year,ext))
     plt.close()
+
 def chisqr(obs, exp, error):
     print(obs)
     print(exp)
@@ -328,15 +328,6 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   fig.subplots_adjust(hspace=.07)
   if not rebin:
     h1 = h1.rebin(var,hist.Bin(var,var,150,0,300))
-  #abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  #bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  #cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
-  #dbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  #ebin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  #fbin = h1.integrate("eventBoostedSphericity",slice(highy1/100., highy2/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
-  #gbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
-  #hbin = h1.integrate("eventBoostedSphericity",slice(highy2/100., highy3/100.)).integrate(  var,slice(highx1,highx2)).sum().values(sumw2=True)[()]
-  #SRbin = h1.integrate("eventBoostedSphericity",slice(highy2/100.,highy3/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
   abin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(lowx,highx1  )).sum().values(sumw2=True)[()]
   bbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx1,gapx)).sum().values(sumw2=True)[()]
   cbin = h1.integrate("eventBoostedSphericity",slice( lowy/100.,  highy1/100.)).integrate(  var,slice(highx2,highx3)).sum().values(sumw2=True)[()]
@@ -425,7 +416,6 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
   xdata = hxrat.lines[0].get_data()
-  #ydata = hxrat.lines[0].get_ydata()
   print(xdata)
   if (chi):
     select_ratio = np.nan_to_num(ratio)[int(highx2/2):]
@@ -600,16 +590,6 @@ def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
     elif sample == "Data":
        h1 = datafullscaled[SR].integrate("axis",slice(0,1))
     else:
-      #with open(directory+"myhistos_%s_2.p"%sample, "rb") as pkl_file:
-      #    out = pickle.load(pkl_file)
-      #    scale= lumi*xsecs[sample]/out["sumw"][sample]
-      #    scaled = {}
-      #    for name, h in out.items():
-      #      if SR not in name or "mu" in name or "trig" in name:
-      #        continue
-      #      if isinstance(h, hist.Hist):
-      #        scaled[name] = h.copy()
-      #        scaled[name].scale(scale)
       h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
 
 
@@ -681,6 +661,7 @@ def compareRegionData(SR="SR1_suep",cut=0,point=0,zoom=0):
   ax1.axhline(y=1,color="gray",ls="--")
   fig.savefig("Plots/compareDataRegion_%s_%s_%s.%s"%(SR,zoom,year,ext))
   plt.close()
+
 def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0,zoom=0):
   highx1 = inner_tracks#20
   highy1 = inner_sphere#38
@@ -793,8 +774,6 @@ def make_closure_correction_binnedFull(samples,SR="SR1_suep",cut=0,point=0,gap=0
   if zoom:
     ax1.set_ylim(0,10)
     ax.set_ylim(10,2000)
-  #else:
-  #  ax1.set_ylim(0,50)
   ax.set_ylabel("Events")
   ax1.axhline(y=1,color="gray",ls="--")
   ax1.axvline(x=4.5,color="grey",ls="--")

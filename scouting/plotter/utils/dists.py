@@ -1,6 +1,8 @@
 
 from utils.utils import *
 
+
+#makes comparison of signficances with different thresholds
 def make_threshold(samples,allmaxpoints,xs,xlab):
   fig, (ax1) = plt.subplots(
       nrows=1,
@@ -19,6 +21,7 @@ def make_threshold(samples,allmaxpoints,xs,xlab):
   fig.savefig("Plots/threshold_%s_%s.%s"%(xlab.replace(" ", "_"),year,ext))
   plt.close()
 
+#makes n-1 plots
 def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
   name = "dist_%s"%var
   if(xlab==None):
@@ -120,6 +123,7 @@ def make_n1(samples,var,cut,maxpoints,xlab=None,shift_leg=False):
 
   return maxpoints
 
+#makes single variable distributions for the cutflow
 def make_dists(sample):
   #skip = ["trigdist_ht20","trigdist_ht30","trigdist_ht40","trigdist_ht50","dist_event_sphericity","dist_Vertex_tracksSize0"]
   #skip = ["dist_Vertex_minZ","dist_Vertex_tracksSize0"]
@@ -178,6 +182,7 @@ def make_dists(sample):
     fig.savefig("Plots/proccess_%s_%s_%s.%s"%(sample,name,year,ext))
     plt.close()
 
+#makes overlaping distributions between the signal, QCD MC and data for a single variable at a select point in the cutflow.
 def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift_leg=False,save_ratio=False):
   if make_ratio:
     fig, (ax,ax1) = plt.subplots(
