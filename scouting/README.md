@@ -95,4 +95,21 @@ setup and run plotter
 ```
 output plots will be saved in plotter/Plots
 
+combineHist holds the output rootfiles for combine input.
+plotcoff_compare.py holds another set of plotting functions made specifically for the non-standard comparisons. run with standard=False flag in utils/utils.py
+
+## plotter helping functions are found in utils subdirectory
+The "utils/utils.py" file can be changed to modify the era as well as the sort of file to save the plots (pdf for the AN vs png for immediate display).
+This file also sets the signal region subbin boundaries as region_cuts_tracks
+This loads all files to be processed
+
+closure holds all plotting functions for the closure with the ABCD method and extended 6 and 9 bin methods. It also makes the correlation plots the data vs QCD comparison for the control and signal bins
+cutflow holds functions for making the yields and making the rootfiles to be used with combine.
+
+dists.py has functions to make the n-1 plots individual variable cutflow distributions and overlapping distributions for QCD,signal and data. 
+
+signalregion.py makes the signal region distributions for QCD and signal.
+
+trigplots.py has the trigger studies
+trk.py has the track ID studies
 
