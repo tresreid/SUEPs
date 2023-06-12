@@ -47,7 +47,7 @@ runoffline=True
 HEM_veto = False
 lepton_veto = True
 makefromoffline = False
-runfull = False
+runfull = True #False
 ########################
 eventDisplay_knob= False#True
 redoISRRM = True
@@ -557,6 +557,66 @@ class MyProcessor(processor.ProcessorABC):
                       hist.Cat("cut","Cutflow"),
                       hist.Bin("v1","nFatJet",10,0,10)
             ),
+            "allcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_pt",pt_bins)
+            ),
+            "allcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_eta",eta_bins)
+            ),
+            "allcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","allcand_phi",phi_bins)
+            ),
+            "isrcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_pt",pt_bins)
+            ),
+            "isrcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_eta",eta_bins)
+            ),
+            "isrcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","isrcand_phi",phi_bins)
+            ),
+            "offresdist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_pt",100,-1,1)
+            ),
+            "offresdist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_eta",100,-1,1)
+            ),
+            "offresdist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","offres_phi",100,-1,1)
+            ),
+            "suepcanddist_pt": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_pt",pt_bins)
+            ),
+            "suepcanddist_eta": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_eta",eta_bins)
+            ),
+            "suepcanddist_phi": hist.Hist(
+                      "Events",
+                      hist.Cat("cut","Cutflow"),
+                      hist.Bin("v1","suepcand_phi",phi_bins)
+            ),
             "dist_Jet_pt": hist.Hist(
                       "Events",
                       hist.Cat("cut","Cutflow"),
@@ -984,7 +1044,6 @@ class MyProcessor(processor.ProcessorABC):
         if "DATA" not in datatype and "Trigger" not in datatype:
         	if era==16:
         		vals0["trigwgt"] =1
-        	#	vals0["Prefirewgt"] =1
         	else: 
         		vals0["trigwgt"] = gettrigweights(vals0["ht"],trigSystematics,era)
        		vals0["Prefirewgt"] = prefire_weight(arrays,PrefireSystematics)
@@ -1033,11 +1092,19 @@ class MyProcessor(processor.ProcessorABC):
             track_cutsoffline = ((arrays["offlineTrack_quality"] ==1) & (abs(arrays["offlineTrack_eta"]) < 2.4) & (arrays["offlineTrack_pt"]>=0.75))
             vals_offline0["wgt"] = vals0["wgt"]
             vals_offline0["PUwgt"] = vals0["PUwgt"]
-            offline_cut0 = vals_offline0[track_cutsoffline]
+            vals_offline0x = vals_offline0[(vals0.triggerHt >=1) & (vals0.ht > 560)]
+            #scouting_mask = vals_offline0x[vals_offline0x["scoutingID"] >= 0]["scoutingID"]
+            #output = fill_offlineresolution(output,vals_offline0x[vals_offline0x["scoutingID"] >= 0],vals_tracks0[(vals0.triggerHt >=1) & (vals0.ht > 560)][scouting_mask])
+            
+            #vals_offline0["PFcand_pt"] = vals_tracks0[vals_offline0["scoutingID"]["pt"]]
+            #print(vals_offline0["PFcand_pt"])
+            offline_cut0 = vals_offline0#[track_cutsoffline]
           if(makefromoffline):
             tracks_cut0 = killTracksOffline(offline_cut0)
           else:
             tracks_cut0 = vals_tracks0[track_cuts]
+            #tracks_cut0 = offline_cut0 #remember to remove
+            #output = fill_sueptracks(output,[tracks_cut0,tracks_cut0[tracks_cut0["scoutingMatched"]==1]],"allcand")
           if (killTrks):
             tracks_cut0 = killTracks(tracks_cut0)
 
@@ -1081,6 +1148,8 @@ class MyProcessor(processor.ProcessorABC):
           reISR_cand  = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],clusters_pTsorted[:,0],clusters_pTsorted[:,1])
           SUEP_cand   = ak.where(jets_pTsorted.FatJet_nconst[:,1] <=jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
           ISR_cand    = ak.where(jets_pTsorted.FatJet_nconst[:,1] > jets_pTsorted.FatJet_nconst[:,0],jets_pTsorted[:,0],jets_pTsorted[:,1])
+          suep_tracks = reSUEP_cand
+          isr_tracks = reISR_cand
 
           if (redoISRRM):
             print("calc sphericity")
@@ -1323,6 +1392,14 @@ class MyProcessor(processor.ProcessorABC):
             output = fill_jets(output,corrected_jets,vals,vals_fatjet0,vals_nsub0)
             output = fill_PFncounts(output,valsx)
             output = fill_fatjet(output,vals,spherey2)
+            #fixcut = vals0[vals0.FatJet_ncount30 >=2]
+            #fixcut1 = suep_tracks[(fixcut["triggerHt"] >= 1) & (fixcut["ht"] >= 560) & (fixcut["FatJet_ncount50"] >= 2)]
+            #fixcut1x = isr_tracks[(fixcut["triggerHt"] >= 1) & (fixcut["ht"] >= 560) & (fixcut["FatJet_ncount50"] >= 2)]
+            #print(fixcut1)
+            #fixcut2 = fixcut1[fixcut1["scoutingMatched"]==1]
+            #fixcut2x = fixcut1x[fixcut1x["scoutingMatched"]==1]
+            #output = fill_sueptracks(output,[fixcut1,fixcut2],"suepcand")
+            #output = fill_sueptracks(output,[fixcut1x,fixcut2x],"isrcand")
             if(signal):
               output = fill_trkID(output,vals_tracks,vals,vals_gen0)
               output = fill_scalars(output,scalar0,vals,resolutions)
@@ -1618,6 +1695,6 @@ if __name__ == "__main__":
       appendname = appendname+"_T%s_phi%s"%(temp,mPhi)
       #if era != 16:
       #  fin="sig%s"%fin
-    #with open("outhists/20%s/%s/myhistos_sig%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
-    with open("/data/submit/mgr85/20%s/TotalSIG/myhistos_sig%s_%s%s_20%s.p"%(era1,fin,batch,appendname,era1), "wb") as pkl_file:
+    with open("outhists/20%s/%s/myhistos_sig%s_%s%s_20%s.p"%(era,datatype,fin,batch,appendname,era1), "wb") as pkl_file:
+    #with open("/data/submit/mgr85/20%s/TotalSIG/myhistos_sig%s_%s%s_20%s.p"%(era1,fin,batch,appendname,era1), "wb") as pkl_file:
         pickle.dump(out, pkl_file)

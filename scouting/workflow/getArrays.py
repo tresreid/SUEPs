@@ -217,10 +217,8 @@ def load_offline(arrays):
                'm': arrays["offlineTrack_m"],
                'quality':arrays["offlineTrack_quality"],
                'dzError':arrays["offlineTrack_dzError"],
-#'scouting_q': arrays["offlineTrack_PFcandq"],
-               #'scouting_vertex': arrays["offlineTrack_PFcandpv"],
-               #'scouting_pt': arrays["offlineTrack_PFcandpt"],
-               #'scouting_eta': arrays["offlineTrack_PFcandeta"],
+               'scoutingMatched':arrays["offlineTrack_paired"],
+               'scoutingID':arrays["offlineTrack_PFcandID"],
           },with_name="Momentum4D")
         #print(vals0)
         return vals0
@@ -234,7 +232,6 @@ def load_electrons(arrays):
 		'dz': arrays["Electron_dz"], 
 		'electron_ID': arrays["Electron_ID"], 
           },with_name="momentum4d")
-	#print(vals_electrons0)
 	return vals_electrons0
 def load_muons(arrays):
 	vals_muons0 = ak.zip({
@@ -248,5 +245,4 @@ def load_muons(arrays):
 		'muon_tracker': arrays["Muon_isTrackerMuon"], 
 		'muon_trkiso': arrays["Muon_trkiso"], 
           },with_name="momentum4d")
-	#print(vals_muons0)
 	return vals_muons0

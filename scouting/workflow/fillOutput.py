@@ -1,6 +1,14 @@
 import numpy as np
 import awkward as ak
 
+def packrescand(output,offline,scouting,var,prefix):
+        output["%sdist_%s"%(prefix,var)].fill(cut="Cut 0: offline - scouting/ offline", v1=ak.flatten((offline[var]-scouting[var])/offline[var]))
+        #output["dist_offlinevsscouting_%s"%(prefix,var)].fill(cut="cut 0:No cut",       v1=ak.flatten(offline[var]),v2 = ak.flatten(scouting[var]))
+        return output
+def packsuepcand(output,vals,var,prefix):
+        output["%sdist_%s"%(prefix,var)].fill(cut="Cut 0: offline suep cand", v1=ak.flatten(vals[0][var]),weight=ak.flatten(vals[0]["wgt"]))
+        output["%sdist_%s"%(prefix,var)].fill(cut="Cut 1: hlt matched suep cand", v1=ak.flatten(vals[1][var]),weight=ak.flatten(vals[1]["wgt"]))
+        return output
 def packtrig(output,vals,var):
         output["trigdist_%s"%(var)].fill(cut="Cut 0: No cut", v1=vals[0][var],weight=vals[0]["PUwgt"])
         output["trigdist_%s"%(var)].fill(cut="Cut 1: HT Trig noRef", v1=vals[1][var],weight=vals[1]["PUwgt"])
@@ -317,4 +325,14 @@ def fill_tracks(output,vals_tracks):
         output = packdistflat(output,vals_tracks,"eta","PFcand_")
         output = packdistflat(output,vals_tracks,"phi","PFcand_")
         output = packdistflat2D(output,vals_tracks,"pt","eta","PFcand_")
+        return output
+def fill_sueptracks(output, suepcands,prefix=""):
+        output = packsuepcand(output,suepcands,"pt",prefix)
+        output = packsuepcand(output,suepcands,"eta",prefix)
+        output = packsuepcand(output,suepcands,"phi",prefix)
+        return output
+def fill_offlineresolution(output, offline,scouting,prefix="offres"):
+        output = packrescand(output,offline,scouting,"pt",prefix)
+        output = packrescand(output,offline,scouting,"eta",prefix)
+        output = packrescand(output,offline,scouting,"phi",prefix)
         return output
