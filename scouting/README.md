@@ -1,29 +1,33 @@
 
-# 1) make nTuples
+# 1) Make nTuples
 ```
--Follow instructions on github readme
+- Follow instructions on github readme
 https://github.com/tresreid/SUEPScouting/tree/mods
 
--make sure to use the mods branch
--make sure to load in the patutils package as well.
+- make sure to use the mods branch
+- make sure to load in the patutils package as well.
 ```
 # 2) Run FillCoff.py to run over the ntuples with coffea and make intial histograms
-```
+
 github: https://github.com/tresreid/SUEPs/tree/master/scouting
 
 -I run fillcoff on the MIT machines.
+```
 > ssh -X -Y -v <user>@submit07.mit.edu
 or 
 > ssh -X -Y -v <user>@submit04.mit.edu
-
+```
 I find only 07 and 04 work for me. 
 
 -Run singularity shell
+```
 > ./shell
-
+```
 -Run fillcoff to produce histograms
 --For signal
+```
 > python fillcoff3.py <sample> <decaymode> <era> <systematic> <temp> <phi>
+``
 where
 <sample> = {125,200,300,400,500,600,700,800,900,1000}
 <decaymode> = {0,1,2} corresponding to darkpho,darkphohad,generic
@@ -52,10 +56,13 @@ where
 <era> = {18,17,16,16apv}
 
 example
+```
 > python fillcoff3.py 125 2 16 16p0 4.000 
-
+```
 --For QCD or data
+```
 > python fillcoff3.py <sample> <batch> <era> 
+```
 where 
 <qcdsample> = "HT2000"
 <datasample> = "RunA"
@@ -77,6 +84,15 @@ Workflow
 all files used for systematic corrections. Trigger scalefactors, jet corrections, goldenJSON files etc
 
 -Files from fillcoff are typically saved in outhists. outhist also contains files to merge the batches into one distribution for QCD and data. 
+
+# 3) Format Plots 
+
+setup and run plotter
 ```
+> source setup.sh
+> cd plotter
+> python plotcoff.py
+```
+output plots will be saved in plotter/Plots
 
 
