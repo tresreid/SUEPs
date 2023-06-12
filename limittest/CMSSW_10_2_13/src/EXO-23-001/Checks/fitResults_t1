@@ -1,0 +1,558 @@
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 11:45:54.457811 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.17
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.02
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.13
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +3.30, 0.41!     * +0.00, 0.58*       -0.67
+Closure_Bin2Sig_2018                          ! +4.92, 0.35!     * +0.00, 0.88*       -0.81
+Closure_Bin3Sig_2018                          * +0.13, 0.78*     * +0.00, 0.85*       -0.02
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 12:18:32.994800 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.14
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.12
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +2.88, 0.41!     * +0.00, 0.52*       -0.65
+Closure_Bin2Sig_2018                          ! +4.62, 0.22!     * +0.00, 0.80*       -0.91
+Closure_Bin3Sig_2018                          * +1.77, 0.59*     * -0.00, 0.78*       -0.27
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 12:21:44.700945 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.14
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.12
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +2.88, 0.41!     * +0.00, 0.52*       -0.65
+Closure_Bin2Sig_2018                          ! +4.62, 0.22!     * +0.00, 0.80*       -0.91
+Closure_Bin3Sig_2018                          * +1.77, 0.59*     * -0.00, 0.78*       -0.27
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 12:38:29.258517 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.14
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.12
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +2.88, 0.41!     * +0.00, 0.52*       -0.65
+Closure_Bin2Sig_2018                          ! +4.62, 0.22!     * +0.00, 0.80*       -0.91
+Closure_Bin3Sig_2018                          * +1.77, 0.59*     * -0.00, 0.78*       -0.27
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 12:59:30.805628 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.14
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.12
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +2.88, 0.41!     * +0.00, 0.52*       -0.65
+Closure_Bin2Sig_2018                          ! +4.62, 0.22!     * +0.00, 0.80*       -0.91
+Closure_Bin3Sig_2018                          * +1.77, 0.59*     * -0.00, 0.78*       -0.27
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 13:05:39.786872 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.70
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.07
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.52
+CMS_trigSF_2018                                  +0.00, 0.99        -0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        -0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          ! -0.44, 0.41!     ! +0.00, 0.41!       +0.00
+Closure_Bin2Sig_2018                          ! +3.01, 0.23!     ! -0.00, 0.29!       -0.08
+Closure_Bin3Sig_2018                         ! +20.34, 0.29!        -0.00, 0.99       -0.03
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 13:06:13.975606 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.62
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.06
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.46
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +0.85, 0.41!     ! +0.00, 0.41!       -0.02
+Closure_Bin2Sig_2018                         ! +11.71, 0.19!     * +0.00, 0.57*       -0.45
+Closure_Bin3Sig_2018                         ! +18.34, 0.40!        +0.00, 0.99       -0.06
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 13:12:10.244134 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.17
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.02
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.13
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +3.30, 0.41!     * +0.00, 0.58*       -0.67
+Closure_Bin2Sig_2018                          ! +4.92, 0.35!     * +0.00, 0.88*       -0.81
+Closure_Bin3Sig_2018                          * +0.13, 0.78*     * +0.00, 0.85*       -0.02
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 13:22:40.618288 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.16
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.11
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +3.30, 0.41!     * +0.00, 0.57*       -0.69
+Closure_Bin2Sig_2018                          ! +4.83, 0.35!     * -0.00, 0.88*       -0.81
+Closure_Bin3Sig_2018                          * +0.42, 0.84*     * -0.00, 0.90*       -0.05
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 13:31:46.631933 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        -0.00, 0.99       -0.14
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.02
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.11
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +3.42, 0.41!     * -0.00, 0.65*       -0.74
+Closure_Bin2Sig_2018                          ! +4.49, 0.47!        +0.00, 0.91       -0.71
+Closure_Bin3Sig_2018                          * +0.80, 0.73*     * -0.00, 0.84*       -0.11
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 14:29:02.467068 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_JER                                          +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.11
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.08
+CMS_trigSF_2018                                  +0.00, 0.99        -0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        -0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +2.30, 0.43!     * -0.00, 0.51*       -0.66
+Closure_Bin2Sig_2018                          ! +3.12, 0.53!     * -0.00, 0.85*       -0.68
+Closure_Bin3Sig_2018                          * +1.10, 0.60*     * -0.00, 0.72*       -0.22
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 14:35:00.397696 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.65
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.06
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.49
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          * +0.81, 0.84*     * +0.00, 0.84*       +0.00
+Closure_Bin2Sig_2018                         ! +10.02, 0.38!     * +0.00, 0.66*       -0.28
+Closure_Bin3Sig_2018                         ! +14.04, 0.42!        +0.00, 0.98       -0.19
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:08:48.852664 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.40
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.30
+CMS_trigSF_2018                                  +0.00, 0.99        -0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        -0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          ! +5.59, 0.91!        -0.00, 0.97       -0.14
+Closure_Bin2Sig_2018                          ! +8.83, 0.40!        -0.00, 0.92       -0.38
+Closure_Bin3Sig_2018                          ! +2.14, 0.84!        -0.00, 0.98       -0.03
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:15:33.966753 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.40
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.30
+CMS_trigSF_2018                                  +0.00, 0.99        -0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        -0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          ! +5.59, 0.91!        -0.00, 0.97       -0.14
+Closure_Bin2Sig_2018                          ! +8.83, 0.40!        -0.00, 0.92       -0.38
+Closure_Bin3Sig_2018                          ! +2.14, 0.84!        -0.00, 0.98       -0.03
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:16:13.984491 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.40
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.30
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +5.50, 0.91!        +0.00, 0.97       -0.14
+Closure_Bin2Sig_2018                          ! +8.64, 0.42!        +0.00, 0.92       -0.35
+Closure_Bin3Sig_2018                          ! +4.34, 0.63!        +0.00, 0.95       -0.08
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:17:17.036630 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.09
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.06
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.40, 0.93*        +0.00, 0.93       +0.09
+Closure_Bin2Sig_2018                          * -0.37, 0.61*     * +0.00, 0.62*       +0.12
+Closure_Bin3Sig_2018                          ! +2.44, 0.60!        +0.00, 0.99       -0.30
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:26:16.944520 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.68
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.07
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.51
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -1.41, 0.83*     * +0.00, 0.83*       +0.02
+Closure_Bin2Sig_2018                          ! +0.67, 0.29!     ! +0.00, 0.31!       -0.01
+Closure_Bin3Sig_2018                         ! +15.68, 0.25!        +0.00, 0.99       -0.25
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:27:11.399382 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.25
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.02
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.19
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.67, 0.83*     * +0.00, 0.83*       +0.08
+Closure_Bin2Sig_2018                          ! -0.19, 0.30!     ! +0.00, 0.30!       +0.07
+Closure_Bin3Sig_2018                          ! +6.15, 0.32!        +0.00, 0.98       -0.71
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:30:23.511352 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.17
+CMS_lumi_corr1718                                +0.00, 0.99        -0.00, 0.99       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        -0.00, 0.99       -0.13
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          ! +3.30, 0.83!        -0.00, 0.92       -0.41
+Closure_Bin2Sig_2018                          ! +2.84, 0.27!     * -0.00, 0.54*       -0.77
+Closure_Bin3Sig_2018                          ! +1.24, 0.47!     * +0.00, 0.62*       -0.27
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:40:50.683676 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_Higgs                                        +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.08
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.01
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.06
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          * +1.30, 0.53*     * +0.00, 0.62*       -0.50
+Closure_Bin2Sig_2018                          ! +2.45, 0.34!     * +0.00, 0.79*       -0.88
+Closure_Bin3Sig_2018                          * +1.11, 0.64*     * +0.00, 0.76*       -0.42
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:43:06.722957 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.69
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.07
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.51
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.36, 0.53*        +0.00, 0.97       +0.03
+Closure_Bin2Sig_2018                          ! +2.36, 0.35!     ! +0.00, 0.38!       -0.04
+Closure_Bin3Sig_2018                         ! +14.77, 0.47!        +0.00, 0.99       -0.22
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:43:41.097302 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.98       -0.67
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.07
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.50
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          * -0.44, 0.53*     * +0.00, 0.65*       +0.02
+Closure_Bin2Sig_2018                          ! +1.10, 0.35!     ! +0.00, 0.36!       -0.02
+Closure_Bin3Sig_2018                         ! +14.43, 0.48!        +0.00, 0.99       -0.24
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 18:48:23.868725 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    -0.00, 0.99        +0.00, 1.00       -0.36
+CMS_lumi_corr1718                                -0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             -0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                -0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.24, 0.53*     ! +0.00, 0.41!       +0.01
+Closure_Bin2Sig_2018                          ! -0.01, 0.35!     ! +0.00, 0.35!       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:05:45.134628 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    -0.00, 0.99        +0.00, 1.00       -0.36
+CMS_lumi_corr1718                                -0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             -0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                -0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.24, 0.53*     ! +0.00, 0.41!       +0.01
+Closure_Bin2Sig_2018                          ! -0.01, 0.35!     ! +0.00, 0.35!       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:12:12.838159 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.48
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.05
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.36
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          * -0.27, 0.53*     ! +0.00, 0.41!       -0.00
+Closure_Bin2Sig_2018                          ! -0.00, 0.35!     ! +0.00, 0.34!       -0.01
+Closure_Bin3Sig_2018                          ! +8.34, 0.66!        +0.00, 0.99       -0.12
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:16:16.454149 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.22
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.02
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.17
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.18, 0.53*     ! +0.00, 0.41!       +0.03
+Closure_Bin2Sig_2018                          ! -0.02, 0.36!     ! +0.00, 0.36!       +0.00
+Closure_Bin3Sig_2018                          ! +5.74, 0.53!        +0.00, 0.99       -0.71
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:21:21.266969 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.48
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.05
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.36
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       +0.00
+Closure_Bin1Sig_2018                          * -0.27, 0.53*     ! +0.00, 0.41!       -0.00
+Closure_Bin2Sig_2018                          ! -0.00, 0.35!     ! +0.00, 0.34!       -0.01
+Closure_Bin3Sig_2018                          ! +8.34, 0.66!        +0.00, 0.99       -0.12
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:25:51.395044 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       +0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.45
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.05
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.34
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.26, 0.53*     ! +0.00, 0.41!       +0.00
+Closure_Bin2Sig_2018                          ! -0.01, 0.35!     ! +0.00, 0.34!       -0.00
+Closure_Bin3Sig_2018                          ! +8.05, 0.65!        +0.00, 0.99       -0.22
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:35:00.743998 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 0.99       -0.42
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 0.99       -0.31
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.27, 0.53*     * +0.00, 0.64*       +0.03
+Closure_Bin2Sig_2018                          ! +0.03, 0.35!     ! +0.00, 0.39!       +0.00
+Closure_Bin3Sig_2018                          ! +8.07, 0.59!        +0.00, 0.99       -0.40
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-16 19:38:02.269311 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.42
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 0.99       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.31
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.27, 0.53*     * +0.00, 0.68*       +0.03
+Closure_Bin2Sig_2018                          * +0.15, 0.81*     * +0.00, 0.82*       -0.01
+Closure_Bin3Sig_2018                          ! +8.07, 0.59!        +0.00, 0.99       -0.40
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-17 03:49:55.634837 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.37
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.25, 0.53*     ! +0.00, 0.50!       +0.03
+Closure_Bin2Sig_2018                          * +0.04, 0.56*     * +0.00, 0.56*       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-17 03:56:46.169005 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    -0.00, 0.99        +0.00, 1.00       -0.36
+CMS_lumi_corr1718                                -0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             -0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                -0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.24, 0.53*     ! +0.00, 0.41!       +0.01
+Closure_Bin2Sig_2018                          ! -0.01, 0.35!     ! +0.00, 0.35!       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-17 14:02:57.292028 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    -0.00, 0.99        +0.00, 1.00       -0.36
+CMS_lumi_corr1718                                -0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             -0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  -0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                -0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.24, 0.53*     ! +0.00, 0.41!       +0.01
+Closure_Bin2Sig_2018                          ! -0.01, 0.35!     ! +0.00, 0.35!       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44
+diffNuisances run on fitDiagnostics_t1.root, at 2023-04-17 15:19:45.486316 with the following options ... {'absolute_values': False, 'show_all_parameters': True, 'format': 'text', 'stol2': 0.5, 'pullDef': '', 'vtol': 0.3, 'stol': 0.1, 'plotfile': 'plots_t1.root', 'vtol2': 2.0, 'poi': 'r'}
+
+name                                              b-only fit            s+b fit         rho
+CMS_JER                                          +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_JES_2018                                     +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_FSR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PS_ISR_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_PU                                           +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_lumi_corr                                    +0.00, 0.99        +0.00, 1.00       -0.36
+CMS_lumi_corr1718                                +0.00, 0.99        +0.00, 1.00       -0.04
+CMS_lumi_uncorr_2018                             +0.00, 0.99        +0.00, 1.00       -0.28
+CMS_trigSF_2018                                  +0.00, 0.99        +0.00, 0.99       -0.00
+CMS_trk_kill_2018                                +0.00, 0.99        +0.00, 0.99       -0.00
+Closure_Bin1Sig_2018                          * -0.27, 0.53*     ! +0.00, 0.41!       +0.01
+Closure_Bin2Sig_2018                          ! -0.02, 0.35!     ! +0.00, 0.35!       -0.00
+Closure_Bin3Sig_2018                          ! +7.28, 0.61!        +0.00, 0.99       -0.44

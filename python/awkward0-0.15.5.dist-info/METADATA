@@ -1,0 +1,94 @@
+Metadata-Version: 2.1
+Name: awkward0
+Version: 0.15.5
+Summary: Manipulate arrays of complex data structures as easily as Numpy.
+Home-page: https://github.com/scikit-hep/awkward-0.x
+Author: Jim Pivarski (IRIS-HEP)
+Author-email: pivarski@princeton.edu
+Maintainer: Jim Pivarski (IRIS-HEP)
+Maintainer-email: pivarski@princeton.edu
+License: BSD 3-clause
+Download-URL: https://github.com/scikit-hep/awkward-0.x/releases
+Platform: Any
+Classifier: Development Status :: 7 - Inactive
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+Requires-Dist: numpy (>=1.13.1)
+
+.. image:: https://raw.githubusercontent.com/scikit-hep/awkward-0.x/master/docs/source/logo-300px.png
+   :alt: awkward-array
+   :target: https://github.com/scikit-hep/awkward-0.x
+
+|
+
+.. inclusion-marker-1-5-do-not-remove
+
+Calculations with rectangular, numerical data are simpler and faster in Numpy than traditional for loops. Consider, for instance,
+
+.. code-block:: python
+
+    all_r = []
+    for x, y in zip(all_x, all_y):
+        all_r.append(sqrt(x**2 + y**2))
+
+versus
+
+.. code-block:: python
+
+    all_r = sqrt(all_x**2 + all_y**2)
+
+Not only is the latter easier to read, it's hundreds of times faster than the for loop (and provides opportunities for hidden vectorization and parallelization). However, the Numpy abstraction stops at rectangular arrays of numbers or character strings. While it's possible to put arbitrary Python data in a Numpy array, Numpy's ``dtype=object`` is essentially a fixed-length list: data are not contiguous in memory and operations are not vectorized.
+
+Awkward Array is a pure Python+Numpy library for manipulating complex data structures as you would Numpy arrays. Even if your data structures
+
+* contain variable-length lists (jagged/ragged),
+* are deeply nested (record structure),
+* have different data types in the same list (heterogeneous),
+* are masked, bit-masked, or index-mapped (nullable),
+* contain cross-references or even cyclic references,
+* need to be Python class instances on demand,
+* are not defined at every point (sparse),
+* are not contiguous in memory,
+* should not be loaded into memory all at once (lazy),
+
+this library can access them as `columnar data structures <https://towardsdatascience.com/the-beauty-of-column-oriented-data-2945c0c9f560>`__, with the efficiency of Numpy arrays. They may be converted from JSON or Python data, loaded from "awkd" files, `HDF5 <https://www.hdfgroup.org>`__, `Parquet <https://parquet.apache.org>`__, or `ROOT <https://root.cern>`__ files, or they may be views into memory buffers like `Arrow <https://arrow.apache.org>`__.
+
+.. inclusion-marker-2-do-not-remove
+
+Installation
+============
+
+Install Awkward Array like any other Python package:
+
+.. code-block:: bash
+
+    pip install awkward0                      # maybe with sudo or --user, or in virtualenv
+
+The base ``awkward0`` package requires only `Numpy <https://scipy.org/install.html>`__  (1.13.1+).
+
+Recommended packages:
+---------------------
+
+- `pyarrow <https://arrow.apache.org/docs/python/install.html>`__ to view Arrow and Parquet data as Awkward Arrays
+- `h5py <https://www.h5py.org>`__ to read and write Awkward Arrays in HDF5 files
+- `Pandas <https://pandas.pydata.org>`__ as an alternative view
+

@@ -1,5 +1,127 @@
 from utils.utils import *
 
+def makedataSR(var,cut,lines=0,SR=0):
+      # get colormap
+      ncolors = 2048
+      color_array = plt.get_cmap('Blues')(range(ncolors))
+      color_array2 = plt.get_cmap('Reds')(range(ncolors))
+
+      # change alpha values
+      color_array[:,-1] = np.linspace(0.0,1.0,ncolors)
+      color_array2[:,-1] = np.linspace(0.0,1.0,ncolors)
+
+      # create a colormap object
+      map_object = LinearSegmentedColormap.from_list(name='blues_alpha',colors=color_array)
+      map_object2 = LinearSegmentedColormap.from_list(name='reds_alpha',colors=color_array2)
+
+      # register this new colormap with matplotlib
+      plt.register_cmap(cmap=map_object)
+      plt.register_cmap(cmap=map_object2)
+
+      name = var+"_%s"%cut
+      print(name)
+      xvar = "nPFCand"
+      #scaled = sigscaled[sample]
+      #s = scaled[name].to_hist().to_numpy()
+      b = datafullscaled[name].to_hist().to_numpy()
+      #print(s)
+      #fig, ax1 = plt.subplots()
+
+      #hx = hist.plot2d(
+      #    scaled[name].integrate("axis",slice(0,1)),
+      #    xvar,
+      #    ax=ax1,
+      #)
+      #hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
+      #fig.suptitle("SR: %s"%sample)
+      #fig.savefig("Plots/%s_sig_%s_%s_%s.%s"%(var,sample,cut,year,ext))
+      #plt.close()
+
+      fig, ax1 = plt.subplots()
+
+      hx = hist.plot2d(
+          datafullscaled[name].integrate("axis",slice(0,1)),
+          xvar,
+          ax=ax1,
+      )
+      fig.suptitle("SR: %s"%labels["Data"])
+      hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
+      fig.savefig("Plots/%s_data_%s_%s.%s"%(var,cut,year,ext))
+      plt.close()
+
+      fig, ax1 = plt.subplots()
+
+      #h0 = hist.plot2d(
+      #    scaled[name].integrate("axis",slice(0,1)),
+      #    xvar,
+      #    ax=ax1,
+      #    patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":10}
+      #    #patch_opts={'cmap': 'blues_alpha',"vmin":0,"vmax":150}
+      #)
+      h1 = hist.plot2d(
+          datafullscaled[name].integrate("axis",slice(0,1)),
+          xvar,
+          ax=ax1,
+          patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":1000}
+          #patch_opts={'cmap': 'reds_alpha',"vmin":0,"vmax":80000}
+      )
+      #h2 = hist.plot2d(
+      #    scaled[name].integrate("axis",slice(0,1)),
+      #    xvar,
+      #    ax=ax1,
+      #    clear=False,
+      #    patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":10}
+      #    #patch_opts={'cmap': "blues_alpha","vmin":0,"vmax":150}
+      #)
+      xline = region_cuts_tracks[SR]
+      yline = region_cuts_sphere[SR]/100. #0.5
+      if lines==4:
+        ax1.axhline(y=0.3,color="grey",ls="--")
+        ax1.axhspan(0,0.3, hatch="/", color="grey",alpha=0.3)
+        ax1.axvline(x=xline,color="red",ls="--")
+        ax1.axhline(y=yline,color="red",ls="--")
+        ax1.text(20,0.3,"A",fontsize = 22)
+        ax1.text(20,0.8,"B",fontsize = 22)
+        ax1.text(100,0.3,"C",fontsize = 22)
+        ax1.text(100,0.8,"SR",fontsize = 22)
+        ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
+      if lines==6:
+        ax1.axhline(y=0.3,color="grey",ls="--")
+        ax1.axhspan(0,0.3, hatch="/", color="grey",alpha=0.3)
+        ax1.axvline(x=xline,color="red",ls="--")
+        ax1.axhline(y=yline,color="red",ls="--")
+        ax1.axvline(x=inner_tracks,color="blue",ls="--")
+        ax1.text(0,0.3,"A",fontsize = 18)
+        ax1.text(0,0.8,"D",fontsize = 18)
+        ax1.text(30,0.3,"B",fontsize = 18)
+        ax1.text(30,0.8,"E",fontsize = 18)
+        ax1.text(100,0.3,"C",fontsize = 18)
+        ax1.text(100,0.8,"SR",fontsize = 18)
+        ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
+      if lines==9:
+        ax1.axhline(y=0.3,color="grey",ls="--")
+        ax1.axhspan(0,0.3, hatch="/", color="grey",alpha=0.3)
+        ax1.axvline(x=inner_tracks,color="blue",ls="--")
+        ax1.axhline(y=inner_sphere/100.,color="blue",ls="--")
+        ax1.axvline(x=xline,color="red",ls="--")
+        ax1.axhline(y=yline,color="red",ls="--")
+        ax1.text(0,0.3,"A",fontsize = 14)
+        ax1.text(0,0.34,"D",fontsize = 14)
+        ax1.text(0,0.8,"G",fontsize = 14)
+        ax1.text(30,0.3,"B",fontsize = 14)
+        ax1.text(30,0.34,"E",fontsize = 14)
+        ax1.text(30,0.8,"H",fontsize = 14)
+        ax1.text(100,0.3,"C",fontsize = 14)
+        ax1.text(100,0.34,"F",fontsize = 14)
+        ax1.text(100,0.8,"SR",fontsize = 14)
+        ax1.text(20,0.15,"EXCLUDED",fontsize = 22)
+      #fig.suptitle("SR: TTBar + %s"%sample)
+      fig.suptitle("SR: Data")
+      ax1.set_xlabel("SUEP Jet Track Multiplicity")
+      ax1.set_ylabel("Boosted Sphericity")
+      hep.cms.label('',data=False,lumi=lumi/1000,year=year,loc=2)
+      fig.savefig("Plots/SR_%s_data_%s_%s_%s.%s"%(var,cut,lines,year,ext))
+      plt.close()
 def makeSR(sample,var,cut,lines=0,SR=0):
       # get colormap
       ncolors = 2048

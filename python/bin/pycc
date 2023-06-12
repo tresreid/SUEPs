@@ -1,0 +1,3 @@
+#!/cvmfs/sft.cern.ch/lcg/views/LCG_101cuda/x86_64-centos7-gcc8-opt/bin/python
+from numba.pycc import main
+main()

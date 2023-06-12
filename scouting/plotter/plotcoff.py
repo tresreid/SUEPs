@@ -191,15 +191,31 @@ from utils.closure import *
 ##make_closure_correction6("Data","SR1_isrsuep",3,chi=True)
 ##make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
 ##make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
-##make_closure_correction9("Data","SR1_suep",3,chi=True)
-##make_closure_correction9("Data","SR1_suep",3,chi=True,rebin=True)
-make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
-make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
+#make_closure_correction9("Data","SR1_suep",3,chi=True,validation=True)
+#make_closure_correction9("Data","SR1_suep",3,chi=True,rebin=True,validation=True)
+#make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False)
+#make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False)
 
 
 ###########UNBLINDING
-make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False,ublind=True)
-make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False,unblind=True)
+#make_datacompare("qcd","SR1_suep",cut=3,xlab="SUEP Jet Track Multiplicity",make_ratio=False,unblind=True)
+#make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=False,unblind=True)
+###makeSR("sig200","SR1_suep",3)
+#make_closure_correction9("Data","SR1_isrsuep",3,chi=True)
+#make_closure_correction9("Data","SR1_isrsuep",3,chi=True,rebin=True)
+#make_closure_correction9("Data","SR1_suep",3,chi=True)
+#make_closure_correction9("Data","SR1_suep",3,chi=True,rebin=True)
+#makedataSR("SR1_suep",3,lines=9)
+#make_overlapdists(["Data",],"SUEP_pt",3,"SUEP pT [GeV]",make_ratio=True)
+#make_overlapdists(["Data",],"SUEP_eta",3,"SUEP eta",make_ratio=True)
+#make_overlapdists(["Data",],"SUEP_phi",3,"SUEP phi",make_ratio=True)
+#make_overlapdists(["Data",],"ISR_pt",3, "ISR pT [GeV]",make_ratio=True)
+#make_overlapdists(["Data",],"ISR_eta",3,"ISR eta",make_ratio=True)
+#make_overlapdists(["Data",],"ISR_phi",3,"ISR phi",make_ratio=True)
+#make_overlapdists(["Data"],"PFcand_ncount75",2,"PFCand(75) Multiplicity")
+#make_overlapdists(["Data"],"PFcand_pt",2,"PFCand pT [GeV]")
+#make_overlapdists(["Data"],"PFcand_eta",2,"PFCand eta")
+#make_overlapdists(["Data"],"PFcand_phi",2,"PFCand phi")
 
 
 
@@ -315,7 +331,8 @@ make_datacompare2("qcd","SR1_suep",cut=3,xlab="Boosted Sphericity",make_ratio=Fa
 ####################Limits
 #makeCombineHistograms(["sig125","sig200","sig300","sig400","sig700","sig1000"],"SR1_suep",3)
 #makeCombineHistogramsOffline("SR1_suep",3,"QCD")
-#makeCombineHistogramsOffline("SR1_suep",3,"Data")
+#makeCombineHistogramsOffline("SR1_suep",3,"Data",unblind=False)
+makeCombineHistogramsOffline("SR1_suep",3,"Data",unblind=True)
 #
 #temp = "2p00"
 #phi = "2.000"

@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=SUEPLimits
+subdirs_src_SUEPLimits = src_SUEPLimits_ftool src_SUEPLimits_fitroom src_SUEPLimits_config src_SUEPLimits_notebook_tools src_SUEPLimits_combinetest src_SUEPLimits_plots src_SUEPLimits_offline_testfiles

@@ -8,18 +8,8 @@ do
   echo $d
   python3 $dir/../make_html_listing.py $d
 done
-#outdir=/publicweb/m/mreid/SUEPs/tests_data16compare #_withoffselection
-#outdir=/publicweb/m/mreid/SUEPs/tests_2dcompare #_withoffselection
-#outdir=/publicweb/m/mreid/SUEPs/tests_dataonlineofflinecompare_offlinetest #_withoffselection
-#outdir=/publicweb/m/mreid/SUEPs/trackdropeff #_withoutdrop
-#outdir=/publicweb/m/mreid/SUEPs/chi_test #_withoutdrop
-#outdir=/publicweb/m/mreid/SUEPs/fullplotstest_offline_scouting_compare_17 #_withoutdrop
-#outdir=/publicweb/m/mreid/SUEPs/fullplotstest_16compare18 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
-outdir=/publicweb/m/mreid/SUEPs/sueptracks #central_private_compare_sig125_T1_P2
-#outdir=/publicweb/m/mreid/SUEPs/fullplots_161718 #qcd_scouting_full_offline_scouting_compare #_withoutdrop
-#outdir=/publicweb/m/mreid/SUEPs/fullplots_17_QCDquick
-#outdir=/publicweb/m/mreid/SUEPs/fullplots_18
-#outdir=/publicweb/m/mreid/SUEPs/newlimittest
+#outdir=/publicweb/m/mreid/SUEPs/unblinding
+outdir=/publicweb/m/mreid/SUEPs/new2016
 rm -r $outdir
 mkdir $outdir
 cp -r $dir/* $outdir

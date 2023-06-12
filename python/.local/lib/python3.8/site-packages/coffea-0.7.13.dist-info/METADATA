@@ -1,0 +1,136 @@
+Metadata-Version: 2.1
+Name: coffea
+Version: 0.7.13
+Summary: Tools for doing Collider HEP style analysis with columnar operations
+Home-page: https://github.com/CoffeaTeam/coffea
+Download-URL: https://github.com/CoffeaTeam/coffea/releases
+Author: Lindsey Gray (Fermilab)
+Author-email: lagray@fnal.gov
+Maintainer: Lindsey Gray (Fermilab)
+Maintainer-email: lagray@fnal.gov
+License: BSD 3-clause
+Platform: Any
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: MacOS
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Software Development
+Classifier: Topic :: Utilities
+License-File: LICENSE
+Requires-Dist: awkward (<2,>=1.5.1)
+Requires-Dist: uproot (>=4.1.6)
+Requires-Dist: uproot3-methods (>=0.10.0)
+Requires-Dist: uproot3 (>=3.14.1)
+Requires-Dist: correctionlib (>=2.0.0)
+Requires-Dist: pyarrow (>=1.0.0)
+Requires-Dist: fsspec
+Requires-Dist: matplotlib (>=3)
+Requires-Dist: numba (>=0.50.0)
+Requires-Dist: numpy (<1.22,>=1.16.0)
+Requires-Dist: scipy (>=1.1.0)
+Requires-Dist: tqdm (>=4.27.0)
+Requires-Dist: lz4
+Requires-Dist: cloudpickle (>=1.2.3)
+Requires-Dist: mplhep (>=0.1.18)
+Requires-Dist: packaging
+Requires-Dist: pandas
+Requires-Dist: hist (>=2)
+Requires-Dist: cachetools
+Requires-Dist: dataclasses ; python_version < "3.7"
+Requires-Dist: typing-extensions ; python_version < "3.8"
+Provides-Extra: dask
+Requires-Dist: dask[dataframe] (>=2.6.0) ; extra == 'dask'
+Requires-Dist: distributed (>=2.6.0) ; extra == 'dask'
+Requires-Dist: bokeh (>=1.3.4) ; extra == 'dask'
+Requires-Dist: blosc ; extra == 'dask'
+Provides-Extra: dev
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: pytest ; extra == 'dev'
+Requires-Dist: pytest-cov ; extra == 'dev'
+Requires-Dist: pytest-mpl ; extra == 'dev'
+Requires-Dist: pytest-asyncio ; extra == 'dev'
+Requires-Dist: pytest-mock ; extra == 'dev'
+Requires-Dist: sphinx ; extra == 'dev'
+Requires-Dist: nbsphinx ; extra == 'dev'
+Requires-Dist: sphinx-rtd-theme ; extra == 'dev'
+Requires-Dist: sphinx-automodapi ; extra == 'dev'
+Requires-Dist: pyinstrument ; extra == 'dev'
+Provides-Extra: parsl
+Requires-Dist: parsl (>=1.1) ; extra == 'parsl'
+Provides-Extra: servicex
+Requires-Dist: aiostream ; extra == 'servicex'
+Requires-Dist: tenacity ; extra == 'servicex'
+Requires-Dist: func-adl-servicex (==1.1.2) ; extra == 'servicex'
+Provides-Extra: spark
+Requires-Dist: ipywidgets ; extra == 'spark'
+Requires-Dist: pyspark (<3.0.0,>=2.4.1) ; extra == 'spark'
+Requires-Dist: jinja2 ; extra == 'spark'
+
+.. inclusion-marker-1-5-do-not-remove
+
+coffea is a prototype package for pulling together all the typical needs
+of a high-energy collider physics (HEP) experiment analysis using the scientific
+python ecosystem. It makes use of `uproot <https://github.com/scikit-hep/uproot>`_
+and `awkward-array <https://github.com/scikit-hep/awkward-array>`_ to provide an
+array-based syntax for manipulating HEP event data in an efficient and numpythonic
+way. There are sub-packages that implement histogramming, plotting, and look-up
+table functionalities that are needed to convey scientific insight, apply transformations
+to data, and correct for discrepancies in Monte Carlo simulations compared to data.
+
+coffea also supplies facilities for horizontally scaling an analysis in order to reduce
+time-to-insight in a way that is largely independent of the resource the analysis
+is being executed on. By making use of modern *big-data* technologies like
+`Apache Spark <https://spark.apache.org/>`_,  `parsl <https://github.com/Parsl/parsl>`_,
+`Dask <https://dask.org>`_ , and `Work Queue <http://ccl.cse.nd.edu/software/workqueue>`_,
+it is possible with coffea to scale a HEP analysis from a testing
+on a laptop to: a large multi-core server, computing clusters, and super-computers without
+the need to alter or otherwise adapt the analysis code itself.
+
+coffea is a HEP community project collaborating with `iris-hep <http://iris-hep.org/>`_
+and is currently a prototype. We welcome input to improve its quality as we progress towards
+a sensible refactorization into the scientific python ecosystem and a first release. Please
+feel free to contribute at our `github repo <https://github.com/CoffeaTeam/coffea>`_!
+
+.. inclusion-marker-2-do-not-remove
+
+Installation
+============
+
+Install coffea like any other Python package:
+
+.. code-block:: bash
+
+    pip install coffea
+
+or similar (use ``sudo``, ``--user``, ``virtualenv``, or pip-in-conda if you wish).
+For more details, see the `Installing coffea <https://coffeateam.github.io/coffea/installation.html>`_ section of the documentation.
+
+Strict dependencies
+===================
+
+- `Python <http://docs.python-guide.org/en/latest/starting/installation/>`__ (3.6+)
+
+The following are installed automatically when you install coffea with pip:
+
+- `numpy <https://scipy.org/install.html>`__ (1.15+);
+- `uproot <https://github.com/scikit-hep/uproot4>`__ for interacting with ROOT files and handling their data transparently;
+- `awkward-array <https://github.com/scikit-hep/awkward-1.0>`__ to manipulate complex-structured columnar data, such as jagged arrays;
+- `numba <https://numba.pydata.org/>`__ just-in-time compilation of python functions;
+- `scipy <https://scipy.org/scipylib/index.html>`__ for many statistical functions;
+- `matplotlib <https://matplotlib.org/>`__ as a plotting backend;
+- and other utility packages, as enumerated in ``setup.py``.
+

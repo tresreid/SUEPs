@@ -8,8 +8,9 @@ def linearFunc(x,intercept,slope):
 cuts = ["Cut 0: No Cut:","Cut 1: Trigger", "Cut 2: $\HT > 560 \GeV$","Cut 3: AK15 Jets $>2$","Cut 4a: \\nSUEPConstituents $>%d$"%region_cuts_tracks[0],"Cut 5a: \\boostedSphericity $>0.%s$"%region_cuts_sphere[0],"Cut 4b: \\nSUEPConstituents $>%d$"%region_cuts_tracks[1],"Cut 5b: \\boostedSphericity $>0.%s$"%region_cuts_sphere[1],"Cut 4c: \\nSUEPConstituents $>%d$"%region_cuts_tracks[2],"Cut 5c:\\boostedSphericity $>0.%s$"%region_cuts_sphere[2],"Cut 4d: \\nSUEPConstituents $>%d$"%region_cuts_tracks[3],"Cut 5d:\\boostedSphericity $>0.%s$"%region_cuts_sphere[3]]
 
 def make_cutflow(samples,var):
-  region_cuts_tracksx = region_cuts_tracks + [300]
-  region_cuts_spherex = region_cuts_sphere + [50]
+  region_cuts_tracksx = region_cuts_tracks + [250,300]
+  region_cuts_spherex = region_cuts_sphere + [50,50]
+  cutsx = cuts+ ["Cut 4e: \\nSUEPConstituents $>%d$"%region_cuts_tracksx[4],"Cut 5e:\\boostedSphericity $>0.%s$"%region_cuts_spherex[4]]
   name1 = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   cutflow = {"QCD":[],"sig125":[],"sig200":[],"sig300":[],"sig400":[],"sig700":[],"sig1000":[]}
@@ -25,7 +26,7 @@ def make_cutflow(samples,var):
   for (k,b) in b2.items():
     cutflow["QCD"].append(b.sum())
     cutflow_releff["QCD"].append(100*b.sum()/cutflow["QCD"][2])
-  for SR in [0,1,2,3]:
+  for SR in [0,1,2,3,4]:
     x1 = region_cuts_tracksx[SR]
     y1 = region_cuts_spherex[SR]/100.
     if SR==0:
@@ -61,9 +62,9 @@ def make_cutflow(samples,var):
           cutflow[sample].append(s.sum())
           cutflow_releff[sample].append(100*s.sum()/cutflow[sample][2])
           cutflow_sig[sample].append(s.sum()/np.sqrt(s.sum()+cutflow["QCD"][3]+(cutflow["QCD"][3]**2)))
-        for SR in [0,1,2,3]:
-          x1 = region_cuts_tracks[SR]
-          y1 = region_cuts_sphere[SR]/100.
+        for SR in [0,1,2,3,4]:
+          x1 = region_cuts_tracksx[SR]
+          y1 = region_cuts_spherex[SR]/100.
           if SR==0:
             x2 = region_cuts_tracksx[-1]
             y2 = region_cuts_spherex[-1]/100.
@@ -92,17 +93,17 @@ def make_cutflow(samples,var):
   sigs = pd.DataFrame(cutflow_sig)
   print("##################  Yields  ################")
   for i in yields.index:
-    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["QCD"][i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],yields["QCD"][i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
     if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
   print("##################  RelEff  ################")
   for i in releff.index:
-    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i+1],releff["QCD"][i],releff["sig125"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig700"][i],releff["sig1000"][i]))
+    print("%s & %.2e & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i+1],releff["QCD"][i],releff["sig125"][i],releff["sig200"][i],releff["sig300"][i],releff["sig400"][i],releff["sig700"][i],releff["sig1000"][i]))
     if i+1 == 3 or i+1==5 or i+1==7 or i+1==9 or i+1==11:
       print("\\hline")
   print("##################  SIGS  ################")
   for i in sigs.index:
-    print("%s & %.2e & %.2e & %.2e & %.2e & %.2e & %.2e \\\\"%(cuts[i],sigs["sig125"][i],sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig700"][i],sigs["sig1000"][i]))
+    print("%s & %.2e & %.2e & %.2e & %.2e & %.2e & %.2e \\\\"%(cutsx[i],sigs["sig125"][i],sigs["sig200"][i],sigs["sig300"][i],sigs["sig400"][i],sigs["sig700"][i],sigs["sig1000"][i]))
     if i == 3 or i==5 or i==7 or i==9 or i==11:
       print("\\hline")
 
@@ -345,7 +346,7 @@ def makeCombineHistograms(samples,var,cut):
         print(region_sumqcd)
   f.Close()
 
-def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False,fullscan=False):
+def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_ondemand=False,fullscan=False,unblind=False):
   if not (temp=="" and phi==""):
     scan = "_T%s_phi%s"%(temp,phi) 
   else:
@@ -472,7 +473,7 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
         yy = y0
         yyy = y4
       elif region == "I":
-        if(samplename == "Data"): #repeat region F for data to do expected scaling
+        if(samplename == "Data" and not unblind): #repeat region F for data to do expected scaling
           xx = x0
           xxx = x4
           yy = y2
@@ -494,7 +495,7 @@ def makeCombineHistogramsOffline(var,cut,samplename="test",temp="",phi="",load_o
       for x in range(xx,xxx):
         for y in range(yy,yyy):
           #region_sum[region] = region_sum[region] + s[0][0][x][y]
-          if(samplename == "Data" and region == "I"): 
+          if(samplename == "Data" and region == "I" and not unblind): 
           #  h.Fill(s[2][x],0)
             h.Fill(s[2][x],ratx*s[0][0][x][y])
           else:

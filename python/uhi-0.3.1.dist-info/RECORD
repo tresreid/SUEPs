@@ -1,0 +1,14 @@
+uhi-0.3.1.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+uhi-0.3.1.dist-info/LICENSE,sha256=uUudWAseq4jQ5xawOWrmpxOwebTP4qV-_87msJ1VSPc,1525
+uhi-0.3.1.dist-info/METADATA,sha256=LTZmVRbMhUtfEo-LuUMrVwfJ96A7oIPk4A75fDHCCFs,5276
+uhi-0.3.1.dist-info/RECORD,,
+uhi-0.3.1.dist-info/WHEEL,sha256=jPMR_Dzkc4X4icQtmz81lnNY_kAsfog7ry7qoRvYLXw,81
+uhi/__init__.py,sha256=r4xAFihOf72W9TD-lpMi6ntWSTKTP2SlzKP1ytkjRbI,22
+uhi/__pycache__/__init__.cpython-38.pyc,,
+uhi/__pycache__/numpy_plottable.cpython-38.pyc,,
+uhi/numpy_plottable.py,sha256=GMlsLWVt-L9M4PpHyUYLFJNgeUyAvoutj1cmfg8yc9k,12692
+uhi/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+uhi/typing/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+uhi/typing/__pycache__/__init__.cpython-38.pyc,,
+uhi/typing/__pycache__/plottable.cpython-38.pyc,,
+uhi/typing/plottable.py,sha256=vFmUKoZ3O75LuxDDnj5deAFBHp9DcDaUbgLWEFad_Tc,5731

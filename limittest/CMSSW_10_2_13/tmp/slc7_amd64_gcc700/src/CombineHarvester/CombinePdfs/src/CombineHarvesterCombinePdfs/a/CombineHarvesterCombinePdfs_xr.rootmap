@@ -1,0 +1,7 @@
+{ decls }
+namespace ch {  }
+
+[ libCombineHarvesterCombinePdfs.so ]
+# List of selected classes
+class ch::CMSHistFuncFactory
+header CombineHarvester/CombinePdfs/interface/CMSHistFuncFactory.h

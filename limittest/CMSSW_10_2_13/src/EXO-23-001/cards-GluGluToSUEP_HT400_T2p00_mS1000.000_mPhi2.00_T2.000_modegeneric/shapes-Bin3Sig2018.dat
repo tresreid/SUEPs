@@ -1,0 +1,27 @@
+imax * number of categories
+jmax * number of samples minus one
+kmax * number of nuisance parameters
+------------------------------
+shapes * * shapes-Bin3Sig2018.root $PROCESS $PROCESS_$SYSTEMATIC
+bin          Bin3Sig2018
+observation  205.7751501476227
+------------------------------
+------------------------------
+bin         Bin3Sig2018    Bin3Sig2018
+process          Signal       expected
+process               0              1
+rate           1200.861          1.000
+------------------------------
+CMS_JER              shape          1.000              -
+CMS_JES_2018         shape          1.000              -
+CMS_PS_FSR_2018      shape          1.000              -
+CMS_PS_ISR_2018      shape          1.000              -
+CMS_PU               shape          1.000              -
+CMS_lumi_corr          lnN          1.020              -
+CMS_lumi_corr1718      lnN          1.002              -
+CMS_lumi_uncorr_2018   lnN          1.015              -
+CMS_trigSF_2018      shape          1.000              -
+CMS_trk_kill_2018    shape          1.000              -
+Closure_Bin3Sig_2018   lnN              -          1.150
+Bin3Sig2018 autoMCStats 0 0 1
+r2018_Bin3Sig rateParam Bin3Sig2018 expected @5*(@8+@9+@10)*@7*@7*@3*@3*@1*@1/(@6*@2*@0*@4*@4*@4*@4) r2018_cat_crA,r2018_cat_crB,r2018_cat_crC,r2018_cat_crD,r2018_cat_crE,r2018_Bin3crF,r2018_cat_crG,r2018_cat_crH,r2018_Bin1crF,r2018_Bin2crF,r2018_Bin3crF

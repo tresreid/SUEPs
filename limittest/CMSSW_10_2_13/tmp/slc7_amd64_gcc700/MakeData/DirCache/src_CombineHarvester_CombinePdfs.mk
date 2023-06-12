@@ -1,0 +1,2 @@
+ALL_PACKAGES += CombineHarvester/CombinePdfs
+subdirs_src_CombineHarvester_CombinePdfs := src_CombineHarvester_CombinePdfs_bin src_CombineHarvester_CombinePdfs_python src_CombineHarvester_CombinePdfs_scripts src_CombineHarvester_CombinePdfs_src

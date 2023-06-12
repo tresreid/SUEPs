@@ -1,0 +1,23 @@
+{ decls }
+namespace ch {  }
+
+[ libCombineHarvesterCombineTools.so ]
+# List of selected classes
+class ch::AutoRebin
+class ch::BinByBinFactory
+class ch::CardWriter
+class ch::CombineHarvester
+class ch::Object
+class ch::Observation
+class ch::Parameter
+class ch::Process
+class ch::Systematic
+header CombineHarvester/CombineTools/interface/AutoRebin.h
+header CombineHarvester/CombineTools/interface/BinByBin.h
+header CombineHarvester/CombineTools/interface/CardWriter.h
+header CombineHarvester/CombineTools/interface/CombineHarvester.h
+header CombineHarvester/CombineTools/interface/Object.h
+header CombineHarvester/CombineTools/interface/Observation.h
+header CombineHarvester/CombineTools/interface/Parameter.h
+header CombineHarvester/CombineTools/interface/Process.h
+header CombineHarvester/CombineTools/interface/Systematic.h

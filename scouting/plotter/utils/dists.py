@@ -196,20 +196,19 @@ def make_overlapdists(samples,var,cut,xlab=None,make_ratio=True,vline=None,shift
   if "RunA" in samples:
     h1 = datascaled[name].integrate("cut",slice(cut,cut+1))
     if("ht" in name):
-      #h1 = h1.rebin("v1",hist.Bin("v1","ht",np.array(list(range(100,1500,100))+list(range(1500,3500,200)))))
       h1 = h1.rebin("v1",hist.Bin("v1","ht",50,50,3500))
-    #if("pt" in name and "PFcand" not in name and "SUEP" not in name and "ISR" not in name ):
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,np.array(list(range(0,500,20))+list(range(500,1000,50)))))
-    #elif("pt" in name and "PFcand" not in name):
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,np.array(list(range(0,500,20)))))
-    #if("beta" in name): 
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,10,0,2))
-    #if("_suep" in name): 
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,25,0,1))
-    #if("PFcand_ncount" in name): 
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,25,0,300))
-    #if("FatJet_nconst" in name): 
-    #  h1 = h1.rebin("v1",hist.Bin("v1",name,25,0,300))
+    h1_scale = h1.values(sumw2=True)[()]
+    sdat = h1.to_hist().to_numpy()
+    daterr = np.sqrt(h1_scale[1])
+    xerr = xbins_err(sdat[1])
+    xbin = np.array(xbins(sdat[1]))
+    xerr_low = [(t - s) for s, t in zip(sdat[1], xbin)]
+    xerr_high = [abs(t - s) for s, t in zip(sdat[1][1:], xbin)]
+    ax.errorbar(xbin,sdat[0],yerr=daterr,xerr=[xerr_low,xerr_high],color=sigcolors["RunA"],label=labels["RunA"],zorder=6,ls="None",marker=".")
+  if "Data" in samples:
+    h1 = datafullscaled[name].integrate("cut",slice(cut,cut+1))
+    if("ht" in name):
+      h1 = h1.rebin("v1",hist.Bin("v1","ht",50,50,3500))
     h1_scale = h1.values(sumw2=True)[()]
     sdat = h1.to_hist().to_numpy()
     daterr = np.sqrt(h1_scale[1])

@@ -1,0 +1,22 @@
+tmp/slc7_amd64_gcc700/src/CombineHarvester/CombinePdfs/bin/ParametricMSSM/ParametricMSSM.cpp.o: \
+ src/CombineHarvester/CombinePdfs/bin/ParametricMSSM.cpp \
+ src/CombineHarvester/CombineTools/interface/CombineHarvester.h \
+ src/CombineHarvester/CombineTools/interface/Process.h \
+ src/CombineHarvester/CombineTools/interface/MakeUnique.h \
+ src/CombineHarvester/CombineTools/interface/Object.h \
+ src/CombineHarvester/CombineTools/interface/Systematic.h \
+ src/CombineHarvester/CombineTools/interface/Parameter.h \
+ src/CombineHarvester/CombineTools/interface/Observation.h \
+ src/CombineHarvester/CombineTools/interface/Utilities.h \
+ src/CombineHarvester/CombineTools/interface/Logging.h \
+ src/CombineHarvester/CombineTools/interface/HistMapping.h \
+ src/CombineHarvester/CombinePdfs/interface/MorphFunctions.h \
+ src/HiggsAnalysis/CombinedLimit/interface/RooMorphingPdf.h \
+ src/HiggsAnalysis/CombinedLimit/interface/VerticalInterpHistPdf.h \
+ src/HiggsAnalysis/CombinedLimit/interface/SimpleCacheSentry.h \
+ src/HiggsAnalysis/CombinedLimit/interface/FastTemplate_Old.h \
+ src/HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h \
+ src/HiggsAnalysis/CombinedLimit/interface/AsymPow.h \
+ src/CombineHarvester/CombineTools/interface/HttSystematics.h \
+ src/CombineHarvester/CombineTools/interface/Systematics.h \
+

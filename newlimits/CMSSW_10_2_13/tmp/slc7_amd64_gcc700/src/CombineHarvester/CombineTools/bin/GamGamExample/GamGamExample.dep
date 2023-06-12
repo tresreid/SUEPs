@@ -1,0 +1,16 @@
+tmp/slc7_amd64_gcc700/src/CombineHarvester/CombineTools/bin/GamGamExample/GamGamExample.cpp.o: \
+ src/CombineHarvester/CombineTools/bin/GamGamExample.cpp \
+ src/CombineHarvester/CombineTools/interface/CombineHarvester.h \
+ src/CombineHarvester/CombineTools/interface/Process.h \
+ src/CombineHarvester/CombineTools/interface/MakeUnique.h \
+ src/CombineHarvester/CombineTools/interface/Object.h \
+ src/CombineHarvester/CombineTools/interface/Systematic.h \
+ src/CombineHarvester/CombineTools/interface/Parameter.h \
+ src/CombineHarvester/CombineTools/interface/Observation.h \
+ src/CombineHarvester/CombineTools/interface/Utilities.h \
+ src/CombineHarvester/CombineTools/interface/Logging.h \
+ src/CombineHarvester/CombineTools/interface/HistMapping.h \
+ src/CombineHarvester/CombineTools/interface/TFileIO.h \
+ src/CombineHarvester/CombineTools/interface/Plotting.h \
+ src/CombineHarvester/CombineTools/interface/Plotting_Style.h
+

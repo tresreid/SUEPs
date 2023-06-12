@@ -1,0 +1,2 @@
+ALL_SUBSYSTEMS+=CombineHarvester
+subdirs_src_CombineHarvester = src_CombineHarvester_CombinePdfs src_CombineHarvester_CombineTools src_CombineHarvester_docs

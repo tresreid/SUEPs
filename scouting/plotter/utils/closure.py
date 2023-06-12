@@ -285,13 +285,14 @@ def make_closure_correction6(sample="QCD",SR="SR1_suep",cut=0,point=0,yrange=1,c
     fig.savefig("Plots/closure6_%s_%s_%s.%s"%(sample,SR,year,ext))
   plt.close()
 
-def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,rebin=False,chi=False):
+def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yrange=1,rebin=False,chi=False,validation=False):
   highx1 = inner_tracks #region_cuts_tracks[0]#20
   highy1 = inner_sphere #region_cuts_sphere[0]#38
   highx2 = region_cuts_tracks[point]
   highy2 = region_cuts_sphere[point]
   var = "nPFCand"
   SR = SR+"_%s"%cut
+  xlimit = False
   if sample == "QCD":
      h1 = qcdscaled[SR].integrate("axis",slice(0,1))
   elif sample == "RunA":
@@ -300,10 +301,15 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
      h1 = datafullscaled[SR].integrate("axis",slice(0,1))
   else:
     h1 = (sigscaled[sample][SR]+qcdscaled[SR]).integrate("axis",slice(0,1))
+    if ("500" in sample) or ("600" in sample) or ("700" in sample) or ("800" in sample) or ("900" in sample) or ("1000" in sample):
+      xlimit = True
   lowx =0
   lowy = 30
-  #highx3 = 65
-  highx3 = 300
+  if validation:
+    highx3 = 65
+    xlimit = True
+  else:
+    highx3 = 300
   highy3 = 100
   if gap:
     gapx = region_cuts_tracks[0] 
@@ -418,6 +424,9 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   hx  = ax.errorbar(xbin,b_rat1,xerr=1,yerr=np.sqrt(b_err1),color="b",ls='none')
   hx2 = ax.errorbar(xbin,b_rat2,xerr=1,yerr=np.sqrt(b_err2+rel_err),color="r",ls='none')
   hxrat = ax1.errorbar(xbin,ratio,yerr=ratio_err,color="r",ls='none')
+  xdata = hxrat.lines[0].get_data()
+  #ydata = hxrat.lines[0].get_ydata()
+  print(xdata)
   if (chi):
     select_ratio = np.nan_to_num(ratio)[int(highx2/2):]
     select_err = np.nan_to_num(ratio_err)[int(highx2/2):]
@@ -428,7 +437,10 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   leg = ["Observed %.2f +/- %.2f"%(SRbinx,np.sqrt(SRbin_err)),"Predicted: %.2f +/- %.2f"%(ratx*fbinx,err)]
   ax.legend(leg)
 ######
-  ax1.set_xlim(highx2,highx3)
+  if xlimit:
+    ax1.set_xlim(highx2,highx3)
+  else:
+    ax1.set_xlim(highx2,150)
   #ax1.set_xlim(highx2,300)
   if yrange:
     ax1.set_ylim(0.0,2.0)
@@ -447,9 +459,9 @@ def make_closure_correction9(sample="QCD",SR="SR1_suep",cut=0,point=0,gap=0,yran
   ax1.set_ylabel("Observed/Predicted")
   fig.suptitle("9 Bin Closure: %s"%(labels[sample]))
   if rebin:
-    fig.savefig("Plots/closure9_%s_%s_%s_%s_rebin.%s"%(sample,SR,gap,year,ext))
+    fig.savefig("Plots/closure9_%s_%s_%s_%s_%s_rebin.%s"%(sample,SR,gap,validation,year,ext))
   else:
-    fig.savefig("Plots/closure9_%s_%s_%s_%s.%s"%(sample,SR,gap,year,ext))
+    fig.savefig("Plots/closure9_%s_%s_%s_%s_%s.%s"%(sample,SR,gap,validation,year,ext))
   plt.close()
 
 def cutflow_correction_binned(SR="SR1_suep",cut=3,point=0,gap=0):
@@ -983,12 +995,12 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True,unblind=False):
         ax.step(xbins(d[1]),d[0],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
         ax1.scatter(xbins(b[1]),d[0]/b[0],marker=".")
         #ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-        #ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
+        ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/d[0][highx2:],marker=".",color="orange")
       else:
         ax.step(xbins(d[1])[:highx2],d[0][:highx2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
         ax1.scatter(xbins(b[1])[:highx2],d[0][:highx2]/b[0][:highx2],marker=".")
-        ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-        ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
+      ax.step(xbins(d2[1][highx2:]),d2[0][highx2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highx2:]),ratx*d2[0][highx2:]/b[0][highx2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:
@@ -1005,7 +1017,8 @@ def make_datacompare(sample,sr,cut,xlab=None,make_ratio=True,unblind=False):
     ax.autoscale(axis='y', tight=True)
     ax.set_yscale("log")
     ax.legend(loc="upper right")
-    ax.set_xlim([0,300])
+    ax.set_xlim([0,120])
+    #ax.set_xlim([0,300])
     ax1.set_ylim([0.5,1.5])
     ax1.axhline(y=1,color="grey",ls="--")
     ax1.set_ylabel("Data/MC")
@@ -1096,8 +1109,8 @@ def make_datacompare2(sample,sr,cut,xlab=None,make_ratio=True,unblind=False):
       else:
         ax.step(xbins(d[1])[:highy2],d[0][:highy2],color="red",linestyle="--",where="mid",zorder=2,label=labels["Data"])
         ax1.scatter(xbins(b[1])[:highy2],d[0][:highy2]/b[0][:highy2],marker=".")
-        ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
-        ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="orange")
+      ax.step(xbins(d2[1][highy2:]),d2[0][highy2:]*ratx,color="orange",linestyle="--",where="mid",zorder=2,label="Predicted DATA")
+      ax1.scatter(xbins(b[1][highy2:]),ratx*d2[0][highy2:]/b[0][highy2:],marker=".",color="orange")
       for sig in sigs:
         ax.step(xbins(s[sig][1]),s[sig][0],color=sigcolors[sig],linestyle="--",where="mid",zorder=2,label=labels[sig])
     else:

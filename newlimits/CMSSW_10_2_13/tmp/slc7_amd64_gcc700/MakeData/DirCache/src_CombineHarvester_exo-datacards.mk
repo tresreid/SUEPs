@@ -1,0 +1,2 @@
+ALL_PACKAGES += CombineHarvester/exo-datacards
+subdirs_src_CombineHarvester_exo-datacards := src_CombineHarvester_exo-datacards_EXO-16-032 src_CombineHarvester_exo-datacards_EXO-17-027 src_CombineHarvester_exo-datacards_EXO-20-004 src_CombineHarvester_exo-datacards_EXO-20-012 src_CombineHarvester_exo-datacards_EXO-21-007 src_CombineHarvester_exo-datacards_EXO-21-010
