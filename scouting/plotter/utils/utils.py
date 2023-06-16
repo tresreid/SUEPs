@@ -23,8 +23,8 @@ import json
 
 
 #select year {2018,2017,2016,Run2}
-year = 2018
-#year = "Run2"
+#year = 2018
+year = "Run2"
 
 #select extension
 ext="png"

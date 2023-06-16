@@ -33,11 +33,11 @@ from utils.closure import *
 
 
 #turn on to make the necessary plots for each section of the AN
-make_eventSelction = False #event selection plots
+make_eventSelection = False #event selection plots
 make_backgroundEstimation = False #background estimation and ABCD plots
 make_unblinding = False #unblinded plots
 make_appendix =False #extra stuff from the appendix
-make_yields = False #cutflow yield tables and systematics
+make_yields = True #cutflow yield tables and systematics
 make_limits =False #make plots for limits
 
 #############################ORGANIZE BY SECTION #######################################
@@ -322,19 +322,19 @@ if make_appendix:
 
 if make_yields:
 ######################## CUTFLOW TABLES
-  make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
+#  make_cutflow(["sig1000","sig700","sig400","sig300","sig200","sig125"],"ht")
   allsys=[]
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Trigger Efficiency",systematics1="_trigSF_up",systematics2="_trigSF_down")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Scale Corrections",systematics1="_JES_up",systematics2="_JES_down")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Resolution Corrections",systematics1="_JER_up",systematics2="_JER_down")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Pile-up reweighing",systematics1="_puweights_up",systematics2="_puweights_down")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Track Reconstruction Efficiency",systematics1="_track_up")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower ISR",systematics1="_PSWeight_ISR_up",systematics2="_PSWeight_ISR_down")
-  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower FSR",systematics1="_PSWeight_FSR_up",systematics2="_PSWeight_FSR_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Trigger Efficiency",systematics1="_trigSF_up",systematics2="_trigSF_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Scale Corrections",systematics1="_JES_up",systematics2="_JES_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"AK4 Jet Energy Resolution Corrections",systematics1="_JER_up",systematics2="_JER_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Pile-up reweighing",systematics1="_puweights_up",systematics2="_puweights_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Track Reconstruction Efficiency",systematics1="_track_up")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower ISR",systematics1="_PSWeight_ISR_up",systematics2="_PSWeight_ISR_down")
+#  make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Parton shower FSR",systematics1="_PSWeight_FSR_up",systematics2="_PSWeight_FSR_down")
   make_systematics(["sig1000","sig700","sig400","sig300","sig200","sig125"],"sphere1_suep",allsys,"Pre-fire  weight",systematics1="_prefire_up",systematics2="_prefire_down")
   make_systematics(["sig125"],"sphere1_suep",allsys,"Higgs \pt reweighing",systematics1="_higgs_weights_up",systematics2="_higgs_weights_down")
-  for lin in allsys:
-    print(lin)
+#  for lin in allsys:
+#    print(lin)
 #####Signal Contamination
 ##cutflow_correction_binned()
 #cutflow_correction_binned(gap=1)

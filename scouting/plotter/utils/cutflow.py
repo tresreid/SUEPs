@@ -110,6 +110,9 @@ def make_cutflow(samples,var):
 
 #used to make table for systematic uncertanty results
 def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=""):
+  region_cuts_tracksx = region_cuts_tracks + [250,300]
+  region_cuts_spherex = region_cuts_sphere + [50,50]
+  cutsx = cuts+ ["Cut 4e: \\nSUEPConstituents $>%d$"%250,"Cut 5e:\\boostedSphericity $>0.%s$"%50]
   name = "dist_%s"%var
   final_cut = 35 # 50 bins -> 35= 0.7 cut
   higgs = False
@@ -136,9 +139,9 @@ def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=
       for (k,s) in s2.items():
         cutflow[sample+systematic].append(s.sum())
 ####  ######SR 
-      for SR in [0,1,2,3]:
-        x1 = region_cuts_tracks[SR]
-        y1 = region_cuts_sphere[SR]/100.
+      for SR in [0,1,2,3,4]:
+        x1 = region_cuts_tracksx[SR]
+        y1 = region_cuts_spherex[SR]/100.
         s3 = scaled["SR1_suep_3"].integrate("nPFCand",slice(x1,300)).integrate("eventBoostedSphericity",slice(0,1)).values()
         for (k,s) in s3.items():
           cutflow[sample+systematic].append(s.sum())
@@ -153,29 +156,29 @@ def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=
   if higgs:
     print("##################  Yields  ################")
     for i in yields.index:
-      print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],yields["sig125"][i]))
+      print("%s & %.2f & x & x & x & x & x \\\\"%(cutsx[i],yields["sig125"][i]))
       if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
     print("##################  New Yields 1 ################")
     for i in yields.index:
-      print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],yields["sig125%s"%(systematics1)][i]))
+      print("%s & %.2f & x & x & x & x & x \\\\"%(cutsx[i],yields["sig125%s"%(systematics1)][i]))
       if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
     if systematics2 == "":
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i]))
+        print("%s & %.2f & x & x & x & x & x \\\\"%(cutsx[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
     else:
       print("##################  New Yields 2 ################")
       for i in yields.index:
-        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],yields["sig125%s"%(systematics2)][i]))
+        print("%s & %.2f & x & x & x & x & x \\\\"%(cutsx[i],yields["sig125%s"%(systematics2)][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & x & x & x & x & x \\\\"%(cuts[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
+        print("%s & %.2f & x & x & x & x & x \\\\"%(cutsx[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
     i=5
@@ -183,29 +186,29 @@ def make_systematics(samples,var,allsys,sysname="",systematics1="",systematics2=
   else:
     print("##################  Yields  ################")
     for i in yields.index:
-      print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
+      print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],yields["sig125"][i],yields["sig200"][i],yields["sig300"][i],yields["sig400"][i],yields["sig700"][i],yields["sig1000"][i]))
       if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
     print("##################  New Yields 1 ################")
     for i in yields.index:
-      print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125%s"%(systematics1)][i],yields["sig200%s"%(systematics1)][i],yields["sig300%s"%(systematics1)][i],yields["sig400%s"%(systematics1)][i],yields["sig700%s"%(systematics1)][i],yields["sig1000%s"%(systematics1)][i]))
+      print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],yields["sig125%s"%(systematics1)][i],yields["sig200%s"%(systematics1)][i],yields["sig300%s"%(systematics1)][i],yields["sig400%s"%(systematics1)][i],yields["sig700%s"%(systematics1)][i],yields["sig1000%s"%(systematics1)][i]))
       if i == 3 or i==5 or i==7 or i==9 or i == 11:
         print("\\hline")
     if systematics2 == "":
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],100*(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],100*(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],100*(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],100*(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],100*(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
+        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],100*(yields["sig125"][i]-yields["sig125%s"%(systematics1)][i])/yields["sig125"][i],100*(yields["sig200"][i]-yields["sig200%s"%(systematics1)][i])/yields["sig200"][i],100*(yields["sig300"][i]-yields["sig300%s"%(systematics1)][i])/yields["sig300"][i],100*(yields["sig400"][i]-yields["sig400%s"%(systematics1)][i])/yields["sig400"][i],100*(yields["sig700"][i]-yields["sig700%s"%(systematics1)][i])/yields["sig700"][i],100*(yields["sig1000"][i]-yields["sig1000%s"%(systematics1)][i])/yields["sig1000"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
     else:
       print("##################  New Yields 2 ################")
       for i in yields.index:
-        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],yields["sig125%s"%(systematics2)][i],yields["sig200%s"%(systematics2)][i],yields["sig300%s"%(systematics2)][i],yields["sig400%s"%(systematics2)][i],yields["sig700%s"%(systematics2)][i],yields["sig1000%s"%(systematics2)][i]))
+        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],yields["sig125%s"%(systematics2)][i],yields["sig200%s"%(systematics2)][i],yields["sig300%s"%(systematics2)][i],yields["sig400%s"%(systematics2)][i],yields["sig700%s"%(systematics2)][i],yields["sig1000%s"%(systematics2)][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
       print("##################  Uncertainty  ################")
       for i in yields.index:
-        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cuts[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],100*(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],100*(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],100*(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],100*(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],100*(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
+        print("%s & %.2f & %.2f & %.2f & %.2f & %.2f & %.2f \\\\"%(cutsx[i],100*(yields["sig125%s"%(systematics1)][i]-yields["sig125%s"%(systematics2)][i])/yields["sig125"][i],100*(yields["sig200%s"%(systematics1)][i]-yields["sig200%s"%(systematics2)][i])/yields["sig200"][i],100*(yields["sig300%s"%(systematics1)][i]-yields["sig300%s"%(systematics2)][i])/yields["sig300"][i],100*(yields["sig400%s"%(systematics1)][i]-yields["sig400%s"%(systematics2)][i])/yields["sig400"][i],100*(yields["sig700%s"%(systematics1)][i]-yields["sig700%s"%(systematics2)][i])/yields["sig700"][i],100*(yields["sig1000%s"%(systematics1)][i]-yields["sig1000%s"%(systematics2)][i])/yields["sig1000"][i]))
         if i == 3 or i==5 or i==7 or i==9 or i == 11:
           print("\\hline")
 
